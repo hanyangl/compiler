@@ -90,6 +90,7 @@ impl Cursor {
     }
   }
 
+  // Read strings with single or double quotes.
   pub fn read_string(&mut self, quote: u8) -> String {
     let position = self.column;
     let mut first_quote = false;
@@ -120,6 +121,7 @@ impl Cursor {
       let mut token = data::Token::from_value(value);
       if token.token == data::Tokens::ILLEGAL {
         if utils::is_quote(self.character) {
+          // Check if the token is a string in single or double quotes
           token = data::Token::new(data::Tokens::STRING, self.read_string(self.character));
         } else if utils::is_letter(self.character) {
           // Check if the token is a keyword.
@@ -157,6 +159,8 @@ impl Cursor {
               }
             }
           }
+        } else if token.token == data::Tokens::EOL {
+          self.line += 1;
         }
 
         self.read_character();

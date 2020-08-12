@@ -67,13 +67,9 @@ impl Token {
       return;
     }
 
-    match self.value.as_str() {
-      "\n" => {
-        self.token = tokens::Tokens::EOL;
-      },
-      _ => {
-        self.token = tokens::Tokens::ILLEGAL;
-      },
+    self.token = match self.value.as_str() {
+      "\n" => tokens::Tokens::EOL,
+      _ => tokens::Tokens::ILLEGAL,
     }
   }
 }
