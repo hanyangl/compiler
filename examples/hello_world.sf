@@ -1,0 +1,4 @@
+let hello: string = "world";
+let world: string = "hello";
+
+print(hello + world);

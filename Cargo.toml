@@ -1,0 +1,8 @@
+[package]
+name = "sflyn"
+version = "0.0.1"
+license = "MIT"
+authors = ["Daniel Solarte <danielsolartech@hotmail.com>"]
+homepage = "https://github.com/sflyn/core/README.md"
+repository = "https://github.com/sflyn/core"
+edition = "2018"
