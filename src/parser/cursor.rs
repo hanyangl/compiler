@@ -72,7 +72,7 @@ impl Cursor {
     }
   }
 
-  /// Read identifiers (strings or numbers). If you want to read strings, use `read_identifier("string")`,
+  /// Read identifiers (strings or numbers). If you want to read naames, use `read_identifier("string")`,
   /// otherwise use `read_identifier("number")` to read numbers.
   pub fn read_identifier(&mut self, like: &str) -> String {
     let position = self.column;
@@ -90,6 +90,25 @@ impl Cursor {
     }
   }
 
+  pub fn read_string(&mut self, quote: u8) -> String {
+    let position = self.column;
+    let mut first_quote = false;
+
+    loop {
+      if self.character == quote {
+        if first_quote == true {
+          self.read_character();
+          return self.text[position..self.column].to_string();
+        } else {
+          first_quote = true;
+        }
+      }
+
+      self.read_character();
+    }
+  }
+
+  /// Read and get the current token.
   pub fn read_token(&mut self) -> data::Token {
     self.skip_whitespace();
 
@@ -100,19 +119,26 @@ impl Cursor {
 
       let mut token = data::Token::from_value(value);
       if token.token == data::Tokens::ILLEGAL {
-        if utils::is_letter(self.character) {
+        if utils::is_quote(self.character) {
+          token = data::Token::new(data::Tokens::STRING, self.read_string(self.character));
+        } else if utils::is_letter(self.character) {
+          // Check if the token is a keyword.
           token = data::Token::from_value(self.read_identifier("string"));
-
+          
+          // Check if the token is a string identifier like variable name or function name.
           if token.token == data::Tokens::ILLEGAL {
             token = data::Token::new(data::Tokens::IDENTIFIER, token.value);
           }
         } else if utils::is_digit(self.character) {
+          // Check if the token is a number.
           token = data::Token::new(data::Tokens::INTENGER, self.read_identifier("number"));
         } else {
+          // Illegal token
           self.read_character();
         }
       } else {
         if token.token == data::Tokens::SIGN {
+          // Check double and triple signs like "===" or "==".
           let next_character = utils::as_string(self.peek_character());
           let next_two_character = utils::as_string(self.peek_character_two());
 
@@ -121,11 +147,12 @@ impl Cursor {
             if next_character.as_str() == "=" {
               self.read_character();
 
-              if next_two_character.as_str() == "=" && token.sign != data::Signs::LESSTHAN &&
-                token.sign != data::Signs::HIGHERTHAN {
+              if next_two_character.as_str() == "=" && token.sign != data::Signs::LESSTHAN && token.sign != data::Signs::HIGHERTHAN {
+                // Triple sign
                 self.read_character();
                 token = data::Token::from_value(format!("{}{}{}", token.value, next_character, next_two_character));
               } else {
+                // Double sign
                 token = data::Token::from_value(format!("{}{}", token.value, next_character));
               }
             }

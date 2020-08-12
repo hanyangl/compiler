@@ -4,6 +4,7 @@ pub enum Tokens {
   ILLEGAL,
 
   IDENTIFIER,
+  STRING,
   INTENGER,
 
   KEYWORD,
