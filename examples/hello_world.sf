@@ -1,4 +1,4 @@
-let hello: string = "world";
-let world: string = "hello";
+let hello: string = " world!";
+let world: string = "hello,";
 
-print(hello + world);
+print(world + hello);

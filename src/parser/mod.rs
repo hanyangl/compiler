@@ -1,3 +1,3 @@
-mod lexer;
-pub use lexer::Lexer;
-pub mod token;
+mod cursor;
+
+pub use cursor::Cursor;

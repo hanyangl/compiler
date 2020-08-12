@@ -1,15 +1,16 @@
+pub mod data;
 pub mod parser;
 pub mod utils;
 
 fn main() {
-  let text = String::from("let x: number = 10;\nprint(x);");
-  let mut lexer = parser::Lexer::new(text);
+  let text = String::from("let x: number = 10;\nprint(x);\n\nif (x == 10) { print('Is ten'); } else { x = 10; }");
+  let mut cursor = parser::Cursor::new(text);
 
   loop {
-    let next_token = lexer.next_token();
-    println!("{:?}", next_token);
+    let token = cursor.read_token();
+    println!("{:?}", token);
 
-    if next_token.token_type == parser::token::TokenType::EOF {
+    if token.token == data::Tokens::EOF {
       break;
     }
   }
