@@ -1,17 +1,23 @@
 pub mod data;
 pub mod parser;
+pub mod statements;
 pub mod utils;
 
 fn main() {
-  let text = String::from("let x: number = 10;\nprint(x);\n\nif (x == 10) { print('Is ten'); } else { x = 10; }");
-  let mut cursor = parser::Cursor::new(text);
+  let hello_world = std::fs::read_to_string(
+    format!("{}/examples/hello_world.sf", std::env::current_dir().unwrap().display())
+  ).expect("File not found.");
 
-  loop {
-    let token = cursor.read_token();
-    println!("{:?}", token);
+  let lexer = parser::Lexer::new(hello_world);
+  let mut parser = parser::Parser::new(lexer);
 
-    if token.token == data::Tokens::EOF {
-      break;
+  parser.parse_program();
+
+  if parser.errors.len() > 0 {
+    println!("Parser errors:");
+
+    for error in parser.errors {
+      println!("\n{}", error);
     }
   }
 }

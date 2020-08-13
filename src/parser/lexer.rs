@@ -1,24 +1,25 @@
 use crate::utils;
 use crate::data;
 
-#[derive(Debug)]
-#[derive(PartialEq)]
-pub struct Cursor {
+#[derive(Debug, PartialEq)]
+pub struct Lexer {
   pub text: String,
 
-  pub line: u64,
+  pub line: usize,
+  pub line_position: usize,
   pub column: usize,
 
   pub reading: usize,
   pub character: u8,
 }
 
-impl Cursor {
-  /// Create a new cursor object in a text.
-  pub fn new(text: String) -> Cursor {
-    let mut object = Cursor {
+impl Lexer {
+  /// Create a new lexer object in a text.
+  pub fn new(text: String) -> Lexer {
+    let mut object = Lexer {
       text,
-      line: 0,
+      line: 1,
+      line_position: 0,
       column: 0,
       reading: 0,
       character: 0,
@@ -33,6 +34,7 @@ impl Cursor {
   pub fn read_character(&mut self) {
     self.column = self.reading;
     self.reading += 1;
+    self.line_position += 1;
 
     if self.column >= self.text.len() {
       self.character = 0;
@@ -114,26 +116,27 @@ impl Cursor {
     self.skip_whitespace();
 
     if self.character == 0 {
-      data::Token::new(data::Tokens::EOF, String::new())
+      data::Token::new(data::Tokens::EOF, String::new(), self.line_position, self.line)
     } else {
+      let position = self.line_position;
       let value = utils::as_string(self.character);
 
-      let mut token = data::Token::from_value(value);
+      let mut token = data::Token::from_value(value, position, self.line);
       if token.token == data::Tokens::ILLEGAL {
         if utils::is_quote(self.character) {
           // Check if the token is a string in single or double quotes
-          token = data::Token::new(data::Tokens::STRING, self.read_string(self.character));
+          token = data::Token::new(data::Tokens::STRING, self.read_string(self.character), position, self.line);
         } else if utils::is_letter(self.character) {
           // Check if the token is a keyword.
-          token = data::Token::from_value(self.read_identifier("string"));
-          
+          token = data::Token::from_value(self.read_identifier("string"), position, self.line);
+
           // Check if the token is a string identifier like variable name or function name.
           if token.token == data::Tokens::ILLEGAL {
-            token = data::Token::new(data::Tokens::IDENTIFIER, token.value);
+            token = data::Token::new(data::Tokens::IDENTIFIER, token.value, position, self.line);
           }
         } else if utils::is_digit(self.character) {
           // Check if the token is a number.
-          token = data::Token::new(data::Tokens::INTENGER, self.read_identifier("number"));
+          token = data::Token::new(data::Tokens::INTEGER, self.read_identifier("number"), position, self.line);
         } else {
           // Illegal token
           self.read_character();
@@ -152,15 +155,16 @@ impl Cursor {
               if next_two_character.as_str() == "=" && token.sign != data::Signs::LESSTHAN && token.sign != data::Signs::HIGHERTHAN {
                 // Triple sign
                 self.read_character();
-                token = data::Token::from_value(format!("{}{}{}", token.value, next_character, next_two_character));
+                token = data::Token::from_value(format!("{}{}{}", token.value, next_character, next_two_character), position, self.line);
               } else {
                 // Double sign
-                token = data::Token::from_value(format!("{}{}", token.value, next_character));
+                token = data::Token::from_value(format!("{}{}", token.value, next_character), position, self.line);
               }
             }
           }
         } else if token.token == data::Tokens::EOL {
           self.line += 1;
+          self.line_position = 0;
         }
 
         self.read_character();

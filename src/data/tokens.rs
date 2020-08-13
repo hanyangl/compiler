@@ -1,11 +1,10 @@
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Tokens {
   ILLEGAL,
 
   IDENTIFIER,
   STRING,
-  INTENGER,
+  INTEGER,
 
   KEYWORD,
   SIGN,
