@@ -134,7 +134,8 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Variable> {
     Some(value) => {
       if expression_is_valid_type(&statement.data_type.data_type, &value) == false {
         let left_line = format!(
-          "{} {}: {} = ",
+          "{} | {} {}: {} = ",
+          value.clone().token().line,
           token_name,
           statement.name.string(),
           statement.data_type.value
