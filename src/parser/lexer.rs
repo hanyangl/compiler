@@ -161,6 +161,10 @@ impl Lexer {
                 token = data::Token::from_value(format!("{}{}", token.value, next_character), position, self.line);
               }
             }
+          } else if token.sign == data::Signs::MINUS && next_character.as_str() == ">" {
+            self.read_character();
+
+            token = data::Token::from_value(format!("{}{}", token.value, next_character), position, self.line);
           }
         } else if token.token == data::Tokens::EOL {
           self.line += 1;

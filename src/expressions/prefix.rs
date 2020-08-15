@@ -1,13 +1,12 @@
 use crate::data::Token;
-use crate::expressions::Expression;
-use crate::parser::{Parser, Expressions, precedence::Precedence};
-use crate::statements::expression;
+use crate::expressions::{Expression, Expressions, parse as expression_parse};
+use crate::parser::{Parser, precedence::Precedence};
 
 #[derive(Debug, Clone)]
 pub struct Prefix {
-  token: Token,
+  pub token: Token,
   operator: String,
-  right: Box<Expressions>,
+  right: Option<Box<Expressions>>,
 }
 
 impl Expression for Prefix {
@@ -15,7 +14,7 @@ impl Expression for Prefix {
     Prefix {
       token: Token::empty(),
       operator: String::new(),
-      right: Box::new(Expressions::DEFAULT(Expression::new())),
+      right: None,
     }
   }
 
@@ -29,16 +28,23 @@ impl Expression for Prefix {
   }
 
   fn string(self) -> String {
-    format!("({}{})", self.operator, self.right.string())
+    format!(
+      "({}{})",
+      self.operator,
+      match self.right {
+        Some(x) => x.string(),
+        None => "".to_string(),
+      },
+    )
   }
 }
 
-pub fn parser<'a>(parser: &'a mut Parser) -> Prefix {
+pub fn parse<'a>(parser: &'a mut Parser) -> Prefix {
   let mut exp: Prefix = Expression::from_token(&parser.current_token.clone());
 
   parser.next_token();
 
-  exp.right = expression::parse(parser, Precedence::PREFIX);
+  exp.right = expression_parse(parser, Precedence::PREFIX);
 
   exp
 }

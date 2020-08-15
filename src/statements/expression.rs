@@ -1,20 +1,20 @@
 use crate::data;
-use crate::expressions;
-use crate::expressions::Expression;
-use crate::parser::{Parser, precedence::Precedence, Expressions};
+use crate::expressions::{Expressions, parse as expression_parse};
+use crate::parser::{Parser, precedence::Precedence};
 use crate::statements::Statement;
 
+// EXPRESSION //
 #[derive(Debug, Clone)]
 pub struct ExpressionStatement {
-  token: data::Token,
-  expression: expressions::Identifier,
+  pub token: data::Token,
+  pub expression: Option<Box<Expressions>>,
 }
 
 impl Statement for ExpressionStatement {
   fn new() -> ExpressionStatement {
     ExpressionStatement {
       token: data::Token::empty(),
-      expression: expressions::Expression::new(),
+      expression: None,
     }
   }
 
@@ -27,75 +27,48 @@ impl Statement for ExpressionStatement {
   }
 
   fn string(self) -> String {
-    self.expression.string()
-  }
-}
-
-pub fn parse<'a>(parser: &'a mut Parser, precedence: Precedence) -> Box<Expressions> {
-  let token: data::Token = parser.current_token.clone();
-
-  let mut left: Box<Expressions> = Box::new(match token.token {
-    // Parse identifiers and strings.
-    data::Tokens::IDENTIFIER | data::Tokens::STRING => Expressions::DEFAULT(Expression::from_token(&token)),
-
-    // Parse numbers.
-    data::Tokens::INTEGER => {
-      let (identifier, _) = expressions::integer::parse(parser);
-      Expressions::INTEGER(identifier)
-    },
-
-    // Parse signs.
-    data::Tokens::SIGN => match token.sign {
-      // Parse '!' and '-' signs.
-      data::Signs::NEGATION | data::Signs::MINUS => {
-        let prefix = expressions::prefix::parser(parser);
-        Expressions::PREFIX(prefix)
-      },
-
-      // Default
-      _ => Expressions::DEFAULT(Expression::new()),
-    },
-
-    // Parse data types.
-    data::Tokens::TYPE => match token.data_type {
-      // Parse true and false values.
-      data::Types::TRUE | data::Types::FALSE => Expressions::BOOLEAN(expressions::boolean::parse(parser)),
-
-      // Default
-      _ => Expressions::DEFAULT(Expression::new()),
-    },
-
-    // Default
-    _ => Expressions::DEFAULT(Expression::new()),
-  });
-
-  while parser.peek_token_is_sign(&data::Signs::SEMICOLON) == false && precedence < parser.peek_precedence() {
-    let peek_token: data::Token = parser.peek_token.clone();
-
-    match peek_token.sign {
-      data::Signs::PLUS |
-      data::Signs::MINUS |
-      data::Signs::DIVIDE |
-      data::Signs::MULTIPLY |
-      data::Signs::EQUAL |
-      data::Signs::EQUALTYPE |
-      data::Signs::NOTEQUAL |
-      data::Signs::NOTEQUALTYPE |
-      data::Signs::LESSTHAN |
-      data::Signs::LESSOREQUALTHAN |
-      data::Signs::GREATERTHAN |
-      data::Signs::GREATEROREQUALTHAN => {
-        parser.next_token();
-
-        left = Box::new(Expressions::INFIX(expressions::infix::parse(parser, left)));
-      },
-
-      _ => break,
+    match self.expression {
+      Some(x) => x.string(),
+      None => "".to_string(),
     }
   }
-
-  left
 }
+// END EXPRESSION //
+
+
+// PARSER //
+pub fn parse<'a>(parser: &'a mut Parser) -> ExpressionStatement {
+  let mut statement: ExpressionStatement = Statement::from_token(&parser.current_token.clone());
+
+  statement.expression = expression_parse(parser, Precedence::LOWEST);
+
+  if parser.peek_token_is_sign(&data::Signs::SEMICOLON) == true {
+    parser.next_token();
+  }
+
+  statement
+}
+
+pub fn parse_list<'a>(parser: &'a mut Parser, end: data::Signs) -> Vec<Box<Expressions>> {
+  let mut list: Vec<Box<Expressions>> = Vec::new();
+
+  while parser.current_token_is_sign(&end) == false {
+    if parser.peek_token_is_sign(&data::Signs::COMMA) == true {
+      parser.next_token();
+    }
+
+    match expression_parse(parser, Precedence::LOWEST) {
+      Some(exp) => list.push(exp),
+      None => {},
+    }
+
+    parser.next_token();
+  }
+
+  list
+}
+// END PARSER //
+
 
 /// Comprobate if a value is of a specific type.
 /// 
@@ -114,12 +87,19 @@ pub fn parse<'a>(parser: &'a mut Parser, precedence: Precedence) -> Box<Expressi
 /// ```
 pub fn token_is_valid_type(data_type: &data::Types, token: &data::Token) -> bool {
   match data_type {
+    // Undefined
     data::Types::UNDEFINED => token.token == data::Tokens::TYPE && token.data_type == data::Types::UNDEFINED,
+
+    // Null
     data::Types::NULL => token.token == data::Tokens::TYPE && token.data_type == data::Types::NULL,
 
+    // String
     data::Types::STRING => token.token == data::Tokens::STRING,
+
+    // Integer
     data::Types::NUMBER => token.token == data::Tokens::INTEGER,
 
+    // Boolean (true, false)
     data::Types::BOOLEAN => (
       token.token == data::Tokens::TYPE && (
         token.data_type == data::Types::TRUE ||
@@ -127,6 +107,47 @@ pub fn token_is_valid_type(data_type: &data::Types, token: &data::Token) -> bool
       )
     ),
 
+    // Default
+    _ => false,
+  }
+}
+
+pub fn expression_is_valid_type(data_type: &data::Types, expression: &Box<Expressions>) -> bool {
+  match data_type {
+    // Undefined
+    data::Types::UNDEFINED => match expression.clone().get_default() {
+      Some(default) => default.token.token == data::Tokens::TYPE && default.token.data_type == data::Types::UNDEFINED,
+      None => false,
+    },
+
+    // Null
+    data::Types::NULL => match expression.clone().get_default() {
+      Some(default) => default.token.token == data::Tokens::TYPE && default.token.data_type == data::Types::NULL,
+      None => false,
+    },
+
+    // String
+    data::Types::STRING => match expression.clone().get_default() {
+      Some(default) => default.token.token == data::Tokens::STRING,
+      None => false,
+    },
+
+    // Integer
+    data::Types::NUMBER => match expression.clone().get_integer() {
+      Some(integer) => integer.token.token == data::Tokens::INTEGER,
+      None => false,
+    },
+
+    // Boolean
+    data::Types::BOOLEAN => match expression.clone().get_boolean() {
+      Some(boolean) => boolean.token.token == data::Tokens::TYPE && (
+        boolean.token.data_type == data::Types::TRUE ||
+        boolean.token.data_type == data::Types::FALSE
+      ),
+      None => false,
+    }
+
+    // Default
     _ => false,
   }
 }

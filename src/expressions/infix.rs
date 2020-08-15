@@ -1,23 +1,22 @@
 use crate::data::Token;
-use crate::expressions::Expression;
-use crate::parser::{Parser, Expressions};
-use crate::statements::expression;
+use crate::expressions::{Expression, Expressions, parse as expression_parse};
+use crate::parser::Parser;
 
 #[derive(Debug, Clone)]
 pub struct Infix {
-  token: Token,
-  left: Box<Expressions>,
+  pub token: Token,
+  left: Option<Box<Expressions>>,
   operator: String,
-  right: Box<Expressions>,
+  right: Option<Box<Expressions>>,
 }
 
 impl Expression for Infix {
   fn new() -> Infix {
     Infix {
       token: Token::empty(),
-      left: Box::new(Expressions::DEFAULT(Expression::new())),
+      left: None,
       operator: String::new(),
-      right: Box::new(Expressions::DEFAULT(Expression::new())),
+      right: None,
     }
   }
 
@@ -33,14 +32,20 @@ impl Expression for Infix {
   fn string(self) -> String {
     format!(
       "({} {} {})",
-      self.left.string(),
+      match self.left {
+        Some(x) => x.string(),
+        None => "".to_string(),
+      },
       self.operator,
-      self.right.string()
+      match self.right {
+        Some(x) => x.string(),
+        None => "".to_string(),
+      },
     )
   }
 }
 
-pub fn parse<'a>(parser: &'a mut Parser, left: Box<Expressions>) -> Infix {
+pub fn parse<'a>(parser: &'a mut Parser, left: Option<Box<Expressions>>) -> Infix {
   let mut exp: Infix = Expression::from_token(&parser.current_token);
 
   exp.left = left;
@@ -48,7 +53,7 @@ pub fn parse<'a>(parser: &'a mut Parser, left: Box<Expressions>) -> Infix {
   let precedence = parser.current_precedence();
   parser.next_token();
 
-  exp.right = expression::parse(parser, precedence);
+  exp.right = expression_parse(parser, precedence);
 
   exp
 }

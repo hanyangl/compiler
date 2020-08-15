@@ -12,6 +12,8 @@ pub enum Types {
 
   ARRAY,
 
+  VOID,
+
   NONE,
 }
 
@@ -26,6 +28,8 @@ pub fn get_type(value: &String) -> Types {
     "boolean" => Types::BOOLEAN,
     "true" => Types::TRUE,
     "false" => Types::FALSE,
+
+    "void" => Types::VOID,
 
     _ => Types::NONE,
   }

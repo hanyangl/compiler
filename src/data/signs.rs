@@ -34,6 +34,7 @@ pub enum Signs {
   // Others
   ASSIGN,
   NEGATION,
+  ARROW,
 
   NONE,
 }
@@ -52,7 +53,7 @@ pub fn get_sign(value: &String) -> Signs {
     "]" => Signs::RIGHTBRACKET,
 
     "{" => Signs::LEFTBRACE,
-    "}" => Signs::RIGHTBRACKET,
+    "}" => Signs::RIGHTBRACE,
 
     // Conditions
     "==" => Signs::EQUAL,
@@ -74,6 +75,7 @@ pub fn get_sign(value: &String) -> Signs {
     // Others
     "=" => Signs::ASSIGN,
     "!" => Signs::NEGATION,
+    "->" => Signs::ARROW,
 
     _ => Signs::NONE,
   }

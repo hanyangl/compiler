@@ -1,10 +1,11 @@
 use crate::data::Token;
-use crate::expressions::Expression;
+use crate::expressions::{Expression, Object, ObjectType, Hashable, HashKey};
 use crate::parser::Parser;
 
+// EXPRESSION //
 #[derive(Debug, Clone)]
 pub struct Integer {
-  token: Token,
+  pub token: Token,
   value: i64,
 }
 
@@ -27,15 +28,18 @@ impl Expression for Integer {
     self.token.value
   }
 }
+// END EXPRESSION //
 
-pub fn parse<'a>(parser: &'a mut Parser) -> (Integer, bool) {
+
+// PARSER //
+pub fn parse<'a>(parser: &'a mut Parser) -> Option<Integer> {
   let token: &Token = &parser.current_token.clone();
   let mut statement: Integer = Expression::from_token(&token.clone());
 
   match token.value.parse::<i64>() {
     Ok(value) => {
       statement.value = value;
-      (statement, true)
+      Some(statement)
     },
     Err(_) => {
       parser.errors.push(
@@ -47,7 +51,35 @@ pub fn parse<'a>(parser: &'a mut Parser) -> (Integer, bool) {
         ),
       );
 
-      (Expression::new(), false)
+      None
     }
   }
 }
+// END PARSER //
+
+
+// OBJECT //
+#[derive(Debug, Clone)]
+pub struct IntegerObject {
+  value: i64,
+}
+
+impl Object for IntegerObject {
+  fn object_type(&self) -> ObjectType {
+    ObjectType::INTEGER
+  }
+
+  fn string(self) -> String {
+    self.value.to_string()
+  }
+}
+
+impl Hashable for IntegerObject {
+  fn hashkey(self) -> HashKey {
+    HashKey {
+      object_type: self.object_type(),
+      value: self.string().parse().unwrap(),
+    }
+  }
+}
+// END OBJECT //

@@ -9,6 +9,8 @@ pub enum Precedence {
   PRODUCT = 4,
   PREFIX = 5,
   CALL = 6,
+  INDEX = 7,
+  METHOD = 8,
 }
 
 pub fn get_precedence_to_sign(sign: Signs) -> Precedence {
@@ -27,6 +29,12 @@ pub fn get_precedence_to_sign(sign: Signs) -> Precedence {
 
     // CALL
     Signs::LEFTPARENTHESES => Precedence::CALL,
+
+    // INDEX
+    Signs::LEFTBRACKET => Precedence::INDEX,
+
+    // METHOD
+    Signs::ARROW => Precedence::METHOD,
 
     // LOWEST
     _ => Precedence::LOWEST,

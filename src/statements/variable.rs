@@ -1,14 +1,15 @@
 use crate::data;
-use crate::expressions::{Identifier, Expression};
-use crate::statements::{expression, Statement};
-use crate::parser::{Parser, precedence::Precedence, Expressions};
+use crate::expressions::{Identifier, Expression, Expressions, parse as expression_parse};
+use crate::statements::{Statement, expression::expression_is_valid_type};
+use crate::parser::{Parser, precedence::Precedence};
+use crate::utils::repeat_character;
 
 #[derive(Debug, Clone)]
 pub struct Variable {
   token: data::Token,
   name: Identifier,
   data_type: data::Token,
-  value: Box<Expressions>,
+  value: Option<Box<Expressions>>,
 }
 
 impl Statement for Variable {
@@ -17,7 +18,7 @@ impl Statement for Variable {
       token: data::Token::empty(),
       name: Expression::new(),
       data_type: data::Token::empty(),
-      value: Box::new(Expressions::DEFAULT(Expression::new())),
+      value: None,
     }
   }
 
@@ -35,7 +36,10 @@ impl Statement for Variable {
       self.token.value,
       self.name.string(),
       self.data_type.value,
-      self.value.string(),
+      match self.value {
+        Some(x) => x.string(),
+        None => "".to_string(),
+      }
     )
   }
 }
@@ -47,7 +51,7 @@ impl Statement for Variable {
 /// let username: string = "Sflyn";
 /// let decimal: number = 6;
 /// ```
-pub fn parse<'a>(parser: &'a mut Parser) -> (Variable, bool) {
+pub fn parse<'a>(parser: &'a mut Parser) -> Option<Variable> {
   let mut statement: Variable = Statement::from_token(&parser.current_token.clone());
   let token_name = &statement.token.value;
 
@@ -63,7 +67,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> (Variable, bool) {
 
     parser.errors.push(message);
 
-    return (Statement::new(), false);
+    return None;
   }
 
   // Set the variable name to the statement.
@@ -75,7 +79,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> (Variable, bool) {
 
     parser.errors.push(format!("{} expect `:`, got `{}` instead.", line, parser.peek_token.value));
 
-    return (Statement::new(), false);
+    return None;
   }
 
   // Check if the next token is a valid data type.
@@ -84,7 +88,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> (Variable, bool) {
 
     parser.errors.push(format!("{} `{}` is not a valid data type.", line, parser.peek_token.value));
 
-    return (Statement::new(), false);
+    return None;
   }
 
   // Set the data type to the statement.
@@ -103,7 +107,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> (Variable, bool) {
 
     parser.errors.push(format!("{} expect `=`, got `{}` instead.", line, parser.peek_token.value));
 
-    return (Statement::new(), false);
+    return None;
   }
 
   // Check if the next character is not a semicolon (;).
@@ -119,56 +123,47 @@ pub fn parse<'a>(parser: &'a mut Parser) -> (Variable, bool) {
 
     parser.errors.push(format!("{} you must set a value to the variable.", line));
 
-    return (Statement::new(), false);
+    return None;
   }
-
-  // Get the variable value.
-  //let value: &data::Token = &parser.peek_token.clone();
-
-  // Check if the variable value is the same type of the variable declaration.
-  /*if expression::token_is_valid_type(&statement.data_type.data_type, value) == false {
-    let line = parser.get_error_line(
-      format!(
-        "{} {}: {} = ",
-        token_name,
-        statement.name.string(),
-        statement.data_type.value
-      ).as_str()
-    );
-
-    parser.errors.push(format!("{} `{}` is not a valid {}", line, value.value, statement.data_type.value));
-
-    return (Statement::new(), false);
-  }*/
 
   // Go to the next token.
   parser.next_token();
 
   // Set the variable value to the statement.
-  statement.value = expression::parse(parser, Precedence::LOWEST);
+  match expression_parse(parser, Precedence::LOWEST) {
+    Some(value) => {
+      if expression_is_valid_type(&statement.data_type.data_type, &value) == false {
+        let left_line = format!(
+          "{} {}: {} = ",
+          token_name,
+          statement.name.string(),
+          statement.data_type.value
+        );
 
-  // Check if the next character is a semicolon (;).
-  /*if parser.expect_sign(&data::Signs::SEMICOLON) == false {
-    let token = parser.peek_token.clone();
+        let line = format!(
+          "{}{}\n{}{}",
+          left_line,
+          value.clone().string(),
+          repeat_character(left_line.len(), " "),
+          repeat_character(value.clone().string().len(), "^"),
+        );
 
-    let line = parser.get_error_line(
-      format!(
-        "{} {}: {} = {}",
-        token_name,
-        statement.name.string(),
-        statement.data_type.value,
-        statement.value.string(),
-      ).as_str(),
-    );
+        parser.errors.push(format!("{} `{}` not satisfied the {} data type.", line, value.string(), statement.data_type.value));
 
-    if token.token == data::Tokens::EOL {
-      parser.errors.push(format!("{} must be ends with `;`.", line));
-    } else {
-      parser.errors.push(format!("{} expect `;`, got `{}` instead.", line, token.value));
-    }
+        return None;
+      }
 
-    return (Statement::new(), false);
-  }*/
+      statement.value = Some(value);
+    },
 
-  (statement, true)
+    None => {},
+  }
+
+  if parser.peek_token_is_sign(&data::Signs::SEMICOLON) == true {
+    parser.next_token();
+  }
+
+  parser.next_token();
+
+  Some(statement)
 }

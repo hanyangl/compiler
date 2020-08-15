@@ -123,22 +123,36 @@ impl Parser {
 
   pub fn parse_program(&mut self) {
     while self.current_token.token != data::Tokens::EOF {
-      self.parse_statement();
+      // Only for testing...
+      match self.parse_statement() {
+        Some(statement) => println!("{}", statement.string()),
+        None => {},
+      }
+
       self.next_token();
     }
   }
 
-  pub fn parse_statement(&mut self) {
+  pub fn parse_statement(&mut self) -> Option<Box<statements::Statements>> {
     match self.current_token.token {
-      data::Tokens::KEYWORD => {
-        match self.current_token.keyword {
-          data::Keywords::LET | data::Keywords::CONST => {
-            statements::variable::parse(self);
-          },
-          _ => {},
-        }
+      // Keywords
+      data::Tokens::KEYWORD => match self.current_token.keyword {
+        // Variable statement
+        data::Keywords::LET |
+        data::Keywords::CONST => match statements::variable::parse(self) {
+          Some(statement) => Some(Box::new(statements::Statements::VARIABLE(statement))),
+          None => None,
+        },
+
+        // Return statement
+        data::Keywords::RETURN => Some(Box::new(statements::Statements::RETURN(statements::return_s::parse(self)))),
+
+        // Default
+        _ => Some(Box::new(statements::Statements::EXPRESSION(statements::expression::parse(self)))),
       },
-      _ => {},
+
+      // Default
+      _ => Some(Box::new(statements::Statements::EXPRESSION(statements::expression::parse(self))))
     }
   }
 }
