@@ -82,7 +82,7 @@ impl Lexer {
     loop {
       let value = self.text[position..self.column].to_string();
 
-      if utils::is_letter(self.character) == false && like == "string" {
+      if utils::is_letter(self.character) == false && self.character.is_ascii_digit() == false && like == "string" {
         return value;
       } else if utils::is_digit(self.character) == false && like == "number" {
         return value;
@@ -148,11 +148,11 @@ impl Lexer {
           let next_two_character = utils::as_string(self.peek_character_two());
 
           if token.sign == data::Signs::ASSIGN || token.sign == data::Signs::NEGATION ||
-            token.sign == data::Signs::LESSTHAN || token.sign == data::Signs::HIGHERTHAN {
+            token.sign == data::Signs::LESSTHAN || token.sign == data::Signs::GREATERTHAN {
             if next_character.as_str() == "=" {
               self.read_character();
 
-              if next_two_character.as_str() == "=" && token.sign != data::Signs::LESSTHAN && token.sign != data::Signs::HIGHERTHAN {
+              if next_two_character.as_str() == "=" && token.sign != data::Signs::LESSTHAN && token.sign != data::Signs::GREATERTHAN {
                 // Triple sign
                 self.read_character();
                 token = data::Token::from_value(format!("{}{}{}", token.value, next_character, next_two_character), position, self.line);

@@ -1,5 +1,5 @@
 use crate::data;
-use crate::parser::Lexer;
+use crate::parser::{Lexer, precedence};
 use crate::statements;
 use crate::utils::repeat_character;
 
@@ -113,6 +113,14 @@ impl Parser {
     format!("{}{}\n{}{}", line, value, repeat_character(line.len(), " "), repeat_character(value.len(), "^"))
   }
 
+  pub fn peek_precedence<'a>(&'a self) -> precedence::Precedence {
+    precedence::get_precedence_to_sign(self.peek_token.sign.clone())
+  }
+
+  pub fn current_precedence<'a>(&'a self) -> precedence::Precedence {
+    precedence::get_precedence_to_sign(self.current_token.sign.clone())
+  }
+
   pub fn parse_program(&mut self) {
     while self.current_token.token != data::Tokens::EOF {
       self.parse_statement();
@@ -124,8 +132,8 @@ impl Parser {
     match self.current_token.token {
       data::Tokens::KEYWORD => {
         match self.current_token.keyword {
-          data::Keywords::LET => {
-            statements::Variable::parse(self);
+          data::Keywords::LET | data::Keywords::CONST => {
+            statements::variable::parse(self);
           },
           _ => {},
         }

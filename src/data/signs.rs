@@ -22,8 +22,8 @@ pub enum Signs {
 
   LESSTHAN,
   LESSOREQUALTHAN,
-  HIGHERTHAN,
-  HIGHEROREQUALTHAN,
+  GREATERTHAN,
+  GREATEROREQUALTHAN,
 
   // Maths
   PLUS,
@@ -62,8 +62,8 @@ pub fn get_sign(value: &String) -> Signs {
 
     "<" => Signs::LESSTHAN,
     "<=" => Signs::LESSOREQUALTHAN,
-    ">" => Signs::HIGHERTHAN,
-    ">=" => Signs::HIGHEROREQUALTHAN,
+    ">" => Signs::GREATERTHAN,
+    ">=" => Signs::GREATEROREQUALTHAN,
 
     // Maths
     "+" => Signs::PLUS,

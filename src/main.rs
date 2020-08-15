@@ -1,4 +1,5 @@
 pub mod data;
+pub mod expressions;
 pub mod parser;
 pub mod statements;
 pub mod utils;

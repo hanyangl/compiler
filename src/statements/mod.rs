@@ -1,29 +1,15 @@
-mod variable;
 pub mod expression;
+pub mod variable;
 
-pub use variable::Variable;
 use crate::data::Token;
 
-#[derive(Debug, Clone)]
-pub struct Identifier {
-  pub token: Token,
-  pub value: String,
-}
+pub trait Statement {
+  /// Create an empty statement.
+  fn new() -> Self;
 
-impl Identifier {
-  /// Create a new empty identifier.
-  pub fn new() -> Identifier {
-    Identifier {
-      token: Token::empty(),
-      value: String::new(),
-    }
-  }
+  /// Create a statement with a token.
+  fn from_token(token: &Token) -> Self;
 
-  /// Create a new identifier from a token.
-  pub fn from_token(token: &Token) -> Identifier {
-    Identifier {
-      token: token.clone(),
-      value: token.value.clone(),
-    }
-  }
+  /// Parse the statement to a string.
+  fn string(self) -> String;
 }
