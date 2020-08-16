@@ -1,15 +1,16 @@
 use crate::data;
-use crate::expressions::{Identifier, Expression, Expressions, parse as expression_parse};
-use crate::statements::{Statement, expression::expression_is_valid_type};
+use crate::expressions::{identifier::Identifier, Expression, Expressions, parse as expression_parse};
 use crate::parser::{Parser, precedence::Precedence};
-use crate::utils::repeat_character;
+use crate::utils::{repeat_character, types::expression_is_valid_type};
 
-#[derive(Debug, Clone)]
+use super::Statement;
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct Variable {
-  token: data::Token,
-  name: Identifier,
-  data_type: data::Token,
-  value: Option<Box<Expressions>>,
+  pub token: data::Token,
+  pub name: Identifier,
+  pub data_type: data::Token,
+  pub value: Option<Box<Expressions>>,
 }
 
 impl Statement for Variable {

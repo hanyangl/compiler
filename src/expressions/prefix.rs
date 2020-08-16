@@ -1,12 +1,13 @@
 use crate::data::Token;
-use crate::expressions::{Expression, Expressions, parse as expression_parse};
 use crate::parser::{Parser, precedence::Precedence};
 
-#[derive(Debug, Clone)]
+use super::{Expression, Expressions, parse as expression_parse};
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct Prefix {
   pub token: Token,
-  operator: String,
-  right: Option<Box<Expressions>>,
+  pub operator: String,
+  pub right: Option<Box<Expressions>>,
 }
 
 impl Expression for Prefix {
@@ -29,7 +30,7 @@ impl Expression for Prefix {
 
   fn string(self) -> String {
     format!(
-      "({}{})",
+      "{}{}",
       self.operator,
       match self.right {
         Some(x) => x.string(),

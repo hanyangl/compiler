@@ -1,11 +1,13 @@
-use crate::data::{Token, Signs, Tokens};
+use crate::data::{Token, Signs, Tokens, Keywords};
+use crate::expressions::function::Function;
 use crate::parser::Parser;
-use crate::statements::{Statement, Statements};
+
+use super::{Statement, Statements, return_s::parse_type as parse_return};
 
 // STATEMENT //
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Block {
-  token: Token,
+  pub token: Token,
   pub statements: Vec<Box<Statements>>,
 }
 
@@ -35,11 +37,17 @@ impl Statement for Block {
     string
   }
 }
+
+impl Block {
+  pub fn new() -> Box<Statements> {
+    Box::new(Statements::BLOCK(Statement::new()))
+  }
+}
 // END STATEMENT //
 
 
 // PARSER //
-pub fn parse<'a>(parser: &'a mut Parser) -> Block {
+pub fn parse<'a>(parser: &'a mut Parser) -> Box<Statements> {
   let mut statement: Block = Statement::from_token(&parser.current_token.clone());
 
   parser.next_token();
@@ -53,6 +61,75 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Block {
     parser.next_token();
   }
 
-  statement
+  Box::new(Statements::BLOCK(statement))
+}
+
+pub fn parse_function_block<'a>(parser: &'a mut Parser, eval_stmt: Box<Statements>, function: &Function) -> bool {
+  match eval_stmt.clone().get_return() {
+    // Parse return value.
+    Some(return_stmt) => {
+      return parse_return(parser, &return_stmt, function);
+    },
+
+    // Parse expressions.
+    None => match eval_stmt.clone().get_expression() {
+      Some(exp_stmt) => {
+        // Parse if expression.
+        if exp_stmt.token.keyword == Keywords::IF {
+          return match exp_stmt.expression {
+            // Get if expression.
+            Some(exp_exp) => {
+              let mut value = true;
+
+              match exp_exp.get_ifelse() {
+                // Get first block statement.
+                Some(ifelse_exp) => match ifelse_exp.consequence.clone().get_block() {
+                  Some(consequence) => {
+                    // Parse statements.
+                    for stmt in consequence.statements.iter() {
+                      value = parse_function_block(parser, stmt.clone(), function);
+                    }
+
+                    // Get alternative block statement.
+                    match ifelse_exp.alternative {
+                      Some(alternative) => match alternative.get_block() {
+                        Some(else_exp) => {
+                          for stmt in else_exp.statements.iter() {
+                            value = parse_function_block(parser, stmt.clone(), function);
+                          }
+                        },
+
+                        // Default
+                        None => {},
+                      },
+
+                      // Default
+                      None => {},
+                    }
+                  },
+
+                  // Default
+                  None => {},
+                },
+
+                // Default
+                None => {},
+              }
+
+              value
+            },
+
+            // Default
+            None => true,
+          }
+        }
+
+        true
+      },
+
+      // Default
+      None => true,
+    },
+  }
 }
 // END PARSER //

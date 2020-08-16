@@ -16,14 +16,23 @@ pub trait Statement {
   fn string(self) -> String;
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Statements {
+  BLOCK(block::Block),
   EXPRESSION(expression::ExpressionStatement),
   RETURN(return_s::Return),
   VARIABLE(variable::Variable),
 }
 
 impl Statements {
+  /// Get the block statement.
+  pub fn get_block(self) -> Option<block::Block> {
+    match self {
+      Statements::BLOCK(block) => Some(block),
+      _ => None,
+    }
+  }
+
   /// Get the expression statement.
   pub fn get_expression(self) -> Option<expression::ExpressionStatement> {
     match self {
@@ -51,6 +60,7 @@ impl Statements {
   /// Get the statement as string.
   pub fn string(self) -> String {
     match self {
+      Statements::BLOCK(block) => block.string(),
       Statements::EXPRESSION(exp) => exp.string(),
       Statements::RETURN(return_stmt) => return_stmt.string(),
       Statements::VARIABLE(variable) => variable.string(),

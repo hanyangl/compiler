@@ -1,12 +1,13 @@
 pub mod data;
 pub mod expressions;
+pub mod objects;
 pub mod parser;
 pub mod statements;
 pub mod utils;
 
 fn main() {
   let hello_world = std::fs::read_to_string(
-    format!("{}/examples/hello_world.sf", std::env::current_dir().unwrap().display())
+    format!("{}/test_file.sf", std::env::current_dir().unwrap().display())
   ).expect("File not found.");
 
   let lexer = parser::Lexer::new(hello_world);

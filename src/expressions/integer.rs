@@ -1,12 +1,13 @@
 use crate::data::Token;
-use crate::expressions::{Expression, Object, ObjectType, Hashable, HashKey};
 use crate::parser::Parser;
 
+use super::Expression;
+
 // EXPRESSION //
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Integer {
   pub token: Token,
-  value: i64,
+  pub value: i64,
 }
 
 impl Expression for Integer {
@@ -56,30 +57,3 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Integer> {
   }
 }
 // END PARSER //
-
-
-// OBJECT //
-#[derive(Debug, Clone)]
-pub struct IntegerObject {
-  value: i64,
-}
-
-impl Object for IntegerObject {
-  fn object_type(&self) -> ObjectType {
-    ObjectType::INTEGER
-  }
-
-  fn string(self) -> String {
-    self.value.to_string()
-  }
-}
-
-impl Hashable for IntegerObject {
-  fn hashkey(self) -> HashKey {
-    HashKey {
-      object_type: self.object_type(),
-      value: self.string().parse().unwrap(),
-    }
-  }
-}
-// END OBJECT //

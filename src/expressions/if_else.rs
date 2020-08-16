@@ -1,15 +1,16 @@
 use crate::data::{Token, Signs, Keywords};
-use crate::expressions::{Expression, Expressions, parse as expression_parse};
 use crate::parser::{Parser, precedence::Precedence};
-use crate::statements::{block, Statement};
+use crate::statements::{block, Statements};
+
+use super::{Expression, Expressions, parse as expression_parse};
 
 // EXPRESSION //
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct IfElse {
   pub token: Token,
-  condition: Option<Box<Expressions>>,
-  pub consequence: block::Block,
-  pub alternative: Option<block::Block>,
+  pub condition: Option<Box<Expressions>>,
+  pub consequence: Box<Statements>,
+  pub alternative: Option<Box<Statements>>,
 }
 
 impl Expression for IfElse {
@@ -17,7 +18,7 @@ impl Expression for IfElse {
     IfElse {
       token: Token::empty(),
       condition: None,
-      consequence: Statement::new(),
+      consequence: block::Block::new(),
       alternative: None,
     }
   }

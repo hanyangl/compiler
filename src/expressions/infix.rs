@@ -1,13 +1,15 @@
 use crate::data::Token;
-use crate::expressions::{Expression, Expressions, parse as expression_parse};
 use crate::parser::Parser;
 
-#[derive(Debug, Clone)]
+use super::{Expression, Expressions, parse as expression_parse};
+
+// EXPRESSION //
+#[derive(Debug, Clone, PartialEq)]
 pub struct Infix {
   pub token: Token,
-  left: Option<Box<Expressions>>,
-  operator: String,
-  right: Option<Box<Expressions>>,
+  pub left: Option<Box<Expressions>>,
+  pub operator: String,
+  pub right: Option<Box<Expressions>>,
 }
 
 impl Expression for Infix {
@@ -31,7 +33,7 @@ impl Expression for Infix {
 
   fn string(self) -> String {
     format!(
-      "({} {} {})",
+      "{} {} {}",
       match self.left {
         Some(x) => x.string(),
         None => "".to_string(),
@@ -44,7 +46,10 @@ impl Expression for Infix {
     )
   }
 }
+// END EXPRESSION //
 
+
+// PARSER //
 pub fn parse<'a>(parser: &'a mut Parser, left: Option<Box<Expressions>>) -> Infix {
   let mut exp: Infix = Expression::from_token(&parser.current_token);
 
@@ -57,3 +62,4 @@ pub fn parse<'a>(parser: &'a mut Parser, left: Option<Box<Expressions>>) -> Infi
 
   exp
 }
+// END PARSER //

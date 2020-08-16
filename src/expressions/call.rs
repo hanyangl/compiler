@@ -1,22 +1,23 @@
 use crate::data::{Token, Signs, Tokens};
-use crate::expressions::{Expressions, Expression, Identifier};
 use crate::parser::Parser;
 use crate::statements::expression::parse_list;
 
+use super::{Expression, Expressions, identifier::Identifier};
+
 // EXPRESSION //
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Call {
   pub token: Token,
-  function: Box<Expressions>,
-  arguments: Vec<Box<Expressions>>,
-  semicolon: Option<Token>,
+  pub function: Box<Expressions>,
+  pub arguments: Vec<Box<Expressions>>,
+  pub semicolon: Option<Token>,
 }
 
 impl Expression for Call {
   fn new() -> Call {
     Call {
       token: Token::empty(),
-      function: Box::new(Expressions::DEFAULT(Identifier::new())),
+      function: Identifier::new(),
       arguments: Vec::new(),
       semicolon: None,
     }

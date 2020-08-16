@@ -1,0 +1,13 @@
+let year: number = 2020
+
+function get_message(name: string = "-", hola: number): string {
+  if (year == 2020) {
+    let other_name: string = "Sflyn"
+
+    return "Hello, " + other_name + "!";
+  } else {
+    return "Hello, " + name + "!"
+  }
+}
+
+get_message("Daniel");

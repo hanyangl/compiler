@@ -1,3 +1,5 @@
+pub mod types;
+
 /// Convert a byte to string.
 pub fn as_string(byte: u8) -> String {
   let mut chars = vec![];

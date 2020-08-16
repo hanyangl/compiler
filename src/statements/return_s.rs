@@ -1,12 +1,14 @@
-use crate::data::{Token, Signs};
-use crate::expressions::{Expressions, parse as expression_parse};
+use crate::data::{Token, Signs, Types};
+use crate::expressions::{Expressions, parse as expression_parse, function::Function};
 use crate::parser::{Parser, precedence::Precedence};
-use crate::statements::Statement;
+use crate::utils::{repeat_character, types::expression_is_valid_type};
+
+use super::Statement;
 
 // EXPRESSION //
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Return {
-  token: Token,
+  pub token: Token,
   pub value: Option<Box<Expressions>>,
 }
 
@@ -53,5 +55,49 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Return {
   }
 
   statement
+}
+
+pub fn parse_type<'a>(parser: &'a mut Parser, return_stmt: &Return, exp: &Function) -> bool {
+  match return_stmt.value.clone() {
+    // With return value.
+    Some(value) => {
+      let left_line = format!("{} | return ", value.clone().token().line);
+  
+      let line = format!(
+        "{}{}\n{}{}",
+        left_line,
+        value.clone().string(),
+        repeat_character(left_line.len(), " "),
+        repeat_character(value.clone().string().len(), "^"),
+      );
+
+      if exp.return_type.data_type == Types::VOID {
+        parser.errors.push(format!("{} the `{}` function no return a value.", line, exp.name.value));
+
+        return false;
+      }
+
+      if expression_is_valid_type(&exp.return_type.data_type, &value) == false {
+        parser.errors.push(format!("{} `{}` not satisfied the {} data type.", line, value.clone().string(), exp.return_type.value));
+
+        return false;
+      }
+
+      true
+    },
+
+    // No value
+    None => {
+      if exp.return_type.data_type != Types::VOID {
+        let line = parser.get_error_line("return");
+
+        parser.errors.push(format!("{} the '{}' function returns a {}.", line, exp.name.value, exp.return_type.value));
+
+        return false;
+      }
+
+      true
+    },
+  }
 }
 // END PARSER //

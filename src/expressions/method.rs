@@ -1,21 +1,22 @@
 use crate::data::Token;
-use crate::expressions::{Expressions, Expression, parse as expression_parse};
 use crate::parser::Parser;
 
+use super::{Expressions, Expression, parse as expression_parse, identifier::Identifier};
+
 // EXPRESSION //
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Method {
   pub token: Token,
-  left: Box<Expressions>,
-  right: Box<Expressions>,
+  pub left: Box<Expressions>,
+  pub right: Box<Expressions>,
 }
 
 impl Expression for Method {
   fn new() -> Method {
     Method {
       token: Token::empty(),
-      left: Box::new(Expressions::DEFAULT(Expression::new())),
-      right: Box::new(Expressions::DEFAULT(Expression::new())),
+      left: Identifier::new(),
+      right: Identifier::new(),
     }
   }
 

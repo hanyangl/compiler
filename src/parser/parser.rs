@@ -121,16 +121,22 @@ impl Parser {
     precedence::get_precedence_to_sign(self.current_token.sign.clone())
   }
 
-  pub fn parse_program(&mut self) {
+  pub fn parse_program(&mut self) -> Vec<Box<statements::Statements>> {
+    let mut statements: Vec<Box<statements::Statements>> = Vec::new();
+
     while self.current_token.token != data::Tokens::EOF {
       // Only for testing...
       match self.parse_statement() {
-        Some(statement) => println!("{}", statement.string()),
+        Some(statement) => {
+          statements.push(statement);
+        },
         None => {},
       }
 
       self.next_token();
     }
+
+    statements
   }
 
   pub fn parse_statement(&mut self) -> Option<Box<statements::Statements>> {
