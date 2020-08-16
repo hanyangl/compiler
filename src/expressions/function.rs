@@ -37,12 +37,7 @@ impl Expression for Function {
     let mut params: Vec<String> = Vec::new();
 
     for param in self.parameters {
-      match param.get_identifier() {
-        Some(identifier) => {
-          params.push(format!("{}: {}", identifier.value, identifier.token.value));
-        },
-        None => {},
-      }
+      params.push(param.string());
     }
 
     format!(
@@ -97,12 +92,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Function> {
       let mut params: Vec<String> = Vec::new();
 
       for param in exp.parameters {
-        match param.get_identifier() {
-          Some(identifier) => {
-            params.push(format!("{}: {}", identifier.value, identifier.token.value));
-          },
-          None => {},
-        }
+        params.push(param.string());
       }
 
       let line = parser.get_error_line(format!("function {}({}): ", exp.name.value, params.join(", ")).as_str());
@@ -120,12 +110,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Function> {
     let mut params: Vec<String> = Vec::new();
 
     for param in exp.parameters {
-      match param.get_identifier() {
-        Some(identifier) => {
-          params.push(format!("{}: {}", identifier.value, identifier.token.value));
-        },
-        None => {},
-      }
+      params.push(param.string());
     }
 
     let line = parser.get_error_line(
