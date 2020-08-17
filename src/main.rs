@@ -6,20 +6,20 @@ pub mod statements;
 pub mod utils;
 
 fn main() {
-  let hello_world = std::fs::read_to_string(
+  let test_file = std::fs::read_to_string(
     format!("{}/test_file.sf", std::env::current_dir().unwrap().display())
-  ).expect("File not found.");
+  ).expect("Test file not found.");
 
-  let lexer = parser::Lexer::new(hello_world);
+  let lexer = parser::Lexer::new(test_file);
   let mut parser = parser::Parser::new(lexer);
 
-  parser.parse_program();
+  let statements = parser.parse_program();
 
   if parser.errors.len() > 0 {
-    println!("Parser errors:");
-
-    for error in parser.errors {
-      println!("\n{}", error);
+    println!("{}", parser.errors.join("\n\n"));
+  } else {
+    for stmt in statements {
+      println!("{}", stmt.string());
     }
   }
 }

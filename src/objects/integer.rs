@@ -1,4 +1,4 @@
-use super::{Object, ObjectType, Hashable, HashKey};
+use super::{Object, ObjectType, Hashable, HashKey, Objects};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Integer {
@@ -21,5 +21,11 @@ impl Hashable for Integer {
       object_type: self.object_type(),
       value: self.string().parse().unwrap(),
     }
+  }
+}
+
+impl Integer {
+  pub fn new(value: i64) -> Box<Objects> {
+    Box::new(Objects::INTEGER(Integer { value }))
   }
 }

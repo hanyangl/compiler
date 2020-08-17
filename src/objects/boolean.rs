@@ -1,4 +1,4 @@
-use super::{Object, ObjectType, Hashable, HashKey};
+use super::{Object, ObjectType, Hashable, HashKey, Objects};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Boolean {
@@ -29,5 +29,11 @@ impl Hashable for Boolean {
       object_type: self.object_type(),
       value,
     }
+  }
+}
+
+impl Boolean {
+  pub fn new(value: bool) -> Box<Objects> {
+    Box::new(Objects::BOOLEAN(Boolean { value }))
   }
 }
