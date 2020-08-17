@@ -1,4 +1,4 @@
-use crate::data::{Token, Signs, Tokens};
+use crate::data::{Token, Signs, Tokens, Keywords};
 use crate::parser::Parser;
 use crate::statements::expression::parse_list;
 
@@ -53,7 +53,7 @@ impl Expression for Call {
 
 
 // PARSER //
-pub fn parse<'a>(parser: &'a mut Parser, function: Option<Box<Expressions>>) -> Call {
+pub fn parse<'a>(parser: &'a mut Parser, function: Option<Box<Expressions>>, last_token: Token) -> Call {
   let mut exp: Call = Expression::from_token(&parser.current_token.clone());
 
   match function {
@@ -65,11 +65,12 @@ pub fn parse<'a>(parser: &'a mut Parser, function: Option<Box<Expressions>>) -> 
 
   exp.arguments = parse_list(parser, Signs::RIGHTPARENTHESES);
 
-  if parser.expect_sign(&Signs::SEMICOLON) == true {
+  if parser.expect_sign(&Signs::SEMICOLON) {
     exp.semicolon = Some(parser.current_token.clone());
 
     parser.next_token();
-  } else if exp.clone().function.token().token == Tokens::IDENTIFIER {
+  } else if exp.clone().function.token().token == Tokens::IDENTIFIER && last_token.keyword != Keywords::RETURN &&
+    (parser.peek_token_is(&Tokens::EOL) || parser.peek_token_is(&Tokens::EOF)) {
     let token: Token = parser.current_token.clone();
 
     exp.semicolon = Some(Token::from_value(String::from(";"), token.position, token.line));

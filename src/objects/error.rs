@@ -20,3 +20,7 @@ impl Error {
     Box::new(Objects::ERROR(Error { message }))
   }
 }
+
+pub fn is_error(obj: Box<Objects>) -> bool {
+  obj.object_type() == ObjectType::ERROR
+}

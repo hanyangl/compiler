@@ -6,7 +6,7 @@ use super::*;
 pub fn parse<'a>(parser: &'a mut Parser, precedence: Precedence) -> Option<Box<Expressions>> {
   let token: data::Token = parser.current_token.clone();
 
-  let mut left: Option<Box<Expressions>> = match token.token {    
+  let mut left: Option<Box<Expressions>> = match token.token {
     // Parse identifiers.
     data::Tokens::IDENTIFIER => Some(Box::new(Expressions::IDENTIFIER(Expression::from_token(&token)))),
 
@@ -92,9 +92,11 @@ pub fn parse<'a>(parser: &'a mut Parser, precedence: Precedence) -> Option<Box<E
       },
 
       data::Signs::LEFTPARENTHESES => {
+        let last_token = parser.last_token.clone();
+
         parser.next_token();
 
-        left = Some(Box::new(Expressions::CALL(call::parse(parser, left))));
+        left = Some(Box::new(Expressions::CALL(call::parse(parser, left, last_token))));
       }
 
       _ => break,

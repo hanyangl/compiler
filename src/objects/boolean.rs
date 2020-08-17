@@ -1,4 +1,4 @@
-use super::{Object, ObjectType, Hashable, HashKey, Objects};
+use super::{Object, ObjectType, Hashable, HashKey, Objects, null::Null};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Boolean {
@@ -36,4 +36,14 @@ impl Boolean {
   pub fn new(value: bool) -> Box<Objects> {
     Box::new(Objects::BOOLEAN(Boolean { value }))
   }
+}
+
+pub fn is_truthy(object: Box<Objects>) -> bool {
+  // When is a null object or false boolean object
+  if object == Null::new() || object == Boolean::new(false) {
+    return false;
+  }
+
+  // Default
+  return true;
 }

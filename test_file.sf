@@ -1,13 +1,9 @@
-let year: number = 2020
-
-function get_message(name: string = "-", hola: number): string {
-  if (year == 2020) {
-    let other_name: string = "Sflyn"
-
-    return "Hello, " + other_name + "!";
+function get(x: number): string {
+  if (x == 2) {
+    return "is equal 2";
   } else {
-    return "Hello, " + name + "!"
+    return "is not equal to 2";
   }
 }
 
-get_message("Daniel");
+"2 " + get(2) + " and 10 " + get(10);

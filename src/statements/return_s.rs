@@ -50,7 +50,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Return {
 
   statement.value = expression_parse(parser, Precedence::LOWEST);
 
-  if parser.peek_token_is_sign(&Signs::SEMICOLON) == true {
+  if parser.peek_token_is_sign(&Signs::SEMICOLON) {
     parser.next_token();
   }
 

@@ -1,3 +1,4 @@
+pub mod compiler;
 pub mod data;
 pub mod expressions;
 pub mod objects;
@@ -18,8 +19,11 @@ fn main() {
   if parser.errors.len() > 0 {
     println!("{}", parser.errors.join("\n\n"));
   } else {
-    for stmt in statements {
-      println!("{}", stmt.string());
+    match compiler::evaluate(statements.clone(), &mut compiler::environment::Environment::new()) {
+      Some(result) => {
+        println!("Result: {}", result.string());
+      },
+      None => {},
     }
   }
 }

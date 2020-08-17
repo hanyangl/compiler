@@ -45,8 +45,12 @@ impl Expression for Parameter {
 pub fn parse<'a>(parser: &'a mut Parser) -> Option<Vec<Box<Expressions>>> {
   let mut parameters: Vec<Box<Expressions>> = Vec::new();
 
-  while parser.current_token_is_sign(&Signs::RIGHTPARENTHESES) == false {
-    if parser.expect_token(&Tokens::IDENTIFIER) == false {
+  if parser.peek_token_is_sign(&Signs::RIGHTPARENTHESES) {
+    parser.next_token();
+  }
+
+  while !parser.current_token_is_sign(&Signs::RIGHTPARENTHESES) {
+    if !parser.expect_token(&Tokens::IDENTIFIER) {
       let line = parser.get_error_line("");
 
       parser.errors.push(format!("{} `{}` is not a valid parameter name.", line, parser.peek_token.value));
@@ -56,7 +60,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Vec<Box<Expressions>>> {
 
     let mut parameter: Parameter = Expression::from_token(&parser.current_token.clone());
 
-    if parser.expect_sign(&Signs::COLON) == false {
+    if !parser.expect_sign(&Signs::COLON) {
       let line = parser.get_error_line(format!("{}", parameter.name.value).as_str());
 
       parser.errors.push(format!("{} expect `:`, got `{}` instead.", line, parser.peek_token.value));
@@ -64,7 +68,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Vec<Box<Expressions>>> {
       return None;
     }
 
-    if parser.expect_token(&Tokens::TYPE) == false {
+    if !parser.expect_token(&Tokens::TYPE) {
       let line = parser.get_error_line(format!("{}: ", parameter.name.value).as_str());
 
       parser.errors.push(format!("{} `{}` is not a valid data type.", line, parser.peek_token.value));
@@ -74,12 +78,12 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Vec<Box<Expressions>>> {
 
     parameter.data_type = parser.current_token.clone();
 
-    if parser.peek_token_is_sign(&Signs::COMMA) == true {
+    if parser.peek_token_is_sign(&Signs::COMMA) {
       parser.next_token();
-    } else if parser.peek_token_is_sign(&Signs::ASSIGN) == true {
+    } else if parser.peek_token_is_sign(&Signs::ASSIGN) {
       parser.next_token();
 
-      if token_is_valid_type(&parameter.data_type.data_type, &parser.peek_token) == false {
+      if !token_is_valid_type(&parameter.data_type.data_type, &parser.peek_token) {
         let line = parser.get_error_line(format!("{}: {} = ", parameter.name.value, parameter.data_type.value).as_str());
 
         parser.errors.push(

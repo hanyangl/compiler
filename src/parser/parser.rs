@@ -8,6 +8,7 @@ pub struct Parser {
   lexer: Lexer,
   pub errors: Vec<String>,
 
+  pub last_token: data::Token,
   pub current_token: data::Token,
   pub peek_token: data::Token,
 }
@@ -18,6 +19,7 @@ impl Parser {
       lexer,
       errors: Vec::new(),
 
+      last_token: data::Token::empty(),
       current_token: data::Token::empty(),
       peek_token: data::Token::empty(),
     };
@@ -29,8 +31,13 @@ impl Parser {
   }
 
   pub fn next_token(&mut self) {
+    std::mem::swap(&mut self.last_token, &mut self.current_token);
     std::mem::swap(&mut self.current_token, &mut self.peek_token);
     self.peek_token = self.lexer.read_token();
+  }
+
+  pub fn last_token_is<'a>(&mut self, token: &'a data::Tokens) -> bool {
+    &self.last_token.token == token
   }
 
   pub fn current_token_is<'a>(&mut self, token: &'a data::Tokens) -> bool {
@@ -48,6 +55,10 @@ impl Parser {
     } else {
       false
     }
+  }
+
+  pub fn last_token_is_keyword<'a>(&mut self, keyword: &'a data::Keywords) -> bool {
+    self.last_token_is(&data::Tokens::KEYWORD) && &self.last_token.keyword == keyword
   }
 
   pub fn current_token_is_keyword<'a>(&mut self, keyword: &'a data::Keywords) -> bool {
