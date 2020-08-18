@@ -1,9 +1,0 @@
-function is(x: number, y: number = 2): string {
-  if (x == y) {
-    return x + " is equal to " + y;
-  } else {
-    return x + " is not equal to " + y;
-  }
-}
-
-return is(2);
