@@ -1,0 +1,11 @@
+[package]
+name = "sflyn_compiler"
+version = "0.0.2"
+license = "MIT"
+authors = ["Daniel Solarte <danielsolartech@hotmail.com>"]
+homepage = "https://github.com/sflynlang/compiler/README.md"
+repository = "https://github.com/sflynlang/compiler"
+edition = "2018"
+
+[lib]
+path = "src/lib.rs"
