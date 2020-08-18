@@ -1,5 +1,5 @@
 #[cfg(test)]
-use sflyn_compiler::parser::tokens::*;
+use sflyn_parser::tokens::*;
 
 #[cfg(test)]
 fn test_keyword(value: &str, expect: Keywords) {
@@ -18,8 +18,8 @@ fn test_keyword(value: &str, expect: Keywords) {
   assert_eq!(token.value, value.clone());
 }
 
-#[test]
-fn parser_keywords() {
+#[cfg(test)]
+fn keywords() {
   // Variables
   test_keyword("let", Keywords::LET);
   test_keyword("const", Keywords::CONST);
@@ -50,8 +50,8 @@ fn test_sign(value: &str, expect: Signs) {
   assert_eq!(token.value, value.clone());
 }
 
-#[test]
-fn parser_signs() {
+#[cfg(test)]
+fn signs() {
   // Delimeters
   test_sign(",", Signs::COMMA); // COMMA
   test_sign(":", Signs::COLON); // COLON
@@ -87,8 +87,8 @@ fn test_type(value: &str, expect: Types) {
   assert_eq!(token.value, value.clone());
 }
 
-#[test]
-fn parser_types() {
+#[cfg(test)]
+fn types() {
   // Basic
   test_type("string", Types::STRING);
   test_type("number", Types::NUMBER);
@@ -96,4 +96,11 @@ fn parser_types() {
 
   // Function
   test_type("void", Types::VOID);
+}
+
+#[test]
+fn parser_tokens() {
+  keywords();
+  signs();
+  types();
 }

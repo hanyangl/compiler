@@ -1,5 +1,5 @@
 [package]
-name = "sflyn_compiler_tests"
+name = "sflyn_tests"
 version = "0.0.1"
 license = "MIT"
 authors = ["Daniel Solarte <danielsolartech@hotmail.com>"]
@@ -8,4 +8,4 @@ repository = "https://github.com/sflynlang/compiler"
 edition = "2018"
 
 [dependencies]
-sflyn_compiler = { path = "../core", version = "0.0.2" }
+sflyn_parser = { path = "../parser", version = "0.0.1" }
