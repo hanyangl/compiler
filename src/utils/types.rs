@@ -1,5 +1,6 @@
 use crate::data;
 use crate::expressions::Expressions;
+use crate::objects::Objects;
 
 /// Comprobate if a value is of a specific type.
 /// 
@@ -77,6 +78,31 @@ pub fn expression_is_valid_type(data_type: &data::Types, expression: &Box<Expres
       ),
       None => false,
     }
+
+    // Default
+    _ => false,
+  }
+}
+
+pub fn object_is_valid_type(data_type: &data::Types, object: Box<Objects>) -> bool {
+  match data_type {
+    // String
+    data::Types::STRING => match object.get_string() {
+      Some(_) => true,
+      None => false,
+    },
+
+    // Integer
+    data::Types::NUMBER => match object.get_integer() {
+      Some(_) => true,
+      None => false,
+    },
+
+    // Boolean
+    data::Types::BOOLEAN => match object.get_boolean() {
+      Some(_) => true,
+      None => false,
+    },
 
     // Default
     _ => false,

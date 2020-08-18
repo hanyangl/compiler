@@ -1,3 +1,4 @@
+use crate::compiler::environment::Environment;
 use crate::data::Token;
 use crate::parser::{Parser, precedence::Precedence};
 
@@ -40,12 +41,12 @@ impl Expression for Prefix {
   }
 }
 
-pub fn parse<'a>(parser: &'a mut Parser) -> Prefix {
+pub fn parse<'a>(parser: &'a mut Parser, env: &mut Environment) -> Prefix {
   let mut exp: Prefix = Expression::from_token(&parser.current_token.clone());
 
   parser.next_token();
 
-  exp.right = expression_parse(parser, Precedence::PREFIX);
+  exp.right = expression_parse(parser, Precedence::PREFIX, env);
 
   exp
 }

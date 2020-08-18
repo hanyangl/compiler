@@ -11,7 +11,7 @@ impl Object for Error {
   }
 
   fn string(self) -> String {
-    format!("Error: {}", self.message)
+    self.message
   }
 }
 

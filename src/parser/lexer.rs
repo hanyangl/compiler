@@ -1,7 +1,7 @@
 use crate::utils;
 use crate::data;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Lexer {
   pub text: String,
 

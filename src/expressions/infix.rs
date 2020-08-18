@@ -1,3 +1,4 @@
+use crate::compiler::environment::Environment;
 use crate::data::Token;
 use crate::parser::Parser;
 
@@ -50,7 +51,7 @@ impl Expression for Infix {
 
 
 // PARSER //
-pub fn parse<'a>(parser: &'a mut Parser, left: Option<Box<Expressions>>) -> Infix {
+pub fn parse<'a>(parser: &'a mut Parser, left: Option<Box<Expressions>>, env: &mut Environment) -> Infix {
   let mut exp: Infix = Expression::from_token(&parser.current_token);
 
   exp.left = left;
@@ -58,7 +59,7 @@ pub fn parse<'a>(parser: &'a mut Parser, left: Option<Box<Expressions>>) -> Infi
   let precedence = parser.current_precedence();
   parser.next_token();
 
-  exp.right = expression_parse(parser, precedence);
+  exp.right = expression_parse(parser, precedence, env);
 
   exp
 }

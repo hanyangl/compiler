@@ -1,4 +1,4 @@
-# Sflyn
-Programming language
+# Sflyn Compiler
+Compiler for the **Sflyn** programming language.
 
-## [Documentation](https://github.com/sflyn/docs)
+## [Documentation](https://github.com/sflynlang/docs)

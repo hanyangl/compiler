@@ -1,9 +1,9 @@
-function get(x: number): string {
-  if (x == 2) {
-    return "is equal 2";
+function is(x: number, y: number = 2): string {
+  if (x == y) {
+    return x + " is equal to " + y;
   } else {
-    return "is not equal to 2";
+    return x + " is not equal to " + y;
   }
 }
 
-"2 " + get(2) + " and 10 " + get(10);
+return is(2);

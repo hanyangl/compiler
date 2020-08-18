@@ -4,10 +4,13 @@ use super::{string, integer};
 
 pub fn evaluate(operator: String, left: Box<Objects>, right: Box<Objects>) -> Box<Objects> {
   // Concat strings
-  if left.clone().object_type() == ObjectType::STRING && right.clone().object_type() == ObjectType::STRING {
+  if operator.as_str() == "+" && (
+    left.clone().object_type() == ObjectType::STRING ||
+    right.clone().object_type() == ObjectType::STRING
+  ) {
     return string::evaluate(operator, left.clone(), right.clone());
   }
-
+  
   // Number operations
   if left.clone().object_type() == ObjectType::INTEGER && right.clone().object_type() == ObjectType::INTEGER {
     return integer::evaluate(operator, left.clone(), right.clone());

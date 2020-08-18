@@ -45,7 +45,19 @@ pub fn evaluate(call: Call, env: &mut Environment) -> Option<Box<Objects>> {
           for param in function.parameters.clone() {
             match param.get_parameter() {
               Some(param_exp) => {
-                env.set(param_exp.name.value, arguments[i].clone());
+                if arguments.len() > i {
+                  env.set(param_exp.name.value, arguments[i].clone());
+                } else {
+                  match param_exp.default_value {
+                    Some(default_value) => match expression::evaluate(default_value.clone(), &mut env) {
+                      Some(obj) => {
+                        env.set(param_exp.name.value, obj);
+                      },
+                      None => {},
+                    },
+                    None => {},
+                  }
+                }
               },
               None => {},
             }
@@ -55,9 +67,7 @@ pub fn evaluate(call: Call, env: &mut Environment) -> Option<Box<Objects>> {
 
           match statement::evaluate(function.body, &mut env) {
             Some(obj) => match obj.clone().get_return() {
-              Some(return_obj) => {
-                Some(return_obj.value)
-              },
+              Some(return_obj) => Some(return_obj.value),
               None => Some(obj.clone()),
             },
             None => None,

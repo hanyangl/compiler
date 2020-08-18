@@ -1,5 +1,7 @@
+use crate::compiler::environment::Environment;
 use crate::data;
 use crate::expressions::{identifier::Identifier, Expression, Expressions, parse as expression_parse};
+use crate::objects::Objects;
 use crate::parser::{Parser, precedence::Precedence};
 use crate::utils::{repeat_character, types::expression_is_valid_type};
 
@@ -52,12 +54,12 @@ impl Statement for Variable {
 /// let username: string = "Sflyn";
 /// let decimal: number = 6;
 /// ```
-pub fn parse<'a>(parser: &'a mut Parser) -> Option<Variable> {
+pub fn parse<'a>(parser: &'a mut Parser, env: &mut Environment) -> Option<Variable> {
   let mut statement: Variable = Statement::from_token(&parser.current_token.clone());
   let token_name = &statement.token.value;
 
   // Check if a valid variable name.
-  if parser.expect_token(&data::Tokens::IDENTIFIER) == false {
+  if !parser.peek_token_is(&data::Tokens::IDENTIFIER) {
     let token: data::Token = parser.peek_token.clone();
     let line = parser.get_error_line(format!("{} ", token_name).as_str());
     let mut message = format!("{} `{}` is not a valid variable name.", line, token.value);
@@ -71,8 +73,22 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Variable> {
     return None;
   }
 
+  // Check if the variable name is in use.
+  match env.clone().get(parser.peek_token.value.clone()) {
+    Some(_) => {
+      let line = parser.get_error_line(format!("{} ", token_name).as_str());
+
+      parser.errors.push(format!("{} `{}` is already in use.", line, parser.peek_token.value));
+
+      return None;
+    },
+    None => {
+      parser.next_token();
+    },
+  }
+
   // Set the variable name to the statement.
-  statement.name = Expression::from_token(&parser.current_token.clone());
+  statement.name = Expression::from_token(&parser.current_token);
 
   // Check if the next character is a colon (:).
   if parser.expect_sign(&data::Signs::COLON) == false {
@@ -94,6 +110,9 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Variable> {
 
   // Set the data type to the statement.
   statement.data_type = parser.current_token.clone();
+
+  // Set temp data to environment.
+  env.set(statement.name.value.clone(), Objects::empty(statement.data_type.data_type.clone()));
 
   // Check if the next character is an assign sign (=).
   if parser.expect_sign(&data::Signs::ASSIGN) == false {
@@ -131,7 +150,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Variable> {
   parser.next_token();
 
   // Set the variable value to the statement.
-  match expression_parse(parser, Precedence::LOWEST) {
+  match expression_parse(parser, Precedence::LOWEST, env) {
     Some(value) => {
       if expression_is_valid_type(&statement.data_type.data_type, &value) == false {
         let left_line = format!(

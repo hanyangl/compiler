@@ -1,4 +1,6 @@
+use crate::compiler::environment::Environment;
 use crate::data::{Token, Signs, Tokens};
+use crate::objects::function;
 use crate::parser::Parser;
 use crate::statements::{block, Statements};
 
@@ -53,20 +55,36 @@ impl Expression for Function {
 
 
 // PARSER //
-pub fn parse<'a>(parser: &'a mut Parser) -> Option<Function> {
+pub fn parse<'a>(parser: &'a mut Parser, env: &mut Environment) -> Option<Function> {
   let mut exp: Function = Expression::from_token(&parser.current_token.clone());
 
-  if parser.expect_token(&Tokens::IDENTIFIER) == false {
+  // Get the function name.
+  if !parser.peek_token_is(&Tokens::IDENTIFIER) {
     let line = parser.get_error_line("function ");
 
-    parser.errors.push(format!("{} `{}` is not a valid function name.", line, parser.current_token.value));
+    parser.errors.push(format!("{} `{}` is not a valid function name.", line, parser.peek_token.value));
 
     return None;
   }
 
+  // Check if the functtion name is in use.
+  match env.clone().get(parser.peek_token.value.clone()) {
+    Some(_) => {
+      let line = parser.get_error_line("function ");
+
+      parser.errors.push(format!("{} `{}` is already in use.", line, parser.peek_token.value));
+
+      return None;
+    },
+    None => {
+      parser.next_token();
+    },
+  }
+
+  // Set the function name to the expression.
   exp.name = parser.current_token.clone();
 
-  if parser.expect_sign(&Signs::LEFTPARENTHESES) == false {
+  if !parser.expect_sign(&Signs::LEFTPARENTHESES) {
     let line = parser.get_error_line(format!("function {}", exp.name.value).as_str());
 
     parser.errors.push(format!("{} the functions need parameters.", line));
@@ -74,8 +92,10 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Function> {
     return None;
   }
 
+  let mut func_env = Environment::from_environment(env.clone());
+
   // Get function parameters.
-  match parse_parameters(parser) {
+  match parse_parameters(parser, &mut func_env) {
     Some(parameters) => {
       exp.parameters = parameters;
     },
@@ -85,6 +105,9 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Function> {
       return None;
     },
   };
+
+  // Set temp data to environment.
+  env.set(exp.name.value.clone(), function::Function::new(exp.clone()));
 
   // Get the function return type. (Default: void).
   if parser.expect_sign(&Signs::COLON) == true {
@@ -128,12 +151,12 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Function> {
   }
 
   // Get function body.
-  exp.body = block::parse(parser);
+  exp.body = block::parse(parser, env);
 
   match exp.body.clone().get_block() {
     Some(block) => {
       for eval_stmt in block.statements.iter() {
-        if block::parse_function_block(parser, eval_stmt.clone(), &exp.clone()) == false {
+        if block::parse_function_block(parser, eval_stmt.clone(), &exp.clone(), &mut func_env) == false {
           return None;
         }
       }

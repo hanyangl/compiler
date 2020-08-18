@@ -1,3 +1,4 @@
+use crate::compiler::environment::Environment;
 use crate::data::Token;
 use crate::parser::Parser;
 
@@ -41,7 +42,7 @@ impl Expression for Method {
 
 
 // PARSER //
-pub fn parse<'a>(parser: &'a mut Parser, left: Option<Box<Expressions>>) -> Method {
+pub fn parse<'a>(parser: &'a mut Parser, left: Option<Box<Expressions>>, env: &mut Environment) -> Method {
   let mut exp: Method = Expression::from_token(&parser.current_token.clone());
 
   match left {
@@ -54,7 +55,7 @@ pub fn parse<'a>(parser: &'a mut Parser, left: Option<Box<Expressions>>) -> Meth
   let precedence = parser.current_precedence();
   parser.next_token();
 
-  match expression_parse(parser, precedence) {
+  match expression_parse(parser, precedence, env) {
     Some(right) => {
       exp.right = right;
     },

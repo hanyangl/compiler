@@ -10,7 +10,9 @@ pub fn evaluate(stmt: Box<Statements>, env: &mut Environment) -> Option<Box<Obje
 
     // Expression
     Statements::EXPRESSION(exp_stmt) => match exp_stmt.clone().expression {
-      Some(exp) => expression::evaluate(exp, env),
+      Some(exp) => {
+        expression::evaluate(exp, env)
+      },
       None => None,
     },
 

@@ -1,9 +1,11 @@
+use crate::compiler::environment::Environment;
 use crate::data;
-use crate::parser::{Lexer, precedence};
 use crate::statements;
 use crate::utils::repeat_character;
 
-#[derive(Debug)]
+use super::{Lexer, precedence};
+
+#[derive(Debug, Clone)]
 pub struct Parser {
   lexer: Lexer,
   pub errors: Vec<String>,
@@ -134,10 +136,11 @@ impl Parser {
 
   pub fn parse_program(&mut self) -> Vec<Box<statements::Statements>> {
     let mut statements: Vec<Box<statements::Statements>> = Vec::new();
+    let mut temp_env = Environment::new();
 
     while self.current_token.token != data::Tokens::EOF {
       // Only for testing...
-      match self.parse_statement() {
+      match self.parse_statement(&mut temp_env) {
         Some(statement) => {
           statements.push(statement);
         },
@@ -150,26 +153,26 @@ impl Parser {
     statements
   }
 
-  pub fn parse_statement(&mut self) -> Option<Box<statements::Statements>> {
+  pub fn parse_statement(&mut self, env: &mut Environment) -> Option<Box<statements::Statements>> {
     match self.current_token.token {
       // Keywords
       data::Tokens::KEYWORD => match self.current_token.keyword {
         // Variable statement
         data::Keywords::LET |
-        data::Keywords::CONST => match statements::variable::parse(self) {
+        data::Keywords::CONST => match statements::variable::parse(self, env) {
           Some(statement) => Some(Box::new(statements::Statements::VARIABLE(statement))),
           None => None,
         },
 
         // Return statement
-        data::Keywords::RETURN => Some(Box::new(statements::Statements::RETURN(statements::return_s::parse(self)))),
+        data::Keywords::RETURN => Some(Box::new(statements::Statements::RETURN(statements::return_s::parse(self, env)))),
 
         // Default
-        _ => Some(Box::new(statements::Statements::EXPRESSION(statements::expression::parse(self)))),
+        _ => Some(Box::new(statements::Statements::EXPRESSION(statements::expression::parse(self, env)))),
       },
 
       // Default
-      _ => Some(Box::new(statements::Statements::EXPRESSION(statements::expression::parse(self))))
+      _ => Some(Box::new(statements::Statements::EXPRESSION(statements::expression::parse(self, env))))
     }
   }
 }

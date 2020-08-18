@@ -6,6 +6,9 @@ pub mod null;
 pub mod return_o;
 pub mod string;
 
+use crate::data::Types;
+use crate::expressions::Expression;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum ObjectType {
   NULL,
@@ -50,6 +53,26 @@ pub enum Objects {
 }
 
 impl Objects {
+  /// Get empty object for a data type.
+  pub fn empty(data_type: Types) -> Box<Objects> {
+    match data_type {
+      // String
+      Types::STRING => string::StringO::new(String::new()),
+
+      // Integer
+      Types::NUMBER => integer::Integer::new(0),
+
+      // Boolean
+      Types::BOOLEAN => boolean::Boolean::new(false),
+
+      // Void
+      Types::VOID => function::Function::new(Expression::new()),
+
+      // Default
+      _ => null::Null::new(),
+    }
+  }
+
   /// Get null object.
   pub fn get_null(self) -> Option<null::Null> {
     match self {

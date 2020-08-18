@@ -1,9 +1,10 @@
+use crate::compiler::environment::Environment;
 use crate::data;
 use crate::parser::{Parser, precedence::Precedence};
 
 use super::*;
 
-pub fn parse<'a>(parser: &'a mut Parser, precedence: Precedence) -> Option<Box<Expressions>> {
+pub fn parse<'a>(parser: &'a mut Parser, precedence: Precedence, env: &mut Environment) -> Option<Box<Expressions>> {
   let token: data::Token = parser.current_token.clone();
 
   let mut left: Option<Box<Expressions>> = match token.token {
@@ -22,13 +23,13 @@ pub fn parse<'a>(parser: &'a mut Parser, precedence: Precedence) -> Option<Box<E
     // Parse keywords.
     data::Tokens::KEYWORD => match token.keyword {
       // Parse if expression.
-      data::Keywords::IF => match if_else::parse(parser) {
+      data::Keywords::IF => match if_else::parse(parser, env) {
         Some(x) => Some(Box::new(Expressions::IFELSE(x))),
         None => None,
       },
 
       // Parse function.
-      data::Keywords::FUNCTION => match function::parse(parser) {
+      data::Keywords::FUNCTION => match function::parse(parser, env) {
         Some(x) => Some(Box::new(Expressions::FUNCTION(x))),
         None => None,
       },
@@ -40,7 +41,7 @@ pub fn parse<'a>(parser: &'a mut Parser, precedence: Precedence) -> Option<Box<E
     // Parse signs.
     data::Tokens::SIGN => match token.sign {
       // Parse '!' and '-' signs.
-      data::Signs::NEGATION | data::Signs::MINUS => Some(Box::new(Expressions::PREFIX(prefix::parse(parser)))),
+      data::Signs::NEGATION | data::Signs::MINUS => Some(Box::new(Expressions::PREFIX(prefix::parse(parser, env)))),
 
       // Default
       _ => None,
@@ -82,21 +83,22 @@ pub fn parse<'a>(parser: &'a mut Parser, precedence: Precedence) -> Option<Box<E
       data::Signs::GREATEROREQUALTHAN => {
         parser.next_token();
 
-        left = Some(Box::new(Expressions::INFIX(infix::parse(parser, left))));
+        left = Some(Box::new(Expressions::INFIX(infix::parse(parser, left, env))));
       },
 
       data::Signs::ARROW => {
         parser.next_token();
 
-        left = Some(Box::new(Expressions::METHOD(method::parse(parser, left))));
+        left = Some(Box::new(Expressions::METHOD(method::parse(parser, left, env))));
       },
 
       data::Signs::LEFTPARENTHESES => {
-        let last_token = parser.last_token.clone();
-
         parser.next_token();
 
-        left = Some(Box::new(Expressions::CALL(call::parse(parser, left, last_token))));
+        left = match call::parse(parser, left, env) {
+          Some(call_exp) => Some(Box::new(Expressions::CALL(call_exp))),
+          None => None,
+        }
       }
 
       _ => break,

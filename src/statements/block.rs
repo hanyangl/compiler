@@ -1,3 +1,4 @@
+use crate::compiler::environment::Environment;
 use crate::data::{Token, Signs, Tokens, Keywords};
 use crate::expressions::function::Function;
 use crate::parser::Parser;
@@ -47,13 +48,13 @@ impl Block {
 
 
 // PARSER //
-pub fn parse<'a>(parser: &'a mut Parser) -> Box<Statements> {
+pub fn parse<'a>(parser: &'a mut Parser, env: &mut Environment) -> Box<Statements> {
   let mut statement: Block = Statement::from_token(&parser.current_token.clone());
 
   parser.next_token();
 
   while parser.current_token_is_sign(&Signs::RIGHTBRACE) == false && parser.current_token_is(&Tokens::EOF) == false {
-    match parser.parse_statement() {
+    match parser.parse_statement(env) {
       Some(x) => statement.statements.push(x),
       None => {},
     }
@@ -64,11 +65,16 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Box<Statements> {
   Box::new(Statements::BLOCK(statement))
 }
 
-pub fn parse_function_block<'a>(parser: &'a mut Parser, eval_stmt: Box<Statements>, function: &Function) -> bool {
+pub fn parse_function_block<'a>(
+  parser: &'a mut Parser,
+  eval_stmt: Box<Statements>,
+  function: &Function,
+  env: &mut Environment,
+) -> bool {
   match eval_stmt.clone().get_return() {
     // Parse return value.
     Some(return_stmt) => {
-      return parse_return(parser, &return_stmt, function);
+      return parse_return(parser, &return_stmt, function, env);
     },
 
     // Parse expressions.
@@ -87,7 +93,7 @@ pub fn parse_function_block<'a>(parser: &'a mut Parser, eval_stmt: Box<Statement
                   Some(consequence) => {
                     // Parse statements.
                     for stmt in consequence.statements.iter() {
-                      value = parse_function_block(parser, stmt.clone(), function);
+                      value = parse_function_block(parser, stmt.clone(), function, env);
                     }
 
                     // Get alternative block statement.
@@ -95,7 +101,7 @@ pub fn parse_function_block<'a>(parser: &'a mut Parser, eval_stmt: Box<Statement
                       Some(alternative) => match alternative.get_block() {
                         Some(else_exp) => {
                           for stmt in else_exp.statements.iter() {
-                            value = parse_function_block(parser, stmt.clone(), function);
+                            value = parse_function_block(parser, stmt.clone(), function, env);
                           }
                         },
 

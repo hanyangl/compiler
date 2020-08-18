@@ -41,7 +41,8 @@ pub fn evaluate(exp: Box<Expressions>, env: &mut Environment) -> Option<Box<Obje
     },
 
     // Infix
-    Expressions::INFIX(infix_exp) => match infix_exp.left.clone() {
+    Expressions::INFIX(infix_exp) => {
+      match infix_exp.left.clone() {
       Some(left) => match evaluate(left.clone(), env) {
         Some(left_obj) => {
           if is_error(left_obj.clone()) {
@@ -65,6 +66,7 @@ pub fn evaluate(exp: Box<Expressions>, env: &mut Environment) -> Option<Box<Obje
         None => None,
       },
       None => None,
+    }
     },
 
     // If-else

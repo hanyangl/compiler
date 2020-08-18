@@ -1,15 +1,17 @@
+use crate::compiler::{environment::Environment, expression::evaluate};
 use crate::data::{Token, Signs, Tokens};
-use crate::parser::Parser;
-use crate::utils::types::token_is_valid_type;
+use crate::objects::{Objects, error::is_error};
+use crate::parser::{Parser, precedence::Precedence};
+use crate::utils::{repeat_character, types::{object_is_valid_type, expression_is_valid_type}};
 
-use super::{Expression, Expressions};
+use super::{Expression, Expressions, parse as expression_parse};
 
 // EXPRESSION //
 #[derive(Debug, Clone, PartialEq)]
 pub struct Parameter {
   pub name: Token,
   pub data_type: Token,
-  pub default_value: Option<Token>,
+  pub default_value: Option<Box<Expressions>>,
 }
 
 impl Expression for Parameter {
@@ -33,7 +35,7 @@ impl Expression for Parameter {
     let param = format!("{}: {}", self.name.value, self.data_type.value);
 
     match self.default_value {
-      Some(default) => format!("{} = {}", param, default.value),
+      Some(default) => format!("{} = {}", param, default.string()),
       None => param,
     }
   }
@@ -42,20 +44,35 @@ impl Expression for Parameter {
 
 
 // PARSER //
-pub fn parse<'a>(parser: &'a mut Parser) -> Option<Vec<Box<Expressions>>> {
+pub fn parse<'a>(parser: &'a mut Parser, env: &mut Environment) -> Option<Vec<Box<Expressions>>> {
   let mut parameters: Vec<Box<Expressions>> = Vec::new();
 
   if parser.peek_token_is_sign(&Signs::RIGHTPARENTHESES) {
     parser.next_token();
   }
 
+  let mut has_default = false;
   while !parser.current_token_is_sign(&Signs::RIGHTPARENTHESES) {
-    if !parser.expect_token(&Tokens::IDENTIFIER) {
+    if !parser.peek_token_is(&Tokens::IDENTIFIER) {
       let line = parser.get_error_line("");
 
       parser.errors.push(format!("{} `{}` is not a valid parameter name.", line, parser.peek_token.value));
 
       return None;
+    }
+
+    // Check if the parameter name is in use.
+    match env.clone().get_first(parser.peek_token.value.clone()) {
+      Some(_) => {
+        let line = parser.get_error_line("");
+
+        parser.errors.push(format!("{} `{}` is already in use.", line, parser.peek_token.value));
+
+        return None;
+      },
+      None => {
+        parser.next_token();
+      },
     }
 
     let mut parameter: Parameter = Expression::from_token(&parser.current_token.clone());
@@ -78,32 +95,81 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Vec<Box<Expressions>>> {
 
     parameter.data_type = parser.current_token.clone();
 
+    env.set(parameter.name.value.clone(), Objects::empty(parameter.data_type.data_type.clone()));
+
     if parser.peek_token_is_sign(&Signs::COMMA) {
       parser.next_token();
     } else if parser.peek_token_is_sign(&Signs::ASSIGN) {
+      has_default = true;
+      parser.next_token();
       parser.next_token();
 
-      if !token_is_valid_type(&parameter.data_type.data_type, &parser.peek_token) {
-        let line = parser.get_error_line(format!("{}: {} = ", parameter.name.value, parameter.data_type.value).as_str());
+      match expression_parse(parser, Precedence::LOWEST, env) {
+        Some(value_exp) => {
+          let left_line = format!("{} | {}: {} = ", value_exp.clone().token().line, parameter.name.value, parameter.data_type.value);
+  
+          let line = format!(
+            "{}{}\n{}{}",
+            left_line,
+            value_exp.clone().string(),
+            repeat_character(left_line.len(), " "),
+            repeat_character(value_exp.clone().string().len(), "^"),
+          );
 
-        parser.errors.push(
-          format!(
-            "{} `{}` not satisfied the {} data type.",
-            line,
-            parser.peek_token.value,
-            parameter.data_type.value
-          )
-        );
+          match evaluate(value_exp.clone(), env) {
+            Some(obj) => {
+              if is_error(obj.clone()) {
+                parser.errors.push(format!("{} {}", line, obj.string()));
+    
+                return None;
+              }
+    
+              if !object_is_valid_type(&parameter.data_type.data_type, obj) {
+                parser.errors.push(
+                  format!(
+                    "{} `{}` not satisfied the `{}` data type.",
+                    line,
+                    value_exp.clone().string(),
+                    parameter.data_type.value
+                  )
+                );
+        
+                return None;
+              }
 
-        return None;
+              parser.next_token();
+            },
+            None => {
+              if !expression_is_valid_type(&parameter.data_type.data_type, &value_exp.clone()) {    
+                parser.errors.push(
+                  format!(
+                    "{} `{}` not satisfied the {} data type.",
+                    line,
+                    value_exp.clone().string(),
+                    parameter.data_type.value
+                  )
+                );
+    
+                return None;
+              }
+            },
+          }
+
+          parameter.default_value = Some(value_exp);
+        },
+        None => {},
       }
+    } else if has_default {
+      let line = parser.get_error_line(format!("{}: {}", parameter.name.value, parameter.data_type.value).as_str());
 
-      parser.next_token();
+      parser.errors.push(format!("{} `{}` must has default value.", line, parameter.name.value));
 
-      parameter.default_value = Some(parser.current_token.clone());
+      return None;
     }
 
-    parser.next_token();
+    if parser.peek_token_is_sign(&Signs::RIGHTPARENTHESES) {
+      parser.next_token();
+    }
 
     parameters.push(Box::new(Expressions::PARAMETER(parameter)));
   }

@@ -22,10 +22,17 @@ impl Environment {
     env_r
   }
 
-  pub fn get(self, name: String) -> Option<Box<Objects>> {
+  pub fn get_first(&self, name: String) -> Option<Box<Objects>> {
     match self.store.get(&name) {
       Some(object) => Some(object.clone()),
-      None => match self.outer {
+      None => None,
+    }
+  }
+
+  pub fn get(&self, name: String) -> Option<Box<Objects>> {
+    match self.get_first(name.clone()) {
+      Some(object) => Some(object),
+      None => match self.outer.clone() {
         Some(env) => env.get(name),
         None => None,
       },

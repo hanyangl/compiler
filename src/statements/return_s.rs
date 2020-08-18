@@ -1,7 +1,9 @@
+use crate::compiler::{environment::Environment, expression::evaluate};
 use crate::data::{Token, Signs, Types};
 use crate::expressions::{Expressions, parse as expression_parse, function::Function};
+use crate::objects::error::is_error;
 use crate::parser::{Parser, precedence::Precedence};
-use crate::utils::{repeat_character, types::expression_is_valid_type};
+use crate::utils::{repeat_character, types::{expression_is_valid_type, object_is_valid_type}};
 
 use super::Statement;
 
@@ -43,12 +45,12 @@ impl Statement for Return {
 
 
 // PARSER //
-pub fn parse<'a>(parser: &'a mut Parser) -> Return {
+pub fn parse<'a>(parser: &'a mut Parser, env: &mut Environment) -> Return {
   let mut statement: Return = Statement::from_token(&parser.current_token.clone());
 
   parser.next_token();
 
-  statement.value = expression_parse(parser, Precedence::LOWEST);
+  statement.value = expression_parse(parser, Precedence::LOWEST, env);
 
   if parser.peek_token_is_sign(&Signs::SEMICOLON) {
     parser.next_token();
@@ -57,7 +59,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Return {
   statement
 }
 
-pub fn parse_type<'a>(parser: &'a mut Parser, return_stmt: &Return, exp: &Function) -> bool {
+pub fn parse_type<'a>(parser: &'a mut Parser, return_stmt: &Return, exp: &Function, env: &mut Environment) -> bool {
   match return_stmt.value.clone() {
     // With return value.
     Some(value) => {
@@ -77,10 +79,27 @@ pub fn parse_type<'a>(parser: &'a mut Parser, return_stmt: &Return, exp: &Functi
         return false;
       }
 
-      if expression_is_valid_type(&exp.return_type.data_type, &value) == false {
-        parser.errors.push(format!("{} `{}` not satisfied the {} data type.", line, value.clone().string(), exp.return_type.value));
+      match evaluate(value.clone(), env) {
+        Some(obj) => {
+          if is_error(obj.clone()) {
+            parser.errors.push(format!("{} {}", line, obj.string()));
 
-        return false;
+            return false;
+          }
+
+          if !object_is_valid_type(&exp.return_type.data_type, obj.clone()) {
+            parser.errors.push(format!("{} `{}` not satisfied the `{}` data type.", line, value.clone().string(), exp.return_type.value));
+    
+            return false;
+          }
+        },
+        None => {
+          if !expression_is_valid_type(&exp.return_type.data_type, &value) {
+            parser.errors.push(format!("{} `{}` not satisfied the `{}` data type.", line, value.clone().string(), exp.return_type.value));
+    
+            return false;
+          }
+        },
       }
 
       true
@@ -91,7 +110,7 @@ pub fn parse_type<'a>(parser: &'a mut Parser, return_stmt: &Return, exp: &Functi
       if exp.return_type.data_type != Types::VOID {
         let line = parser.get_error_line("return");
 
-        parser.errors.push(format!("{} the '{}' function returns a {}.", line, exp.name.value, exp.return_type.value));
+        parser.errors.push(format!("{} the '{}' function returns a `{}`.", line, exp.name.value, exp.return_type.value));
 
         return false;
       }

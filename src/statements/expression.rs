@@ -1,3 +1,4 @@
+use crate::compiler::environment::Environment;
 use crate::data::{Token, Signs};
 use crate::expressions::{Expressions, parse as expression_parse};
 use crate::parser::{Parser, precedence::Precedence};
@@ -38,10 +39,10 @@ impl Statement for ExpressionStatement {
 
 
 // PARSER //
-pub fn parse<'a>(parser: &'a mut Parser) -> ExpressionStatement {
+pub fn parse<'a>(parser: &'a mut Parser, env: &mut Environment) -> ExpressionStatement {
   let mut statement: ExpressionStatement = Statement::from_token(&parser.current_token.clone());
 
-  statement.expression = expression_parse(parser, Precedence::LOWEST);
+  statement.expression = expression_parse(parser, Precedence::LOWEST, env);
 
   if parser.peek_token_is_sign(&Signs::SEMICOLON) == true {
     parser.next_token();
@@ -50,20 +51,22 @@ pub fn parse<'a>(parser: &'a mut Parser) -> ExpressionStatement {
   statement
 }
 
-pub fn parse_list<'a>(parser: &'a mut Parser, end: Signs) -> Vec<Box<Expressions>> {
+pub fn parse_list<'a>(parser: &'a mut Parser, end: Signs, env: &mut Environment) -> Vec<Box<Expressions>> {
   let mut list: Vec<Box<Expressions>> = Vec::new();
 
-  while parser.current_token_is_sign(&end) == false {
-    if parser.peek_token_is_sign(&Signs::COMMA) == true {
+  while !parser.peek_token_is_sign(&end) {
+    if parser.current_token_is_sign(&Signs::COMMA) || parser.current_token_is_sign(&Signs::LEFTPARENTHESES) {
       parser.next_token();
     }
 
-    match expression_parse(parser, Precedence::LOWEST) {
+    match expression_parse(parser, Precedence::LOWEST, env) {
       Some(exp) => list.push(exp),
       None => {},
     }
 
-    parser.next_token();
+    if !parser.peek_token_is_sign(&end) {
+      parser.next_token();
+    }
   }
 
   list

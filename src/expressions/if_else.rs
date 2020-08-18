@@ -1,3 +1,4 @@
+use crate::compiler::environment::Environment;
 use crate::data::{Token, Signs, Keywords};
 use crate::parser::{Parser, precedence::Precedence};
 use crate::statements::{block, Statements};
@@ -50,7 +51,7 @@ impl Expression for IfElse {
 
 
 // PARSER //
-pub fn parse<'a>(parser: &'a mut Parser) -> Option<IfElse> {
+pub fn parse<'a>(parser: &'a mut Parser, env: &mut Environment) -> Option<IfElse> {
   let mut exp: IfElse = Expression::from_token(&parser.current_token.clone());
 
   if parser.expect_sign(&Signs::LEFTPARENTHESES) == false {
@@ -63,7 +64,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<IfElse> {
 
   parser.next_token();
 
-  exp.condition = expression_parse(parser, Precedence::LOWEST);
+  exp.condition = expression_parse(parser, Precedence::LOWEST, env);
 
   if parser.expect_sign(&Signs::RIGHTPARENTHESES) == false {
     let line = parser.get_error_line(format!("if ({}", exp.condition.unwrap().string()).as_str());
@@ -81,7 +82,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<IfElse> {
     return None;
   }
 
-  exp.consequence = block::parse(parser);
+  exp.consequence = block::parse(parser, env);
 
   if parser.peek_token_is_keyword(&Keywords::ELSE) == true {
     parser.next_token();
@@ -94,7 +95,7 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<IfElse> {
       return None;
     }
 
-    exp.alternative = Some(block::parse(parser));
+    exp.alternative = Some(block::parse(parser, env));
   }
 
   Some(exp)
