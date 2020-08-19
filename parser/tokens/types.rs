@@ -58,6 +58,14 @@ impl Types {
       None => {},
     }
 
+    // Parse boolean.
+    match exp.clone().get_boolean() {
+      Some(_) => {
+        token = Token::from_value(String::from("boolean"), 0, 0);
+      },
+      None => {},
+    }
+
     // Return token.
     token
   }

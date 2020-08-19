@@ -1,5 +1,5 @@
 use crate::Parser;
-use crate::tokens::Token;
+use crate::tokens::*;
 
 use super::*;
 
@@ -22,5 +22,11 @@ pub fn parse<'a>(parser: &'a mut Parser) -> Option<Box<Expressions>> {
     expression = Number::parse(parser);
   }
 
+  // Parse booleans.
+  if current_token.token.clone().is_keyword(Keywords::TRUE) || current_token.token.clone().is_keyword(Keywords::FALSE) {
+    expression = Some(Boolean::parse(parser));
+  }
+
+  // Return expression.
   expression
 }

@@ -67,6 +67,30 @@ fn let_number_type(tokens: Vec<Token>) -> Box<Statements> {
   Box::new(Statements::VARIABLE(statement))
 }
 
+#[cfg(test)]
+fn let_boolean(tokens: Vec<Token>) -> Box<Statements> {
+  let mut statement: Variable = Statement::new();
+
+  statement.token = tokens[0].clone();
+  statement.name = Identifier::new_box_from_token(tokens[1].clone());
+  statement.data_type = tokens[3].clone();
+  statement.value = Some(Boolean::new_box_from_token(tokens[5].clone()));
+
+  Box::new(Statements::VARIABLE(statement))
+}
+
+#[cfg(test)]
+fn let_boolean_type(tokens: Vec<Token>) -> Box<Statements> {
+  let mut statement: Variable = Statement::new();
+
+  statement.token = tokens[0].clone();
+  statement.name = Identifier::new_box_from_token(tokens[1].clone());
+  statement.data_type = Token::from_value("boolean".to_string(), 0, 0);
+  statement.value = Some(Boolean::new_box_from_token(tokens[3].clone()));
+
+  Box::new(Statements::VARIABLE(statement))
+}
+
 #[test]
 fn parser_variables() {
   // String let
@@ -82,4 +106,11 @@ fn parser_variables() {
 
   test_variable("let three = 3;", let_number_type(lexer::let_three_number("let")));
   test_variable("const three = 3;", let_number_type(lexer::let_three_number("const")));
+
+  // Boolean let
+  test_variable("let is_lexer: boolean = true;", let_boolean(lexer::let_is_lexer_boolean("let")));
+  test_variable("const is_lexer: boolean = true;", let_boolean(lexer::let_is_lexer_boolean("const")));
+
+  test_variable("let is_lexer2 = true;", let_boolean_type(lexer::let_is_lexer2_boolean("let")));
+  test_variable("const is_lexer2 = true;", let_boolean_type(lexer::let_is_lexer2_boolean("const")));
 }

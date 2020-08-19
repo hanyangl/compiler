@@ -138,6 +138,36 @@ pub fn let_four_number(keyword: &str) -> Vec<Token> {
 }
 
 #[cfg(test)]
+pub fn let_is_lexer_boolean(keyword: &str) -> Vec<Token> {
+  let mut let_tokens = Vec::new();
+
+  let_tokens.push(Token::from_value(keyword.to_string(), 1, 1));
+  let_tokens.push(get_identifier("is_lexer", 1, keyword.len() + 2));
+  let_tokens.push(Token::from_value(":".to_string(), 1, keyword.len() + 10));
+  let_tokens.push(Token::from_value("boolean".to_string(), 1, keyword.len() + 12));
+  let_tokens.push(Token::from_value("=".to_string(), 1, keyword.len() + 20));
+  let_tokens.push(Token::from_value("true".to_string(), 1, keyword.len() + 22));
+  let_tokens.push(Token::from_value(";".to_string(), 1, keyword.len() + 26));
+  let_tokens.push(get_eof(1, keyword.len() + 27));
+
+  let_tokens
+}
+
+#[cfg(test)]
+pub fn let_is_lexer2_boolean(keyword: &str) -> Vec<Token> {
+  let mut let_tokens = Vec::new();
+
+  let_tokens.push(Token::from_value(keyword.to_string(), 1, 1));
+  let_tokens.push(get_identifier("is_lexer2", 1, keyword.len() + 2));
+  let_tokens.push(Token::from_value("=".to_string(), 1, keyword.len() + 12));
+  let_tokens.push(Token::from_value("true".to_string(), 1, keyword.len() + 14));
+  let_tokens.push(Token::from_value(";".to_string(), 1, keyword.len() + 18));
+  let_tokens.push(get_eof(1, keyword.len() + 19));
+
+  let_tokens
+}
+
+#[cfg(test)]
 fn lexer_variable(keyword: &str) {
   // String variables
   test_lexer(format!("{} lang: string = 'Sflyn';", keyword), let_lang_string(keyword));
@@ -150,29 +180,8 @@ fn lexer_variable(keyword: &str) {
   test_lexer(format!("{} four = 3 + 1;", keyword), let_four_number(keyword));
 
   // Boolean variable
-  let mut let_tokens = Vec::new();
-
-  let_tokens.push(Token::from_value(keyword.to_string(), 1, 1));
-  let_tokens.push(get_identifier("is_lexer", 1, keyword.len() + 2));
-  let_tokens.push(Token::from_value(":".to_string(), 1, keyword.len() + 10));
-  let_tokens.push(Token::from_value("boolean".to_string(), 1, keyword.len() + 12));
-  let_tokens.push(Token::from_value("=".to_string(), 1, keyword.len() + 20));
-  let_tokens.push(Token::from_value("true".to_string(), 1, keyword.len() + 22));
-  let_tokens.push(Token::from_value(";".to_string(), 1, keyword.len() + 26));
-  let_tokens.push(get_eof(1, keyword.len() + 27));
-
-  test_lexer(format!("{} is_lexer: boolean = true;", keyword), let_tokens.clone());
-
-  let_tokens.clear();
-
-  let_tokens.push(Token::from_value(keyword.to_string(), 1, 1));
-  let_tokens.push(get_identifier("is_lexer2", 1, keyword.len() + 2));
-  let_tokens.push(Token::from_value("=".to_string(), 1, keyword.len() + 12));
-  let_tokens.push(Token::from_value("true".to_string(), 1, keyword.len() + 14));
-  let_tokens.push(Token::from_value(";".to_string(), 1, keyword.len() + 18));
-  let_tokens.push(get_eof(1, keyword.len() + 19));
-
-  test_lexer(format!("{} is_lexer2 = true;", keyword), let_tokens.clone());
+  test_lexer(format!("{} is_lexer: boolean = true;", keyword), let_is_lexer_boolean(keyword));
+  test_lexer(format!("{} is_lexer2 = true;", keyword), let_is_lexer2_boolean(keyword));
 }
 
 #[cfg(test)]

@@ -15,6 +15,12 @@ pub fn expression_is_type(data_type: Types, expression: Box<Expressions>) -> boo
       None => false,
     },
 
+    // Boolean
+    Types::BOOLEAN => match expression.get_boolean() {
+      Some(boolean) => boolean.token.token.is_keyword(Keywords::TRUE),
+      None => false,
+    },
+
     // Default
     _ => false,
   }

@@ -1,8 +1,10 @@
+mod boolean;
 mod identifier;
 mod number;
 mod parser;
 mod string;
 
+pub use boolean::Boolean;
 pub use identifier::Identifier;
 pub use parser::parse;
 pub use number::Number;
@@ -23,12 +25,20 @@ pub trait Expression {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expressions {
+  BOOLEAN(Boolean),
   IDENTIFIER(Identifier),
   NUMBER(Number),
   STRING(StringE),
 }
 
 impl Expressions {
+  pub fn get_boolean(self) -> Option<Boolean> {
+    match self {
+      Expressions::BOOLEAN(boolean) => Some(boolean),
+      _ => None,
+    }
+  }
+
   pub fn get_identifier(self) -> Option<Identifier> {
     match self {
       Expressions::IDENTIFIER(identifier) => Some(identifier),
@@ -52,6 +62,7 @@ impl Expressions {
 
   pub fn string(self) -> String {
     match self {
+      Expressions::BOOLEAN(boolean) => boolean.string(),
       Expressions::IDENTIFIER(identifier) => identifier.string(),
       Expressions::NUMBER(number) => number.string(),
       Expressions::STRING(string) => string.string(),
