@@ -1,5 +1,5 @@
 #[cfg(test)]
-use sflyn_parser::{Lexer, tokens::{Token, Tokens}};
+use sflyn_parser::{Lexer, tokens::{Token, Tokens, Signs}};
 
 #[cfg(test)]
 fn test_lexer(value: String, expects: Vec<Token>) {
@@ -11,6 +11,15 @@ fn test_lexer(value: String, expects: Vec<Token>) {
 
   assert_eq!(lexer.current_position, lexer.file_content.len());
   assert_eq!(lexer.current_character, 0);
+}
+
+#[cfg(test)]
+fn lexer_sign(value: &str, sign: Signs) {
+  let mut tokens = Vec::new();
+
+  tokens.push(Token::new(Box::new(Tokens::SIGN(sign)), value.to_string(), 1, 1));
+
+  test_lexer(value.to_string(), tokens);
 }
 
 #[cfg(test)]
@@ -178,8 +187,56 @@ fn lexer_function() {
 
 #[test]
 fn parser_lexer() {
+  // Signs
+  lexer_sign(",", Signs::COMMA);
+  lexer_sign(":", Signs::COLON);
+  lexer_sign(";", Signs::SEMICOLON);
+
+  lexer_sign("(", Signs::LEFTPARENTHESES);
+  lexer_sign(")", Signs::RIGHTPARENTHESES);
+
+  lexer_sign("[", Signs::LEFTBRACKET);
+  lexer_sign("]", Signs::RIGHTBRACKET);
+
+  lexer_sign("{", Signs::LEFTBRACE);
+  lexer_sign("}", Signs::RIGHTBRACE);
+
+  lexer_sign("=", Signs::ASSIGN);
+  lexer_sign("+=", Signs::PLUSASSIGN);
+  lexer_sign("-=", Signs::MINUSASSIGN);
+  lexer_sign("*=", Signs::MULTIPLYASSIGN);
+  lexer_sign("/=", Signs::DIVIDEASSIGN);
+
+  lexer_sign("++", Signs::PLUSPLUS);
+  lexer_sign("--", Signs::MINUSMINUS);
+
+  lexer_sign("==", Signs::EQUAL);
+  lexer_sign("===", Signs::EQUALTYPE);
+  lexer_sign("!=", Signs::NOTEQUAL);
+  lexer_sign("!==", Signs::NOTEQUALTYPE);
+
+  lexer_sign("<", Signs::LESSTHAN);
+  lexer_sign("<=", Signs::LESSOREQUALTHAN);
+  lexer_sign(">", Signs::GREATERTHAN);
+  lexer_sign(">=", Signs::GREATEROREQUALTHAN);
+
+  lexer_sign("&&", Signs::AND);
+  lexer_sign("||", Signs::OR);
+
+  lexer_sign("+", Signs::PLUS);
+  lexer_sign("-", Signs::MINUS);
+  lexer_sign("*", Signs::MULTIPLY);
+  lexer_sign("/", Signs::DIVIDE);
+  lexer_sign("**", Signs::EMPOWERMENT);
+  lexer_sign("%", Signs::MODULE);
+
+  lexer_sign("!", Signs::NEGATION);
+  lexer_sign("->", Signs::ARROW);
+
+  // Variables
   lexer_variable("let");
   lexer_variable("const");
 
+  // Function
   lexer_function();
 }

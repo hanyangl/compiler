@@ -70,20 +70,20 @@ impl Lexer {
   }
 
   /// Get the next character.
-  fn get_next_character(self) -> u8 {
+  fn get_next_character(self) -> &'static str {
     if self.next_position >= self.file_content.len() {
-      0
+      ""
     } else {
-      self.file_content.as_bytes()[self.next_position]
+      character_to_str(self.file_content.as_bytes()[self.next_position])
     }
   }
 
   /// Get the two next character.
-  fn get_two_next_character(self) -> u8 {
+  fn get_two_next_character(self) -> &'static str {
     if self.next_position + 1 >= self.file_content.len() {
-      0
+      ""
     } else {
-      self.file_content.as_bytes()[self.next_position + 1]
+      character_to_str(self.file_content.as_bytes()[self.next_position + 1])
     }
   }
 
@@ -150,10 +150,12 @@ impl Lexer {
     }
   }
 
+  /// Read and get the next token.
   pub fn read_next_token(&mut self) -> Token {
     self.skip_whitespace();
 
     if self.current_character == 0 {
+      // End Of File
       Token::new(Box::new(Tokens::EOF), String::new(), self.current_line, self.current_line_position)
     } else {
       let start_position = self.current_line_position;
@@ -178,15 +180,96 @@ impl Lexer {
           // Read numbers.
           current_token = Token::new(Box::new(Tokens::NUMBER), self.read_number(), self.current_line, start_position);
         } else {
+          // Get the next character.
+          let next_character = self.clone().get_next_character();
+
+          // Parse "&&" and "||"
+          if (current_character_str == "&" && next_character == "&") || (current_character_str == "|" && next_character == "|") {
+            // Read the next character.
+            self.read_next_character();
+
+            // Set the current token to the new token.
+            current_token = Token::from_value(
+              format!("{}{}", current_token.value, next_character),
+              start_position,
+              self.current_line
+            );
+          }
+
           // Illegal token.
           self.read_next_character();
         }
       } else {
-        if current_token.token.clone().is_end_of_line() {
-          self.current_line += 1;
-          self.current_line_position = 0;
+        // Check if the current token is a sign token.
+        match current_token.token.clone().get_sign() {
+          // Is a sign token.
+          Some(sign) => {
+            // Get the next character.
+            let next_character = self.clone().get_next_character();
+            let next_two_character = self.clone().get_two_next_character();
+
+            // Parse "==", "===", "!=", "!==", "<=", ">=", "+=", "-=", "*=" and "/="
+            if next_character == "=" && (
+              sign == Signs::ASSIGN ||
+              sign == Signs::NEGATION ||
+              sign == Signs::LESSTHAN ||
+              sign == Signs::GREATERTHAN ||
+              sign == Signs::PLUS ||
+              sign == Signs::MINUS ||
+              sign == Signs::MULTIPLY ||
+              sign == Signs::DIVIDE
+            ) {
+              // Read the next character.
+              self.read_next_character();
+
+              if next_two_character == "=" && sign != Signs::LESSTHAN && sign != Signs::GREATERTHAN &&
+                sign != Signs::PLUS && sign != Signs::MINUS && sign != Signs::MULTIPLY && sign != Signs::DIVIDE {
+                // Read the next character.
+                self.read_next_character();
+
+                // Set the current token to the new token.
+                current_token = Token::from_value(
+                  format!("{}{}{}", current_token.value, next_character, next_two_character),
+                  start_position,
+                  self.current_line
+                );
+              } else {
+                // Set the current token to the new token.
+                current_token = Token::from_value(
+                  format!("{}{}", current_token.value, next_character),
+                  start_position,
+                  self.current_line
+                );
+              }
+            }
+            // Parse "++", "--", "**" and "->"
+            else if (sign == Signs::PLUS && next_character == "+") ||
+              (sign == Signs::MINUS && (next_character == "-" || next_character == ">")) ||
+              (sign == Signs::MULTIPLY && next_character == "*")
+            {
+              // Read the next character.
+              self.read_next_character();
+
+              // Set the current token to the new token.
+              current_token = Token::from_value(
+                format!("{}{}", current_token.value, next_character),
+                start_position,
+                self.current_line
+              );
+            }
+          },
+
+          // Is not a sign token.
+          None => {
+            // End Of Line
+            if current_token.token.clone().is_end_of_line() {
+              self.current_line += 1;
+              self.current_line_position = 0;
+            }
+          },
         }
 
+        // Read the next character.
         self.read_next_character();
       }
 

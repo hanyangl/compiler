@@ -3,6 +3,8 @@ use super::{TokenType, Tokens};
 #[derive(Debug, Clone, PartialEq)]
 pub enum Types {
   // Basic
+  NULL,
+  UNDEFINED,
   STRING,
   NUMBER,
   BOOLEAN,
@@ -19,6 +21,8 @@ impl TokenType for Types {
   fn from_value(value: String) -> Option<Box<Tokens>> {
     match value.as_str() {
       // Basic
+      "null" => Some(TokenType::new(Types::NULL)),
+      "undefined" => Some(TokenType::new(Types::UNDEFINED)),
       "string" => Some(TokenType::new(Types::STRING)),
       "number" => Some(TokenType::new(Types::NUMBER)),
       "boolean" => Some(TokenType::new(Types::BOOLEAN)),
