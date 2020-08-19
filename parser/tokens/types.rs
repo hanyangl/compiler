@@ -1,4 +1,6 @@
-use super::{TokenType, Tokens};
+use crate::expressions::Expressions;
+
+use super::{TokenType, Tokens, Token};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Types {
@@ -33,5 +35,30 @@ impl TokenType for Types {
       // Default
       _ => None,
     }
+  }
+}
+
+impl Types {
+  pub fn from_expression(exp: Box<Expressions>) -> Token {
+    let mut token: Token = Token::new_empty();
+
+    // Parse string.
+    match exp.clone().get_string() {
+      Some(_) => {
+        token = Token::from_value(String::from("string"), 0, 0);
+      },
+      None => {},
+    }
+
+    // Parse number.
+    match exp.clone().get_number() {
+      Some(_) => {
+        token = Token::from_value(String::from("number"), 0, 0);
+      },
+      None => {},
+    }
+
+    // Return token.
+    token
   }
 }

@@ -5,4 +5,5 @@
 cargo test parser -- --show-output
 cargo test parser_tokens -- --show-output
 cargo test parser_lexer
+cargo test parser_variables -- --show-output
 ```

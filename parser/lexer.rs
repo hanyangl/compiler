@@ -56,6 +56,18 @@ impl Lexer {
     lexer
   }
 
+  /// Get the lexer file lines.
+  pub fn get_lines(self) -> Vec<String> {
+    let mut lines: Vec<String> = Vec::new();
+    let content_split: Vec<&str> = self.file_content.split("\n").collect();
+
+    for line in content_split.iter() {
+      lines.push(line.to_string());
+    }
+
+    lines
+  }
+
   /// Read the next character and move the cursor to the next position.
   fn read_next_character(&mut self) {
     self.current_position = self.next_position;

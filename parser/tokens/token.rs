@@ -14,6 +14,10 @@ impl Token {
     Token { token, value, line, position }
   }
 
+  pub fn new_empty() -> Token {
+    Token::new(Box::new(Tokens::ILLEGAL), String::new(), 1, 1)
+  }
+
   pub fn from_value(value: String, line: usize, position: usize) -> Token {
     let illegal = Box::new(Tokens::ILLEGAL);
     let mut token = illegal.clone();

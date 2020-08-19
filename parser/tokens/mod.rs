@@ -16,9 +16,9 @@ pub enum Tokens {
   IDENTIFIER,
   NUMBER,
 
-  KEYWORD(keywords::Keywords),
-  SIGN(signs::Signs),
-  TYPE(types::Types),
+  KEYWORD(Keywords),
+  SIGN(Signs),
+  TYPE(Types),
 
   EOL,
   EOF,
@@ -58,26 +58,50 @@ impl Tokens {
   }
 
   /// Get the keyword token.
-  pub fn get_keyword(self) -> Option<keywords::Keywords> {
+  pub fn get_keyword(self) -> Option<Keywords> {
     match self {
       Tokens::KEYWORD(keyword) => Some(keyword),
       _ => None,
     }
   }
 
+  /// Check if the token is a specific keyword token.
+  pub fn is_keyword(self, expect: Keywords) -> bool {
+    match self {
+      Tokens::KEYWORD(keyword) => keyword == expect,
+      _ => false,
+    }
+  }
+
   /// Get the sign token.
-  pub fn get_sign(self) -> Option<signs::Signs> {
+  pub fn get_sign(self) -> Option<Signs> {
     match self {
       Tokens::SIGN(sign) => Some(sign),
       _ => None,
     }
   }
 
+  /// Check if the token is a specific sign token.
+  pub fn is_sign(self, expect: Signs) -> bool {
+    match self {
+      Tokens::SIGN(sign) => sign == expect,
+      _ => false,
+    }
+  }
+
   /// Get the type token.
-  pub fn get_type(self) -> Option<types::Types> {
+  pub fn get_type(self) -> Option<Types> {
     match self {
       Tokens::TYPE(data_type) => Some(data_type),
       _ => None,
+    }
+  }
+
+  /// Check if the token is a specific type token.
+  pub fn is_type(self, expect: Types) -> bool {
+    match self {
+      Tokens::TYPE(data_type) => data_type == expect,
+      _ => false,
     }
   }
 

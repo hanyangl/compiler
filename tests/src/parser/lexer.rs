@@ -1,9 +1,12 @@
 #[cfg(test)]
-use sflyn_parser::{Lexer, tokens::{Token, Tokens, Signs}};
+use sflyn_parser::tokens::{Token, Tokens, Signs};
 
 #[cfg(test)]
-fn test_lexer(value: String, expects: Vec<Token>) {
-  let mut lexer = Lexer::new(String::from("test.sf"), value);
+use super::generate_lexer;
+
+#[cfg(test)]
+pub fn test_lexer(value: String, expects: Vec<Token>) {
+  let mut lexer = generate_lexer(value.as_str());
 
   for expect in expects.iter() {
     assert_eq!(lexer.read_next_token(), expect.clone());
@@ -43,8 +46,7 @@ fn get_eof(line: usize, position: usize) -> Token {
 }
 
 #[cfg(test)]
-fn lexer_variable(keyword: &str) {
-  // String variable
+pub fn let_lang_string(keyword: &str) -> Vec<Token> {
   let mut let_tokens = Vec::new();
 
   let_tokens.push(Token::from_value(keyword.to_string(), 1, 1));
@@ -56,9 +58,12 @@ fn lexer_variable(keyword: &str) {
   let_tokens.push(Token::from_value(";".to_string(), 1, keyword.len() + 24));
   let_tokens.push(get_eof(1, keyword.len() + 25));
 
-  test_lexer(format!("{} lang: string = 'Sflyn';", keyword), let_tokens.clone());
+  let_tokens
+}
 
-  let_tokens.clear();
+#[cfg(test)]
+pub fn let_lang2_string(keyword: &str) -> Vec<Token> {
+  let mut let_tokens = Vec::new();
 
   let_tokens.push(Token::from_value(keyword.to_string(), 1, 1));
   let_tokens.push(get_identifier("lang2", 1, keyword.len() + 2));
@@ -67,9 +72,12 @@ fn lexer_variable(keyword: &str) {
   let_tokens.push(Token::from_value(";".to_string(), 1, keyword.len() + 17));
   let_tokens.push(get_eof(1, keyword.len() + 18));
 
-  test_lexer(format!("{} lang2 = 'Sflyn';", keyword), let_tokens.clone());
+  let_tokens
+}
 
-  let_tokens.clear();
+#[cfg(test)]
+pub fn let_lang3_string(keyword: &str) -> Vec<Token> {
+  let mut let_tokens = Vec::new();
 
   let_tokens.push(Token::from_value(keyword.to_string(), 1, 1));
   let_tokens.push(get_identifier("lang3", 1, keyword.len() + 2));
@@ -80,11 +88,13 @@ fn lexer_variable(keyword: &str) {
   let_tokens.push(Token::from_value(";".to_string(), 1, keyword.len() + 22));
   let_tokens.push(get_eof(1, keyword.len() + 23));
 
-  test_lexer(format!("{} lang3 = 'Sflyn' + 10;", keyword), let_tokens.clone());
+  let_tokens
+}
 
-  // Integer variable
-  let_tokens.clear();
- 
+#[cfg(test)]
+pub fn let_two_number(keyword: &str) -> Vec<Token> {
+  let mut let_tokens = Vec::new();
+
   let_tokens.push(Token::from_value(keyword.to_string(), 1, 1));
   let_tokens.push(get_identifier("two", 1, keyword.len() + 2));
   let_tokens.push(Token::from_value(":".to_string(), 1, keyword.len() + 5));
@@ -94,10 +104,13 @@ fn lexer_variable(keyword: &str) {
   let_tokens.push(Token::from_value(";".to_string(), 1, keyword.len() + 17));
   let_tokens.push(get_eof(1, keyword.len() + 18));
 
-  test_lexer(format!("{} two: number = 2;", keyword), let_tokens.clone());
+  let_tokens
+}
 
-  let_tokens.clear();
- 
+#[cfg(test)]
+pub fn let_three_number(keyword: &str) -> Vec<Token> {
+  let mut let_tokens = Vec::new();
+
   let_tokens.push(Token::from_value(keyword.to_string(), 1, 1));
   let_tokens.push(get_identifier("three", 1, keyword.len() + 2));
   let_tokens.push(Token::from_value("=".to_string(), 1, keyword.len() + 8));
@@ -105,10 +118,13 @@ fn lexer_variable(keyword: &str) {
   let_tokens.push(Token::from_value(";".to_string(), 1, keyword.len() + 11));
   let_tokens.push(get_eof(1, keyword.len() + 12));
 
-  test_lexer(format!("{} three = 3;", keyword), let_tokens.clone());
+  let_tokens
+}
 
-  let_tokens.clear();
- 
+#[cfg(test)]
+pub fn let_four_number(keyword: &str) -> Vec<Token> {
+  let mut let_tokens = Vec::new();
+
   let_tokens.push(Token::from_value(keyword.to_string(), 1, 1));
   let_tokens.push(get_identifier("four", 1, keyword.len() + 2));
   let_tokens.push(Token::from_value("=".to_string(), 1, keyword.len() + 7));
@@ -118,10 +134,23 @@ fn lexer_variable(keyword: &str) {
   let_tokens.push(Token::from_value(";".to_string(), 1, keyword.len() + 14));
   let_tokens.push(get_eof(1, keyword.len() + 15));
 
-  test_lexer(format!("{} four = 3 + 1;", keyword), let_tokens.clone());
+  let_tokens
+}
+
+#[cfg(test)]
+fn lexer_variable(keyword: &str) {
+  // String variables
+  test_lexer(format!("{} lang: string = 'Sflyn';", keyword), let_lang_string(keyword));
+  test_lexer(format!("{} lang2 = 'Sflyn';", keyword), let_lang2_string(keyword));
+  test_lexer(format!("{} lang3 = 'Sflyn' + 10;", keyword), let_lang3_string(keyword));
+
+  // Number variables
+  test_lexer(format!("{} two: number = 2;", keyword), let_two_number(keyword)); 
+  test_lexer(format!("{} three = 3;", keyword), let_three_number(keyword));
+  test_lexer(format!("{} four = 3 + 1;", keyword), let_four_number(keyword));
 
   // Boolean variable
-  let_tokens.clear();
+  let mut let_tokens = Vec::new();
 
   let_tokens.push(Token::from_value(keyword.to_string(), 1, 1));
   let_tokens.push(get_identifier("is_lexer", 1, keyword.len() + 2));
