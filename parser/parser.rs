@@ -40,14 +40,14 @@ impl Parser {
     self.next_token = self.lexer.read_next_token();
   }
 
-  pub fn current_precedence(self) -> Precedence {
+  pub fn current_precedence(&mut self) -> Precedence {
     match self.current_token.token.clone().get_sign() {
       Some(sign) => Precedence::from_sign(sign),
       None => Precedence::LOWEST,
     }
   }
 
-  pub fn next_precedence(self) -> Precedence {
+  pub fn next_precedence(&mut self) -> Precedence {
     match self.next_token.token.clone().get_sign() {
       Some(sign) => Precedence::from_sign(sign),
       None => Precedence::LOWEST,

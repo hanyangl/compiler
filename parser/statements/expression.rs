@@ -1,5 +1,5 @@
 use crate::expressions::{Expressions, parse as parse_expression};
-use crate::Parser;
+use crate::{Parser, Precedence};
 use crate::tokens::{Token, Signs};
 
 use super::{Statement, Statements};
@@ -42,7 +42,7 @@ impl ExpressionStatement {
     let mut statement: ExpressionStatement = Statement::from_token(parser.current_token.clone());
 
     // Parse expression.
-    statement.expression = parse_expression(parser);
+    statement.expression = parse_expression(parser, Precedence::LOWEST);
 
     // Check if the next token is a semicolon.
     if parser.next_token.token.clone().is_sign(Signs::SEMICOLON) {

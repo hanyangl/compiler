@@ -1,6 +1,6 @@
 use super::tokens::Signs;
 
-#[derive(PartialEq, PartialOrd)]
+#[derive(Debug, PartialEq, PartialOrd)]
 pub enum Precedence {
   LOWEST = 0,
   EQUALS = 1,
@@ -35,6 +35,12 @@ impl Precedence {
       // PRODUCT
       Signs::MULTIPLY |
       Signs::DIVIDE => Precedence::PRODUCT,
+
+      // CALL
+      Signs::LEFTPARENTHESES => Precedence::CALL,
+
+      // INDEX
+      Signs::LEFTBRACKET => Precedence::INDEX,
 
       // METHOD
       Signs::ARROW => Precedence::METHOD,

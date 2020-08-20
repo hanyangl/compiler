@@ -1,5 +1,5 @@
 use crate::expressions::{Expressions, Identifier, parse as parse_expression};
-use crate::Parser;
+use crate::{Parser, Precedence};
 use crate::tokens::*;
 use crate::types::expression_is_type;
 
@@ -79,12 +79,23 @@ impl Variable {
       parser.next_token();
 
       // Parse current token (Variable value).
-      match parse_expression(parser) {
+      match parse_expression(parser, Precedence::LOWEST) {
         Some(exp) => {
           variable.data_type = Types::from_expression(exp.clone());
 
           if variable.data_type.token.clone().is_illegal() {
-            println!("TODO (Variable token automatic): {:?}", parser.current_token);
+            match exp.clone().get_infix() {
+              Some(infix) => match infix.left.clone() {
+                Some(left) => {
+                  let line = parser.get_error_line(left.token().position - 1, exp.string().len());
+
+                  parser.errors.push(format!("{} is not a valid expression.", line));
+                },
+                None => {},
+              },
+              None => {},
+            }
+
             return None;
           }
 
@@ -125,7 +136,7 @@ impl Variable {
           parser.next_token();
 
           // Parse current token (Variable value).
-          match parse_expression(parser) {
+          match parse_expression(parser, Precedence::LOWEST) {
             Some(exp) => {
               if !expression_is_type(data_type.clone(), exp.clone()) {
                 let line = parser.get_error_line_current_token();

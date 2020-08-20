@@ -20,6 +20,34 @@ fn test_variable(value: &str, expect: Box<Statements>) {
 }
 
 #[cfg(test)]
+fn test_variable_type(value: &str, expect: Token) {
+  let lexer = generate_lexer(value);
+  let mut parser = Parser::new(lexer);
+  let statements = parser.parse_program();
+
+  if parser.errors.len() > 0 {
+    parser.show_errors();
+  }
+
+  assert_eq!(parser.errors.len(), 0);
+
+  if statements.len() > 1 {
+    for stmt in statements.clone() {
+      println!("Statement: {}", stmt.string());
+    }
+  }
+
+  assert_eq!(statements.len(), 1);
+  
+  match statements[0].clone().get_variable() {
+    Some(variable) => {
+      assert_eq!(variable.data_type, expect);
+    },
+    None => {},
+  }
+}
+
+#[cfg(test)]
 fn let_string(tokens: Vec<Token>) -> Box<Statements> {
   let mut statement: Variable = Statement::new();
 
@@ -100,6 +128,12 @@ fn parser_variables() {
   test_variable("let lang2 = 'Sflyn';", let_string_type(lexer::let_lang2_string("let")));
   test_variable("const lang2 = 'Sflyn';", let_string_type(lexer::let_lang2_string("const")));
 
+  test_variable_type("let lang3 = 'Sflyn' + 10;", Token::from_value("string".to_string(), 0, 0));
+  test_variable_type("const lang3 = 'Sflyn' + 10;", Token::from_value("string".to_string(), 0, 0));
+
+  test_variable_type("let lang4 = 'Sflyn v' + 1 + '!';", Token::from_value("string".to_string(), 0, 0));
+  test_variable_type("const lang4 = 'Sflyn v' + 1 + '!';", Token::from_value("string".to_string(), 0, 0));
+
   // Number let
   test_variable("let two: number = 2;", let_number(lexer::let_two_number("let")));
   test_variable("const two: number = 2;", let_number(lexer::let_two_number("const")));
@@ -107,10 +141,22 @@ fn parser_variables() {
   test_variable("let three = 3;", let_number_type(lexer::let_three_number("let")));
   test_variable("const three = 3;", let_number_type(lexer::let_three_number("const")));
 
+  test_variable_type("let four = 3 + 1;", Token::from_value("number".to_string(), 0, 0));
+  test_variable_type("const four = 3 + 1;", Token::from_value("number".to_string(), 0, 0));
+
+  test_variable_type("let ten = 50 / 2 - 20 + 5;", Token::from_value("number".to_string(), 0, 0));
+  test_variable_type("const ten = 50 / 2 - 20 + 5;", Token::from_value("number".to_string(), 0, 0));
+
   // Boolean let
   test_variable("let is_lexer: boolean = true;", let_boolean(lexer::let_is_lexer_boolean("let")));
   test_variable("const is_lexer: boolean = true;", let_boolean(lexer::let_is_lexer_boolean("const")));
 
   test_variable("let is_lexer2 = true;", let_boolean_type(lexer::let_is_lexer2_boolean("let")));
   test_variable("const is_lexer2 = true;", let_boolean_type(lexer::let_is_lexer2_boolean("const")));
+
+  test_variable_type("let is_two = 2 == 2;", Token::from_value("boolean".to_string(), 0, 0));
+  test_variable_type("const is_two = 2 == 2;", Token::from_value("boolean".to_string(), 0, 0));
+
+  test_variable_type("let extra = 2 <= 2 >= 2;", Token::from_value("boolean".to_string(), 0, 0));
+  test_variable_type("const extra = 2 <= 2 >= 2;", Token::from_value("boolean".to_string(), 0, 0));
 }
