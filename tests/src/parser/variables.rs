@@ -38,7 +38,7 @@ fn test_variable_type(value: &str, expect: Token) {
   }
 
   assert_eq!(statements.len(), 1);
-  
+
   match statements[0].clone().get_variable() {
     Some(variable) => {
       assert_eq!(variable.data_type, expect);
@@ -165,4 +165,15 @@ fn parser_variables() {
 
   test_variable_type("let extra = 2 <= 2 >= 2;", Token::from_value("boolean".to_string(), 0, 0));
   test_variable_type("const extra = 2 <= 2 >= 2;", Token::from_value("boolean".to_string(), 0, 0));
+
+  // Duplicate name
+  let lexer = generate_lexer("let lang = 'Sflyn'; const lang = 1;");
+  let mut parser = Parser::new(lexer);
+  parser.parse_program();
+
+  if parser.errors.len() > 0 {
+    parser.show_errors();
+  }
+
+  assert_eq!(parser.errors.len(), 1);
 }

@@ -1,3 +1,4 @@
+use crate::Environment;
 use crate::expressions::{Expressions, Identifier, parse as parse_expression};
 use crate::{Parser, Precedence};
 use crate::tokens::*;
@@ -50,7 +51,7 @@ impl Variable {
     Box::new(Statements::VARIABLE(Statement::new()))
   }
 
-  pub fn parse<'a>(parser: &'a mut Parser) -> Option<Box<Statements>> {
+  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Box<Statements>> {
     let mut variable: Variable = Statement::from_token(parser.current_token.clone());
 
     // Check if the next token is a valid identifier.
@@ -173,14 +174,34 @@ impl Variable {
       }
     }
 
+    // Check if the name is used.
+    if environment.has(variable.name.clone().string()) {
+        let line = parser.get_error_line(variable.name.clone().token().position - 1, variable.name.clone().string().len());
+
+        parser.errors.push(format!("{} `{}` is already in use.", line, variable.name.clone().string()));
+
+        return None;
+    }
+
+    // Set the expression to the environment.
+    match variable.value.clone() {
+        Some(value) => {
+            environment.set(variable.name.clone().string(), value.clone());
+        },
+        None => {},
+    }
+
     // Check if the next token is a semicolon.
     if parser.next_token_is(Signs::new(Signs::SEMICOLON)) {
       // Get the next token.
       parser.next_token();
     }
 
-    // Get the next token.
-    parser.next_token();
+    // Check if the next token is the end of line.
+    if parser.next_token_is(Box::new(Tokens::EOL)) {
+        // Get the next token.
+        parser.next_token();
+    }
 
     // Return the statement.
     Some(Box::new(Statements::VARIABLE(variable)))

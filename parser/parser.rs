@@ -1,10 +1,7 @@
-use super::{
-  Lexer,
-  tokens::*,
-  statements::*,
-  Precedence,
-  utils::repeat_character
-};
+use super::{Environment, Lexer, Precedence};
+use super::statements::*;
+use super::tokens::*;
+use super::utils::repeat_character;
 
 #[derive(Debug, Clone)]
 pub struct Parser {
@@ -85,12 +82,11 @@ impl Parser {
     self.get_error_line(self.next_token.position - 1, self.next_token.value.len())
   }
 
-  fn parse_statement(&mut self) -> Option<Box<Statements>> {
-    let current_token = self.current_token.token.clone();
-
+  fn parse_statement(&mut self, environment: &mut Environment) -> Option<Box<Statements>> {
     // Parse variable statement.
-    if current_token.clone().is_keyword(Keywords::LET) || current_token.clone().is_keyword(Keywords::CONST) {
-      return Variable::parse(self);
+    if self.current_token.token.clone().is_keyword(Keywords::LET) ||
+        self.current_token.token.clone().is_keyword(Keywords::CONST) {
+      return Variable::parse(self, environment);
     }
 
     // Parse expression statement.
@@ -99,9 +95,10 @@ impl Parser {
 
   pub fn parse_program(&mut self) -> Vec<Box<Statements>> {
     let mut statements: Vec<Box<Statements>> = Vec::new();
+    let mut environment = Environment::new();
 
     while !self.current_token_is(Box::new(Tokens::EOF)) {
-      match self.parse_statement() {
+      match self.parse_statement(&mut environment) {
         Some(statement) => {
           statements.push(statement);
         },

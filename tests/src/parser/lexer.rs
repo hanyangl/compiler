@@ -169,19 +169,36 @@ pub fn let_is_lexer2_boolean(keyword: &str) -> Vec<Token> {
 
 #[cfg(test)]
 fn lexer_variable(keyword: &str) {
-  // String variables
+  // String
   test_lexer(format!("{} lang: string = 'Sflyn';", keyword), let_lang_string(keyword));
   test_lexer(format!("{} lang2 = 'Sflyn';", keyword), let_lang2_string(keyword));
   test_lexer(format!("{} lang3 = 'Sflyn' + 10;", keyword), let_lang3_string(keyword));
 
-  // Number variables
-  test_lexer(format!("{} two: number = 2;", keyword), let_two_number(keyword)); 
+  // Number
+  test_lexer(format!("{} two: number = 2;", keyword), let_two_number(keyword));
   test_lexer(format!("{} three = 3;", keyword), let_three_number(keyword));
   test_lexer(format!("{} four = 3 + 1;", keyword), let_four_number(keyword));
 
-  // Boolean variable
+  // Boolean
   test_lexer(format!("{} is_lexer: boolean = true;", keyword), let_is_lexer_boolean(keyword));
   test_lexer(format!("{} is_lexer2 = true;", keyword), let_is_lexer2_boolean(keyword));
+
+  // Duplicate names
+  let mut let_tokens = Vec::new();
+
+  let_tokens.push(Token::from_value(keyword.to_string(), 1, 1));
+  let_tokens.push(get_identifier("lang", 1, keyword.len() + 2));
+  let_tokens.push(Token::from_value("=".to_string(), 1, keyword.len() + 7));
+  let_tokens.push(get_string("'Sflyn'", 1, keyword.len() + 9));
+  let_tokens.push(Token::from_value(";".to_string(), 1, keyword.len() + 16));
+
+  let_tokens.push(Token::from_value(keyword.to_string(), 1, keyword.len() + 18));
+  let_tokens.push(get_identifier("lang", 1, keyword.len() * 2 + 19));
+  let_tokens.push(Token::from_value("=".to_string(), 1, keyword.len() * 2 + 24));
+  let_tokens.push(get_number(1, 1, keyword.len() * 2 + 26));
+  let_tokens.push(Token::from_value(";".to_string(), 1, keyword.len() * 2 + 27));
+
+  test_lexer(format!("{} lang = 'Sflyn'; {} lang = 1;", keyword, keyword), let_tokens);
 }
 
 #[cfg(test)]

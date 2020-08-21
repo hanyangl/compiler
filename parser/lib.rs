@@ -1,3 +1,4 @@
+mod environment;
 pub mod expressions;
 mod lexer;
 pub mod statements;
@@ -7,6 +8,7 @@ mod precedence;
 pub mod types;
 pub mod utils;
 
+pub use environment::Environment;
 pub use lexer::Lexer;
 pub use parser::Parser;
 pub use precedence::Precedence;
