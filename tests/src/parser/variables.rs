@@ -147,12 +147,18 @@ fn parser_variables() {
   test_variable_type("let ten = 50 / 2 - 20 + 5;", Token::from_value("number".to_string(), 0, 0));
   test_variable_type("const ten = 50 / 2 - 20 + 5;", Token::from_value("number".to_string(), 0, 0));
 
+  test_variable_type("let ten = -10;", Token::from_value("number".to_string(), 0, 0));
+  test_variable_type("const ten = -10;", Token::from_value("number".to_string(), 0, 0));
+
   // Boolean let
   test_variable("let is_lexer: boolean = true;", let_boolean(lexer::let_is_lexer_boolean("let")));
   test_variable("const is_lexer: boolean = true;", let_boolean(lexer::let_is_lexer_boolean("const")));
 
   test_variable("let is_lexer2 = true;", let_boolean_type(lexer::let_is_lexer2_boolean("let")));
   test_variable("const is_lexer2 = true;", let_boolean_type(lexer::let_is_lexer2_boolean("const")));
+
+  test_variable_type("let is_lexer3 = !!true;", Token::from_value("boolean".to_string(), 0, 0));
+  test_variable_type("const is_lexer3 = !!true;", Token::from_value("boolean".to_string(), 0, 0));
 
   test_variable_type("let is_two = 2 == 2;", Token::from_value("boolean".to_string(), 0, 0));
   test_variable_type("const is_two = 2 == 2;", Token::from_value("boolean".to_string(), 0, 0));

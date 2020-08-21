@@ -118,6 +118,24 @@ impl Types {
       None => {},
     }
 
+    // Parse prefix.
+    match exp.clone().get_prefix() {
+      Some(prefix) => {
+        let operator = prefix.token.token.clone();
+
+        // Parse negation prefix.
+        if operator.clone().is_sign(Signs::NEGATION) {
+          token = Token::from_value(String::from("boolean"), 0, 0);
+        }
+
+        // Parse minus prefix.
+        if operator.clone().is_sign(Signs::MINUS) {
+          token = Token::from_value(String::from("number"), 0, 0);
+        }
+      },
+      None => {},
+    }
+
     // Return token.
     token
   }

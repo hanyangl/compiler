@@ -84,17 +84,29 @@ impl Variable {
           variable.data_type = Types::from_expression(exp.clone());
 
           if variable.data_type.token.clone().is_illegal() {
+            let mut line = String::new();
+
+            // Parse infix.
             match exp.clone().get_infix() {
               Some(infix) => match infix.left.clone() {
                 Some(left) => {
-                  let line = parser.get_error_line(left.token().position - 1, exp.string().len());
-
-                  parser.errors.push(format!("{} is not a valid expression.", line));
+                  line = parser.get_error_line(left.token().position - 1, exp.clone().string().len());
                 },
                 None => {},
               },
               None => {},
             }
+
+            // Parse prefix.
+            match exp.clone().get_prefix() {
+              Some(prefix) => {
+                line = parser.get_error_line(prefix.token.position - 1, exp.clone().string().len());
+              },
+              None => {},
+            }
+
+            // Add error to parser.
+            parser.errors.push(format!("{} is not a valid expression.", line));
 
             return None;
           }

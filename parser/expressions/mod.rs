@@ -3,13 +3,15 @@ mod identifier;
 mod infix;
 mod number;
 mod parser;
+mod prefix;
 mod string;
 
 pub use boolean::Boolean;
-pub use infix::Infix;
 pub use identifier::Identifier;
-pub use parser::parse;
+pub use infix::Infix;
 pub use number::Number;
+pub use parser::parse;
+pub use prefix::Prefix;
 pub use string::StringE;
 
 use crate::tokens::Token;
@@ -31,6 +33,7 @@ pub enum Expressions {
   IDENTIFIER(Identifier),
   INFIX(Infix),
   NUMBER(Number),
+  PREFIX(Prefix),
   STRING(StringE),
 }
 
@@ -63,6 +66,13 @@ impl Expressions {
     }
   }
 
+  pub fn get_prefix(self) -> Option<Prefix> {
+    match self {
+      Expressions::PREFIX(prefix) => Some(prefix),
+      _ => None,
+    }
+  }
+
   pub fn get_string(self) -> Option<StringE> {
     match self {
       Expressions::STRING(string) => Some(string),
@@ -76,6 +86,7 @@ impl Expressions {
       Expressions::IDENTIFIER(identifier) => identifier.token,
       Expressions::INFIX(infix) => infix.token,
       Expressions::NUMBER(number) => number.token,
+      Expressions::PREFIX(prefix) => prefix.token,
       Expressions::STRING(string) => string.token,
     }
   }
@@ -86,6 +97,7 @@ impl Expressions {
       Expressions::IDENTIFIER(identifier) => identifier.string(),
       Expressions::INFIX(infix) => infix.string(),
       Expressions::NUMBER(number) => number.string(),
+      Expressions::PREFIX(prefix) => prefix.string(),
       Expressions::STRING(string) => string.string(),
     }
   }
