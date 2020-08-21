@@ -1,27 +1,11 @@
 use super::expressions::Expressions;
-use super::tokens::*;
+use super::tokens::Types;
 
 pub fn expression_is_type(data_type: Types, expression: Box<Expressions>) -> bool {
-  match data_type {
-    // String
-    Types::STRING => match expression.get_string() {
-      Some(string) => string.token.token.is_string(),
-      None => false,
-    },
+  let data_type_exp = Types::from_expression(expression);
 
-    // Number
-    Types::NUMBER => match expression.get_number() {
-      Some(number) => number.token.token.is_number(),
-      None => false,
-    },
-
-    // Boolean
-    Types::BOOLEAN => match expression.get_boolean() {
-      Some(boolean) => boolean.token.token.is_keyword(Keywords::TRUE),
-      None => false,
-    },
-
-    // Default
-    _ => false,
+  match data_type_exp.token.get_type() {
+    Some(data_type_exp) => data_type_exp == data_type,
+    None => false,
   }
 }

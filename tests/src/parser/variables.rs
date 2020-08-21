@@ -181,13 +181,15 @@ fn parser_variables() {
   // Set new value
   let lexer = generate_lexer(
     format!(
-      "{}\n{}\n{}\n{}",
+      "{}\n{}\n{}\n{}\n{}",
       "let lang = 'Sflyn'; lang = 'Sflyn 2.0'; lang = 1;",
       "const index: number = 0; index = 1;",
-      "let i = 0; i++;",
-      "lang += 1;"
+      "let i = 0; i++; i--; i -= 1; i *= 1; i /= 1;",
+      "lang += 1; lang -= 1; lang--;",
+      "let bool: boolean = false; bool = true; bool = !true; bool = 1;",
     ).as_str()
   );
+
   let mut parser = Parser::new(lexer);
   parser.parse_program();
 
@@ -195,5 +197,5 @@ fn parser_variables() {
     parser.show_errors();
   }
 
-  assert_eq!(parser.errors.len(), 3);
+  assert_eq!(parser.errors.len(), 6);
 }
