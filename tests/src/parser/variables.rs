@@ -176,4 +176,15 @@ fn parser_variables() {
   }
 
   assert_eq!(parser.errors.len(), 1);
+
+  // Set new value
+  let lexer = generate_lexer("let lang = 'Sflyn'; lang = 'Sflyn 2.0'; lang = 1; const index: number = 0; index = 1;");
+  let mut parser = Parser::new(lexer);
+  parser.parse_program();
+
+  if parser.errors.len() > 0 {
+    parser.show_errors();
+  }
+
+  assert_eq!(parser.errors.len(), 2);
 }

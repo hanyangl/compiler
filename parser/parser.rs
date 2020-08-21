@@ -29,7 +29,7 @@ impl Parser {
   }
 
   pub fn show_errors(&mut self) {
-    println!("{}", self.errors.join("\n"));
+    println!("{}", self.errors.join("\n\n"));
   }
 
   pub fn next_token(&mut self) {
@@ -68,18 +68,18 @@ impl Parser {
     }
   }
 
-  pub fn get_error_line(&mut self, position: usize, size: usize) -> String {
-    let line = self.lexer.clone().get_lines()[self.current_token.line - 1].clone();
+  pub fn get_error_line(&mut self, line: usize, position: usize, size: usize) -> String {
+    let line = self.lexer.clone().get_lines()[line].clone();
 
     format!("{}\n{}{}", line, repeat_character(position, " "), repeat_character(size, "^"))
   }
 
   pub fn get_error_line_current_token(&mut self) -> String {
-    self.get_error_line(self.current_token.position - 1, self.current_token.value.len())
+    self.get_error_line(self.current_token.line - 1, self.current_token.position - 1, self.current_token.value.len())
   }
 
   pub fn get_error_line_next_token(&mut self) -> String {
-    self.get_error_line(self.next_token.position - 1, self.next_token.value.len())
+    self.get_error_line(self.next_token.line - 1, self.next_token.position - 1, self.next_token.value.len())
   }
 
   fn parse_statement(&mut self, environment: &mut Environment) -> Option<Box<Statements>> {
@@ -87,6 +87,11 @@ impl Parser {
     if self.current_token.token.clone().is_keyword(Keywords::LET) ||
         self.current_token.token.clone().is_keyword(Keywords::CONST) {
       return Variable::parse(self, environment);
+    }
+
+    // Parse variable set statement.
+    if self.current_token.token.clone().is_identifier() {
+      return VariableSet::parse(self, environment);
     }
 
     // Parse expression statement.

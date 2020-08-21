@@ -1,7 +1,9 @@
 mod expression;
+mod variable_set;
 mod variable;
 
 pub use expression::ExpressionStatement;
+pub use variable_set::VariableSet;
 pub use variable::Variable;
 
 use crate::tokens::Token;
@@ -20,6 +22,7 @@ pub trait Statement {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statements {
   EXPRESSION(ExpressionStatement),
+  VARIABLESET(VariableSet),
   VARIABLE(Variable),
 }
 
@@ -30,17 +33,25 @@ impl Statements {
       _ => None,
     }
   }
-  
+
+  pub fn get_variable_set(self) -> Option<VariableSet> {
+    match self {
+      Statements::VARIABLESET(variable_set) => Some(variable_set),
+      _ => None,
+    }
+  }
+
   pub fn get_variable(self) -> Option<Variable> {
     match self {
       Statements::VARIABLE(variable) => Some(variable),
       _ => None,
     }
   }
-  
+
   pub fn string(self) -> String {
     match self {
       Statements::VARIABLE(variable) => variable.string(),
+      Statements::VARIABLESET(variable_set) => variable_set.string(),
       Statements::EXPRESSION(exp) => exp.string(),
     }
   }

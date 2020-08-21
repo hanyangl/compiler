@@ -52,7 +52,12 @@ impl Prefix {
     match prefix.right.clone() {
       Some(right_exp) => {
         let data_type = Types::from_expression(right_exp.clone());
-        let line = parser.get_error_line(right_exp.clone().token().position - 1, right_exp.clone().string().len());
+
+        let line = parser.get_error_line(
+          right_exp.clone().token().line - 1,
+          right_exp.clone().token().position - 1,
+          right_exp.clone().string().len()
+        );
 
         // Parse negation prefix.
         if prefix.token.token.clone().is_sign(Signs::NEGATION) && !data_type.token.clone().is_type(Types::BOOLEAN) {

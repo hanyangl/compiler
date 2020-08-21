@@ -91,7 +91,11 @@ impl Variable {
             match exp.clone().get_infix() {
               Some(infix) => match infix.left.clone() {
                 Some(left) => {
-                  line = parser.get_error_line(left.token().position - 1, exp.clone().string().len());
+                  line = parser.get_error_line(
+                    left.clone().token().line - 1,
+                    left.token().position - 1,
+                    exp.clone().string().len()
+                  );
                 },
                 None => {},
               },
@@ -101,7 +105,11 @@ impl Variable {
             // Parse prefix.
             match exp.clone().get_prefix() {
               Some(prefix) => {
-                line = parser.get_error_line(prefix.token.position - 1, exp.clone().string().len());
+                line = parser.get_error_line(
+                  prefix.token.line - 1,
+                  prefix.token.position - 1,
+                  exp.clone().string().len()
+                );
               },
               None => {},
             }
@@ -174,23 +182,6 @@ impl Variable {
       }
     }
 
-    // Check if the name is used.
-    if environment.has(variable.name.clone().string()) {
-        let line = parser.get_error_line(variable.name.clone().token().position - 1, variable.name.clone().string().len());
-
-        parser.errors.push(format!("{} `{}` is already in use.", line, variable.name.clone().string()));
-
-        return None;
-    }
-
-    // Set the expression to the environment.
-    match variable.value.clone() {
-        Some(value) => {
-            environment.set(variable.name.clone().string(), value.clone());
-        },
-        None => {},
-    }
-
     // Check if the next token is a semicolon.
     if parser.next_token_is(Signs::new(Signs::SEMICOLON)) {
       // Get the next token.
@@ -199,11 +190,30 @@ impl Variable {
 
     // Check if the next token is the end of line.
     if parser.next_token_is(Box::new(Tokens::EOL)) {
-        // Get the next token.
-        parser.next_token();
+      // Get the next token.
+      parser.next_token();
     }
 
+    // Check if the name is used.
+    if environment.has_expression(variable.name.clone().string()) ||
+      environment.has_statement(variable.name.clone().string()) {
+      let line = parser.get_error_line(
+        variable.name.clone().token().line - 1,
+        variable.name.clone().token().position - 1,
+        variable.name.clone().string().len()
+      );
+
+      parser.errors.push(format!("{} `{}` is already in use.", line, variable.name.clone().string()));
+
+      return None;
+    }
+
+    let statement_box = Box::new(Statements::VARIABLE(variable.clone()));
+
+    // Set the statement to the environment.
+    environment.set_statement(variable.name.clone().string(), statement_box.clone());
+
     // Return the statement.
-    Some(Box::new(Statements::VARIABLE(variable)))
+    Some(statement_box)
   }
 }
