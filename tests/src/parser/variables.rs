@@ -173,12 +173,21 @@ fn parser_variables() {
 
   if parser.errors.len() > 0 {
     parser.show_errors();
+    println!("\n");
   }
 
   assert_eq!(parser.errors.len(), 1);
 
   // Set new value
-  let lexer = generate_lexer("let lang = 'Sflyn'; lang = 'Sflyn 2.0'; lang = 1; const index: number = 0; index = 1;");
+  let lexer = generate_lexer(
+    format!(
+      "{}\n{}\n{}\n{}",
+      "let lang = 'Sflyn'; lang = 'Sflyn 2.0'; lang = 1;",
+      "const index: number = 0; index = 1;",
+      "let i = 0; i++;",
+      "lang += 1;"
+    ).as_str()
+  );
   let mut parser = Parser::new(lexer);
   parser.parse_program();
 
@@ -186,5 +195,5 @@ fn parser_variables() {
     parser.show_errors();
   }
 
-  assert_eq!(parser.errors.len(), 2);
+  assert_eq!(parser.errors.len(), 3);
 }

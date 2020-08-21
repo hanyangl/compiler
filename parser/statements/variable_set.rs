@@ -1,5 +1,5 @@
 use crate::Environment;
-use crate::expressions::{Expressions, parse as parse_expression};
+use crate::expressions::{Expressions, Number, parse as parse_expression};
 use crate::{Parser, Precedence};
 use crate::tokens::*;
 use crate::types::expression_is_type;
@@ -31,6 +31,11 @@ impl Statement for VariableSet {
   }
 
   fn string(self) -> String {
+    if self.assign.token.clone().is_sign(Signs::PLUSPLUS) ||
+      self.assign.token.clone().is_sign(Signs::MINUSMINUS) {
+      return format!("{}{};", self.token.value, self.assign.value);
+    }
+
     format!(
       "{} {} {};",
       self.token.value,
@@ -47,11 +52,12 @@ impl VariableSet {
   pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Box<Statements>> {
     let mut variable: VariableSet = Statement::from_token(parser.current_token.clone());
 
-    // Parse assign sign.
-    if parser.next_token_is(Signs::new(Signs::ASSIGN)) {
-      // Get the next token.
-      parser.next_token();
-
+    // Parse assigns signs.
+    if parser.expect_token(Signs::new(Signs::ASSIGN)) ||
+      parser.expect_token(Signs::new(Signs::PLUSASSIGN)) ||
+      parser.expect_token(Signs::new(Signs::MINUSASSIGN)) ||
+      parser.expect_token(Signs::new(Signs::MULTIPLYASSIGN)) ||
+      parser.expect_token(Signs::new(Signs::DIVIDEASSIGN)) {
       // Set the variable assign token.
       variable.assign = parser.current_token.clone();
 
@@ -65,6 +71,28 @@ impl VariableSet {
         },
         None => {},
       }
+    }
+
+    // Parse ++ and -- signs.
+    else if parser.expect_token(Signs::new(Signs::PLUSPLUS)) ||
+      parser.expect_token(Signs::new(Signs::MINUSMINUS)) {
+      // Set the variable assign token.
+      variable.assign = parser.current_token.clone();
+
+      // Get the next token.
+      parser.next_token();
+
+      // Set a one value.
+      variable.value = Some(
+        Number::new_box_from_token(
+          Token::new(
+            Box::new(Tokens::NUMBER),
+            String::from("1"),
+            0,
+            0,
+          )
+        )
+      );
     }
 
     // Check if the next token is a semicolon.
@@ -95,6 +123,19 @@ impl VariableSet {
               );
 
               parser.errors.push(format!("{} you can not set a value to a const.", line));
+
+              return None;
+            }
+
+            if !variable.assign.token.clone().is_sign(Signs::ASSIGN) &&
+              !var.data_type.token.clone().is_type(Types::NUMBER) {
+              let line = parser.get_error_line(
+                variable.token.line - 1,
+                variable.token.position - 1,
+                variable.token.value.len()
+              );
+
+              parser.errors.push(format!("{} the variable is not of number type.", line));
 
               return None;
             }
