@@ -29,7 +29,7 @@ pub fn parse<'a>(parser: &'a mut Parser, precedence: Precedence) -> Option<Box<E
 
   // Parse prefixes.
   if current_token.token.clone().is_sign(Signs::NEGATION) || current_token.token.clone().is_sign(Signs::MINUS) {
-    expression = Some(Prefix::parse(parser));
+    expression = Prefix::parse(parser);
   }
 
   // Parse infix expression.

@@ -84,7 +84,7 @@ impl Variable {
           variable.data_type = Types::from_expression(exp.clone());
 
           if variable.data_type.token.clone().is_illegal() {
-            let mut line = String::new();
+            let mut line = parser.get_error_line_current_token();
 
             // Parse infix.
             match exp.clone().get_infix() {

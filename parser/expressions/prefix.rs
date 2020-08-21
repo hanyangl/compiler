@@ -1,5 +1,5 @@
 use crate::{Parser, Precedence};
-use crate::tokens::Token;
+use crate::tokens::{Token, Types, Signs};
 
 use super::{Expression, Expressions, parse as parse_expression};
 
@@ -40,7 +40,7 @@ impl Expression for Prefix {
 }
 
 impl Prefix {
-  pub fn parse<'a>(parser: &'a mut Parser) -> Box<Expressions> {
+  pub fn parse<'a>(parser: &'a mut Parser) -> Option<Box<Expressions>> {
     let mut prefix: Prefix = Expression::from_token(parser.current_token.clone());
 
     // Get the next token.
@@ -49,7 +49,29 @@ impl Prefix {
     // Parse the right expression.
     prefix.right = parse_expression(parser, Precedence::PREFIX);
 
+    match prefix.right.clone() {
+      Some(right_exp) => {
+        let data_type = Types::from_expression(right_exp.clone());
+        let line = parser.get_error_line(right_exp.clone().token().position - 1, right_exp.clone().string().len());
+
+        // Parse negation prefix.
+        if prefix.token.token.clone().is_sign(Signs::NEGATION) && !data_type.token.clone().is_type(Types::BOOLEAN) {
+          parser.errors.push(format!("{} `{}` not satisfied the boolean type.", line, right_exp.string()));
+
+          return None;
+        }
+
+        // Parse minus prefix.
+        if prefix.token.token.clone().is_sign(Signs::MINUS) && !data_type.token.clone().is_type(Types::NUMBER) {
+          parser.errors.push(format!("{} `{}` not satisfied the number type.", line, right_exp.string()));
+
+          return None;
+        }
+      },
+      None => {},
+    }
+
     // Return the prefix expression.
-    Box::new(Expressions::PREFIX(prefix))
+    Some(Box::new(Expressions::PREFIX(prefix)))
   }
 }
