@@ -69,7 +69,9 @@ impl AnonymousFunction {
       Some(arguments) => {
         function.arguments = arguments;
       },
-      None => {},
+      None => {
+        return None;
+      },
     }
 
     // Check if the current token is a right parentheses.
@@ -106,9 +108,9 @@ impl AnonymousFunction {
     if function.token.token.clone().is_sign(Signs::LEFTPARENTHESES) {
       // Check if the next token is an assign arrow sign.
       if !parser.current_token_is(Signs::new(Signs::ASSIGNARROW)) {
-        let line = parser.get_error_line_next_token();
+        let line = parser.get_error_line_current_token();
 
-        parser.errors.push(format!("{} expect `=>`, got `{}` instead.", line, parser.next_token.value));
+        parser.errors.push(format!("{} expect `=>`, got `{}` instead.", line, parser.current_token.value));
 
         return None;
       }
@@ -119,9 +121,9 @@ impl AnonymousFunction {
 
     // Check if the next token is a left brace.
     if !parser.current_token_is(Signs::new(Signs::LEFTBRACE)) {
-      let line = parser.get_error_line_next_token();
+      let line = parser.get_error_line_current_token();
 
-      parser.errors.push(format!("{} expect `{{`, got `{}` instead.", line, parser.next_token.value));
+      parser.errors.push(format!("{} expect `{{`, got `{}` instead.", line, parser.current_token.value));
 
       return None;
     }

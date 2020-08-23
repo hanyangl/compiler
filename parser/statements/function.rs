@@ -98,7 +98,9 @@ impl Function {
       Some(arguments) => {
         function.arguments = arguments;
       },
-      None => {},
+      None => {
+        return None;
+      },
     }
 
     // Check if the current token is a right parentheses.
@@ -133,9 +135,9 @@ impl Function {
 
     // Check if the next token is a left brace.
     if !parser.current_token_is(Signs::new(Signs::LEFTBRACE)) {
-      let line = parser.get_error_line_next_token();
+      let line = parser.get_error_line_current_token();
 
-      parser.errors.push(format!("{} expect `{{`, got `{}` instead.", line, parser.next_token.value));
+      parser.errors.push(format!("{} expect `{{`, got `{}` instead.", line, parser.current_token.value));
 
       return None;
     }

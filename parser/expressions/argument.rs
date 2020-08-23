@@ -137,7 +137,10 @@ impl Argument {
           None => {},
         }
       } else if has_default {
-        // TODO(Error)
+        let line = parser.get_error_line_next_token();
+
+        parser.errors.push(format!("{} the argument must has a default value.", line));
+
         return None;
       }
 

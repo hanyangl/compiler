@@ -172,7 +172,7 @@ impl Variable {
               if !expression_is_type(data_type.clone(), exp.clone(), environment) {
                 let line = parser.get_error_line_current_token();
 
-                parser.errors.push(format!("{} `{}` not satisfied the {} type.", line, parser.current_token.value, data_type_token.value));
+                parser.errors.push(format!("{} not satisfied the {} type.", line, data_type_token.value));
 
                 return None;
               }

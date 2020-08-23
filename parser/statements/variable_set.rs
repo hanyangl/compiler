@@ -152,14 +152,7 @@ impl VariableSet {
                         new_value.clone().string().len(),
                       );
 
-                      parser.errors.push(
-                        format!(
-                          "{} `{}` not satisfied the {} type.",
-                          line,
-                          new_value.string(),
-                          var.data_type.value,
-                        )
-                      );
+                      parser.errors.push(format!("{} not satisfied the {} type.", line, var.data_type.value));
 
                       return None;
                     }
