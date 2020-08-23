@@ -12,7 +12,8 @@ pub fn parse<'a>(
   let mut expression: Option<Box<Expressions>> = None;
 
   // Parse identifiers.
-  if current_token.token.clone().is_identifier() {
+  if current_token.token.clone().is_identifier() &&
+    !parser.next_token.token.clone().is_sign(Signs::LEFTPARENTHESES) {
     expression = Some(Identifier::new_box_from_token(current_token.clone()));
   }
 
@@ -46,6 +47,12 @@ pub fn parse<'a>(
     )
   ) {
     expression = AnonymousFunction::parse(parser, environment);
+  }
+
+  // Parse calls.
+  if current_token.token.clone().is_identifier() &&
+    parser.next_token.token.clone().is_sign(Signs::LEFTPARENTHESES) {
+    expression = Call::parse(parser, environment);
   }
 
   // Parse infix expression.

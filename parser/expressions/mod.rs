@@ -1,6 +1,7 @@
 mod anonymous_function;
 mod argument;
 mod boolean;
+mod call;
 mod identifier;
 mod infix;
 mod number;
@@ -11,6 +12,7 @@ mod string;
 pub use anonymous_function::AnonymousFunction;
 pub use argument::Argument;
 pub use boolean::Boolean;
+pub use call::Call;
 pub use identifier::Identifier;
 pub use infix::Infix;
 pub use number::Number;
@@ -36,6 +38,7 @@ pub enum Expressions {
   ANONYMOUSFUNCTION(AnonymousFunction),
   ARGUMENT(Argument),
   BOOLEAN(Boolean),
+  CALL(Call),
   IDENTIFIER(Identifier),
   INFIX(Infix),
   NUMBER(Number),
@@ -61,6 +64,13 @@ impl Expressions {
   pub fn get_boolean(self) -> Option<Boolean> {
     match self {
       Expressions::BOOLEAN(boolean) => Some(boolean),
+      _ => None,
+    }
+  }
+
+  pub fn get_call(self) -> Option<Call> {
+    match self {
+      Expressions::CALL(call) => Some(call),
       _ => None,
     }
   }
@@ -105,6 +115,7 @@ impl Expressions {
       Expressions::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.token,
       Expressions::ARGUMENT(argument) => argument.token,
       Expressions::BOOLEAN(boolean) => boolean.token,
+      Expressions::CALL(call) => call.token,
       Expressions::IDENTIFIER(identifier) => identifier.token,
       Expressions::INFIX(infix) => infix.token,
       Expressions::NUMBER(number) => number.token,
@@ -118,6 +129,7 @@ impl Expressions {
       Expressions::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.string(),
       Expressions::ARGUMENT(argument) => argument.string(),
       Expressions::BOOLEAN(boolean) => boolean.string(),
+      Expressions::CALL(call) => call.string(),
       Expressions::IDENTIFIER(identifier) => identifier.string(),
       Expressions::INFIX(infix) => infix.string(),
       Expressions::NUMBER(number) => number.string(),
@@ -125,4 +137,5 @@ impl Expressions {
       Expressions::STRING(string) => string.string(),
     }
   }
+
 }

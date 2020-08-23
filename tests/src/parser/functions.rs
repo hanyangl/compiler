@@ -221,6 +221,12 @@ fn parser_functions() {
   test_function_error("function two(): void { return 2; }", 1);
   test_function_error("function two(): void { return; }", 0);
 
+  test_function_error("let add = 2; add();", 1);
+  test_function_error("function add(x: number): number { return x + 2; } add();", 1);
+  test_function_error("function add(x: number): number { return x + 2; } add(1, 1);", 1);
+  test_function_error("function add(x: number): number { return x + 2; } add('1');", 1);
+  test_function_error("function add(x: number): number { return x + 2; } add(1);", 0);
+
   // Anonymous functions.
   test_function_error("let empty = function () => {};", 1);
   test_function_error("let empty = function () {};", 0);
@@ -257,4 +263,15 @@ fn parser_functions() {
   test_function_error("let add = (x: number): number => { return x + 2; }", 0);
   test_function_error("let two = function(): void { return 2; }", 1);
   test_function_error("let two = function(): void { return; }", 0);
+
+  test_function_error("const add = 2; add();", 1);
+  test_function_error("const add = function (x: number): number { return x + 2; }; add();", 1);
+  test_function_error("const add = function (x: number): number { return x + 2; }; add(1, 1);", 1);
+  test_function_error("const add = function (x: number): number { return x + 2; }; add('1');", 1);
+  test_function_error("const add = function (x: number): number { return x + 2; }; add(1);", 0);
+
+  test_function_error("const add = (x: number): number => { return x + 2; }; add();", 1);
+  test_function_error("const add = (x: number): number => { return x + 2; }; add(1, 1);", 1);
+  test_function_error("const add = (x: number): number => { return x + 2; }; add('1');", 1);
+  test_function_error("const add = (x: number): number => { return x + 2; }; add(1);", 0);
 }

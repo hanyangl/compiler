@@ -97,7 +97,8 @@ impl Parser {
     }
 
     // Parse variable set statement.
-    if self.current_token_is(Box::new(Tokens::IDENTIFIER)) {
+    if self.current_token_is(Box::new(Tokens::IDENTIFIER)) &&
+      !self.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) {
       return VariableSet::parse(self, environment);
     }
 
@@ -112,7 +113,7 @@ impl Parser {
     }
 
     // Parse expression statement.
-    Some(ExpressionStatement::parse(self, environment))
+    ExpressionStatement::parse(self, environment)
   }
 
   pub fn parse_program(&mut self) -> Vec<Box<Statements>> {

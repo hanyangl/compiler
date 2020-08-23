@@ -39,11 +39,18 @@ impl ExpressionStatement {
     Box::new(Statements::EXPRESSION(Statement::new()))
   }
 
-  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Box<Statements> {
+  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Box<Statements>> {
     let mut statement: ExpressionStatement = Statement::from_token(parser.current_token.clone());
 
     // Parse expression.
-    statement.expression = parse_expression(parser, Precedence::LOWEST, environment);
+    match parse_expression(parser, Precedence::LOWEST, environment) {
+      Some(expression) => {
+        statement.expression = Some(expression);
+      },
+      None => {
+        return None;
+      },
+    }
 
     // Check if the next token is a semicolon.
     if parser.next_token.token.clone().is_sign(Signs::SEMICOLON) {
@@ -52,6 +59,6 @@ impl ExpressionStatement {
     }
 
     // Return statement.
-    Box::new(Statements::EXPRESSION(statement))
+    Some(Box::new(Statements::EXPRESSION(statement)))
   }
 }
