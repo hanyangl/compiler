@@ -1,3 +1,4 @@
+mod functions;
 mod lexer;
 mod tokens;
 mod variables;

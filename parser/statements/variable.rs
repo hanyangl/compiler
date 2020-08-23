@@ -71,6 +71,16 @@ impl Variable {
     // Set the variable name.
     variable.name = Identifier::new_box_from_token(parser.current_token.clone());
 
+    // Check if the name is used.
+    if environment.has_expression(variable.name.clone().string()) ||
+      environment.has_statement(variable.name.clone().string()) {
+      let line = parser.get_error_line_current_token();
+
+      parser.errors.push(format!("{} `{}` is already in use.", line, variable.name.clone().string()));
+
+      return None;
+    }
+
     // Check if the next token is an assign sin.
     if parser.next_token_is(Signs::new(Signs::ASSIGN)) {
       // Get the next token.
@@ -80,9 +90,9 @@ impl Variable {
       parser.next_token();
 
       // Parse current token (Variable value).
-      match parse_expression(parser, Precedence::LOWEST) {
+      match parse_expression(parser, Precedence::LOWEST, environment) {
         Some(exp) => {
-          variable.data_type = Types::from_expression(exp.clone());
+          variable.data_type = Types::from_expression(exp.clone(), environment);
 
           if variable.data_type.token.clone().is_illegal() {
             let mut line = parser.get_error_line_current_token();
@@ -157,9 +167,9 @@ impl Variable {
           parser.next_token();
 
           // Parse current token (Variable value).
-          match parse_expression(parser, Precedence::LOWEST) {
+          match parse_expression(parser, Precedence::LOWEST, environment) {
             Some(exp) => {
-              if !expression_is_type(data_type.clone(), exp.clone()) {
+              if !expression_is_type(data_type.clone(), exp.clone(), environment) {
                 let line = parser.get_error_line_current_token();
 
                 parser.errors.push(format!("{} `{}` not satisfied the {} type.", line, parser.current_token.value, data_type_token.value));
@@ -192,20 +202,6 @@ impl Variable {
     if parser.next_token_is(Box::new(Tokens::EOL)) {
       // Get the next token.
       parser.next_token();
-    }
-
-    // Check if the name is used.
-    if environment.has_expression(variable.name.clone().string()) ||
-      environment.has_statement(variable.name.clone().string()) {
-      let line = parser.get_error_line(
-        variable.name.clone().token().line - 1,
-        variable.name.clone().token().position - 1,
-        variable.name.clone().string().len()
-      );
-
-      parser.errors.push(format!("{} `{}` is already in use.", line, variable.name.clone().string()));
-
-      return None;
     }
 
     let statement_box = Box::new(Statements::VARIABLE(variable.clone()));

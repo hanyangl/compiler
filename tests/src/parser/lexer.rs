@@ -26,7 +26,7 @@ fn lexer_sign(value: &str, sign: Signs) {
 }
 
 #[cfg(test)]
-fn get_identifier(value: &str, line: usize, position: usize) -> Token {
+pub fn get_identifier(value: &str, line: usize, position: usize) -> Token {
   Token::new(Box::new(Tokens::IDENTIFIER), value.to_string(), line, position)
 }
 

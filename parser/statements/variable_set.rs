@@ -65,7 +65,7 @@ impl VariableSet {
       parser.next_token();
 
       // Parse the value expression.
-      match parse_expression(parser, Precedence::LOWEST) {
+      match parse_expression(parser, Precedence::LOWEST, environment) {
         Some(value_exp) => {
           variable.value = Some(value_exp);
         },
@@ -145,7 +145,7 @@ impl VariableSet {
               Some(new_value) => {
                 match var.data_type.token.clone().get_type() {
                   Some(data_type) => {
-                    if !expression_is_type(data_type.clone(), new_value.clone()) {
+                    if !expression_is_type(data_type.clone(), new_value.clone(), environment) {
                       let line = parser.get_error_line(
                         new_value.clone().token().line - 1,
                         new_value.clone().token().position - 1,

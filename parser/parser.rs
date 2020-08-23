@@ -69,9 +69,16 @@ impl Parser {
   }
 
   pub fn get_error_line(&mut self, line: usize, position: usize, size: usize) -> String {
-    let line = self.lexer.clone().get_lines()[line].clone();
+    let line_content = self.lexer.clone().get_lines()[line].clone();
 
-    format!("{}\n{}{}", line, repeat_character(position, " "), repeat_character(size, "^"))
+    format!(
+      "{} | {}\n{} | {}{}",
+      line + 1,
+      line_content,
+      repeat_character((line + 1).to_string().len(), " "),
+      repeat_character(position, " "),
+      repeat_character(size, "^"),
+    )
   }
 
   pub fn get_error_line_current_token(&mut self) -> String {
@@ -82,20 +89,25 @@ impl Parser {
     self.get_error_line(self.next_token.line - 1, self.next_token.position - 1, self.next_token.value.len())
   }
 
-  fn parse_statement(&mut self, environment: &mut Environment) -> Option<Box<Statements>> {
+  pub fn parse_statement(&mut self, environment: &mut Environment) -> Option<Box<Statements>> {
     // Parse variable statement.
-    if self.current_token.token.clone().is_keyword(Keywords::LET) ||
-        self.current_token.token.clone().is_keyword(Keywords::CONST) {
+    if self.current_token_is(Keywords::new(Keywords::LET)) ||
+        self.current_token_is(Keywords::new(Keywords::CONST)) {
       return Variable::parse(self, environment);
     }
 
     // Parse variable set statement.
-    if self.current_token.token.clone().is_identifier() {
+    if self.current_token_is(Box::new(Tokens::IDENTIFIER)) {
       return VariableSet::parse(self, environment);
     }
 
+    // Parse function statement.
+    if self.current_token_is(Keywords::new(Keywords::FUNCTION)) {
+      return Function::parse(self, environment);
+    }
+
     // Parse expression statement.
-    Some(ExpressionStatement::parse(self))
+    Some(ExpressionStatement::parse(self, environment))
   }
 
   pub fn parse_program(&mut self) -> Vec<Box<Statements>> {
@@ -103,13 +115,23 @@ impl Parser {
     let mut environment = Environment::new();
 
     while !self.current_token_is(Box::new(Tokens::EOF)) {
+      // Check if the current token is the end of line.
+      if self.current_token_is(Box::new(Tokens::EOL)) {
+        // Get the next token.
+        self.next_token();
+      }
+
+      // Parse the statement.
       match self.parse_statement(&mut environment) {
         Some(statement) => {
           statements.push(statement);
         },
-        None => {}
+        None => {
+          break;
+        }
       }
 
+      // Get the next token.
       self.next_token();
     }
 

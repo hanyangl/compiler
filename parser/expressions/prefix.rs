@@ -1,4 +1,4 @@
-use crate::{Parser, Precedence};
+use crate::{Environment, Parser, Precedence};
 use crate::tokens::{Token, Types, Signs};
 
 use super::{Expression, Expressions, parse as parse_expression};
@@ -40,18 +40,18 @@ impl Expression for Prefix {
 }
 
 impl Prefix {
-  pub fn parse<'a>(parser: &'a mut Parser) -> Option<Box<Expressions>> {
+  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Box<Expressions>> {
     let mut prefix: Prefix = Expression::from_token(parser.current_token.clone());
 
     // Get the next token.
     parser.next_token();
 
     // Parse the right expression.
-    prefix.right = parse_expression(parser, Precedence::PREFIX);
+    prefix.right = parse_expression(parser, Precedence::PREFIX, environment);
 
     match prefix.right.clone() {
       Some(right_exp) => {
-        let data_type = Types::from_expression(right_exp.clone());
+        let data_type = Types::from_expression(right_exp.clone(), environment);
 
         let line = parser.get_error_line(
           right_exp.clone().token().line - 1,

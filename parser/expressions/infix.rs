@@ -1,4 +1,4 @@
-use crate::Parser;
+use crate::{Environment, Parser};
 use crate::tokens::Token;
 
 use super::{Expression, Expressions, parse as parse_expression};
@@ -55,7 +55,11 @@ impl Infix {
     Box::new(Expressions::INFIX(Expression::from_token(token)))
   }
 
-  pub fn parse<'a>(parser: &'a mut Parser, left_expression: Option<Box<Expressions>>) -> Box<Expressions> {
+  pub fn parse<'a>(
+    parser: &'a mut Parser,
+    left_expression: Option<Box<Expressions>>,
+    environment: &mut Environment,
+  ) -> Box<Expressions> {
     let mut exp: Infix = Expression::from_token(parser.current_token.clone());
 
     // Set the left expression.
@@ -68,7 +72,7 @@ impl Infix {
     parser.next_token();
 
     // Set the right expression.
-    exp.right = parse_expression(parser, precedence);
+    exp.right = parse_expression(parser, precedence, environment);
 
     // Return the infix expression.
     Box::new(Expressions::INFIX(exp))

@@ -1,3 +1,5 @@
+mod anonymous_function;
+mod argument;
 mod boolean;
 mod identifier;
 mod infix;
@@ -6,6 +8,8 @@ mod parser;
 mod prefix;
 mod string;
 
+pub use anonymous_function::AnonymousFunction;
+pub use argument::Argument;
 pub use boolean::Boolean;
 pub use identifier::Identifier;
 pub use infix::Infix;
@@ -29,6 +33,8 @@ pub trait Expression {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expressions {
+  ANONYMOUSFUNCTION(AnonymousFunction),
+  ARGUMENT(Argument),
   BOOLEAN(Boolean),
   IDENTIFIER(Identifier),
   INFIX(Infix),
@@ -38,6 +44,20 @@ pub enum Expressions {
 }
 
 impl Expressions {
+  pub fn get_anonymous_function(self) -> Option<AnonymousFunction> {
+    match self {
+      Expressions::ANONYMOUSFUNCTION(function) => Some(function),
+      _ => None,
+    }
+  }
+
+  pub fn get_argument(self) -> Option<Argument> {
+    match self {
+      Expressions::ARGUMENT(argument) => Some(argument),
+      _ => None,
+    }
+  }
+
   pub fn get_boolean(self) -> Option<Boolean> {
     match self {
       Expressions::BOOLEAN(boolean) => Some(boolean),
@@ -82,6 +102,8 @@ impl Expressions {
 
   pub fn token(self) -> Token {
     match self {
+      Expressions::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.token,
+      Expressions::ARGUMENT(argument) => argument.token,
       Expressions::BOOLEAN(boolean) => boolean.token,
       Expressions::IDENTIFIER(identifier) => identifier.token,
       Expressions::INFIX(infix) => infix.token,
@@ -93,6 +115,8 @@ impl Expressions {
 
   pub fn string(self) -> String {
     match self {
+      Expressions::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.string(),
+      Expressions::ARGUMENT(argument) => argument.string(),
       Expressions::BOOLEAN(boolean) => boolean.string(),
       Expressions::IDENTIFIER(identifier) => identifier.string(),
       Expressions::INFIX(infix) => infix.string(),

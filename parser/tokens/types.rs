@@ -1,3 +1,4 @@
+use crate::Environment;
 use crate::expressions::Expressions;
 
 use super::*;
@@ -39,8 +40,21 @@ impl TokenType for Types {
 }
 
 impl Types {
-  pub fn from_expression(exp: Box<Expressions>) -> Token {
+  pub fn from_expression(exp: Box<Expressions>, environment: &mut Environment) -> Token {
     let mut token: Token = Token::new_empty();
+
+    // Parse identifier.
+    match exp.clone().get_identifier() {
+      Some(identifier) => {
+        match environment.get_expression(identifier.value) {
+          Some(env_exp) => {
+            token = Types::from_expression(env_exp, environment);
+          },
+          None => {},
+        }
+      },
+      None => {},
+    }
 
     // Parse string.
     match exp.clone().get_string() {
@@ -73,13 +87,13 @@ impl Types {
 
         // Get the left expression.
         let left = match infix.left {
-          Some(left) => Types::from_expression(left),
+          Some(left) => Types::from_expression(left, environment),
           None => Token::new_empty(),
         };
 
         // Get the right expression.
         let right = match infix.right {
-          Some(right) => Types::from_expression(right),
+          Some(right) => Types::from_expression(right, environment),
           None => Token::new_empty(),
         };
 
@@ -132,6 +146,22 @@ impl Types {
         if operator.clone().is_sign(Signs::MINUS) {
           token = Token::from_value(String::from("number"), 0, 0);
         }
+      },
+      None => {},
+    }
+
+    // Parse argument.
+    match exp.clone().get_argument() {
+      Some(argument) => {
+        token = argument.data_type;
+      },
+      None => {},
+    }
+
+    // Parse anonymous function.
+    match exp.clone().get_anonymous_function() {
+      Some(_) => {
+        token = Token::from_value(String::from("void"), 0, 0);
       },
       None => {},
     }

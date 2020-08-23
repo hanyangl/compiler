@@ -1,8 +1,12 @@
+mod block;
 mod expression;
+mod function;
 mod variable_set;
 mod variable;
 
+pub use block::Block;
 pub use expression::ExpressionStatement;
+pub use function::Function;
 pub use variable_set::VariableSet;
 pub use variable::Variable;
 
@@ -21,15 +25,31 @@ pub trait Statement {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statements {
+  BLOCK(Block),
   EXPRESSION(ExpressionStatement),
+  FUNCTION(Function),
   VARIABLESET(VariableSet),
   VARIABLE(Variable),
 }
 
 impl Statements {
+  pub fn get_block(self) -> Option<Block> {
+    match self {
+      Statements::BLOCK(block) => Some(block),
+      _ => None,
+    }
+  }
+
   pub fn get_expression(self) -> Option<ExpressionStatement> {
     match self {
       Statements::EXPRESSION(exp) => Some(exp),
+      _ => None,
+    }
+  }
+
+  pub fn get_function(self) -> Option<Function> {
+    match self {
+      Statements::FUNCTION(function) => Some(function),
       _ => None,
     }
   }
@@ -50,9 +70,11 @@ impl Statements {
 
   pub fn string(self) -> String {
     match self {
+      Statements::BLOCK(block) => block.string(),
+      Statements::EXPRESSION(exp) => exp.string(),
+      Statements::FUNCTION(function) => function.string(),
       Statements::VARIABLE(variable) => variable.string(),
       Statements::VARIABLESET(variable_set) => variable_set.string(),
-      Statements::EXPRESSION(exp) => exp.string(),
     }
   }
 }

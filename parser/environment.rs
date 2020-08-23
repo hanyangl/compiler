@@ -61,6 +61,20 @@ impl Environment {
     }
   }
 
+  pub fn has_first_statement(&mut self, name: String) -> bool {
+    match self.get_first_statement(name) {
+      Some(_) => true,
+      None => false,
+    }
+  }
+
+  pub fn has_first_expression(&mut self, name: String) -> bool {
+    match self.get_first_expression(name) {
+      Some(_) => true,
+      None => false,
+    }
+  }
+
   pub fn has_statement(&mut self, name: String) -> bool {
     match self.get_statement(name) {
       Some(_) => true,

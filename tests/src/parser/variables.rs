@@ -16,7 +16,7 @@ fn test_variable(value: &str, expect: Box<Statements>) {
 
   assert_eq!(parser.errors.len(), 0);
   assert_eq!(statements.len(), 1);
-  assert_eq!(statements[0].clone(), expect.clone());
+  assert_eq!(statements[0].clone(), expect);
 }
 
 #[cfg(test)]

@@ -36,15 +36,6 @@ impl Precedence {
       Signs::MULTIPLY |
       Signs::DIVIDE => Precedence::PRODUCT,
 
-      // CALL
-      Signs::LEFTPARENTHESES => Precedence::CALL,
-
-      // INDEX
-      Signs::LEFTBRACKET => Precedence::INDEX,
-
-      // METHOD
-      Signs::ARROW => Precedence::METHOD,
-
       // LOWEST
       _ => Precedence::LOWEST,
     }

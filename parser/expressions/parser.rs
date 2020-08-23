@@ -1,9 +1,13 @@
-use crate::{Parser, Precedence};
+use crate::{Environment, Parser, Precedence};
 use crate::tokens::*;
 
 use super::*;
 
-pub fn parse<'a>(parser: &'a mut Parser, precedence: Precedence) -> Option<Box<Expressions>> {
+pub fn parse<'a>(
+  parser: &'a mut Parser,
+  precedence: Precedence,
+  environment: &mut Environment,
+) -> Option<Box<Expressions>> {
   let current_token: Token = parser.current_token.clone();
   let mut expression: Option<Box<Expressions>> = None;
 
@@ -23,13 +27,25 @@ pub fn parse<'a>(parser: &'a mut Parser, precedence: Precedence) -> Option<Box<E
   }
 
   // Parse booleans.
-  if current_token.token.clone().is_keyword(Keywords::TRUE) || current_token.token.clone().is_keyword(Keywords::FALSE) {
+  if current_token.token.clone().is_keyword(Keywords::TRUE) ||
+    current_token.token.clone().is_keyword(Keywords::FALSE) {
     expression = Some(Boolean::parse(parser));
   }
 
   // Parse prefixes.
-  if current_token.token.clone().is_sign(Signs::NEGATION) || current_token.token.clone().is_sign(Signs::MINUS) {
-    expression = Prefix::parse(parser);
+  if current_token.token.clone().is_sign(Signs::NEGATION) ||
+    current_token.token.clone().is_sign(Signs::MINUS) {
+    expression = Prefix::parse(parser, environment);
+  }
+
+  // Parse anonymous functions.
+  if current_token.token.clone().is_keyword(Keywords::FUNCTION) || (
+    current_token.token.clone().is_sign(Signs::LEFTPARENTHESES) && (
+      parser.next_token.token.clone().is_identifier() ||
+      parser.next_token.token.clone().is_sign(Signs::RIGHTPARENTHESES)
+    )
+  ) {
+    expression = AnonymousFunction::parse(parser, environment);
   }
 
   // Parse infix expression.
@@ -59,10 +75,12 @@ pub fn parse<'a>(parser: &'a mut Parser, precedence: Precedence) -> Option<Box<E
       parser.next_token();
 
       // Set the new expression.
-      expression = Some(Infix::parse(parser, expression));
+      expression = Some(Infix::parse(parser, expression, environment));
 
       continue;
     }
+
+    break;
   }
 
   // Return expression.
