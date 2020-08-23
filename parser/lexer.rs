@@ -203,8 +203,8 @@ impl Lexer {
             // Set the current token to the new token.
             current_token = Token::from_value(
               format!("{}{}", current_token.value, next_character),
+              self.current_line,
               start_position,
-              self.current_line
             );
           }
 
@@ -242,15 +242,15 @@ impl Lexer {
                 // Set the current token to the new token.
                 current_token = Token::from_value(
                   format!("{}{}{}", current_token.value, next_character, next_two_character),
+                  self.current_line,
                   start_position,
-                  self.current_line
                 );
               } else {
                 // Set the current token to the new token.
                 current_token = Token::from_value(
                   format!("{}{}", current_token.value, next_character),
+                  self.current_line,
                   start_position,
-                  self.current_line
                 );
               }
             }
@@ -266,14 +266,9 @@ impl Lexer {
               // Set the current token to the new token.
               current_token = Token::from_value(
                 format!("{}{}", current_token.value, next_character),
+                self.current_line,
                 start_position,
-                self.current_line
               );
-            }
-            // Parse "=>"
-            else if next_character == ">" && sign == Signs::ASSIGN {
-              // Read the next character.
-              self.read_next_character();
             }
           },
 
