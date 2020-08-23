@@ -254,10 +254,11 @@ impl Lexer {
                 );
               }
             }
-            // Parse "++", "--", "**" and "->"
+            // Parse "++", "--", "**", "=>" and "->"
             else if (sign == Signs::PLUS && next_character == "+") ||
-              (sign == Signs::MINUS && (next_character == "-" || next_character == ">")) ||
-              (sign == Signs::MULTIPLY && next_character == "*")
+              (sign == Signs::MULTIPLY && next_character == "*") ||
+              (sign == Signs::ASSIGN && next_character == ">") ||
+              (sign == Signs::MINUS && (next_character == "-" || next_character == ">"))
             {
               // Read the next character.
               self.read_next_character();
@@ -268,6 +269,11 @@ impl Lexer {
                 start_position,
                 self.current_line
               );
+            }
+            // Parse "=>"
+            else if next_character == ">" && sign == Signs::ASSIGN {
+              // Read the next character.
+              self.read_next_character();
             }
           },
 

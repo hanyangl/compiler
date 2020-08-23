@@ -38,17 +38,16 @@ impl Expression for AnonymousFunction {
     }
 
     let function = format!(
-      "({}): {} {}",
+      "({}): {}",
       arguments.join(", "),
       self.data_type.value,
-      self.body.string(),
     );
 
     if self.token.token.clone().is_keyword(Keywords::FUNCTION) {
-      return format!("{} {}", self.token.value, function);
+      return format!("{} {} {}", self.token.value, function, self.body.string());
     }
 
-    function
+    format!("{} => {}", function, self.body.string())
   }
 }
 
@@ -98,10 +97,28 @@ impl AnonymousFunction {
           return None;
         },
       }
+
+      // Get the next token.
+      parser.next_token();
+    }
+
+    // Check if the function token is a left parentheses.
+    if function.token.token.clone().is_sign(Signs::LEFTPARENTHESES) {
+      // Check if the next token is an assign arrow sign.
+      if !parser.current_token_is(Signs::new(Signs::ASSIGNARROW)) {
+        let line = parser.get_error_line_next_token();
+
+        parser.errors.push(format!("{} expect `=>`, got `{}` instead.", line, parser.next_token.value));
+
+        return None;
+      }
+
+      // Get the next token.
+      parser.next_token();
     }
 
     // Check if the next token is a left brace.
-    if !parser.expect_token(Signs::new(Signs::LEFTBRACE)) {
+    if !parser.current_token_is(Signs::new(Signs::LEFTBRACE)) {
       let line = parser.get_error_line_next_token();
 
       parser.errors.push(format!("{} expect `{{`, got `{}` instead.", line, parser.next_token.value));

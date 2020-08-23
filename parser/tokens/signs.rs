@@ -18,6 +18,7 @@ pub enum Signs {
 
   // Assign
   ASSIGN,
+  ASSIGNARROW,
   PLUSASSIGN,
   MINUSASSIGN,
   MULTIPLYASSIGN,
@@ -76,6 +77,7 @@ impl TokenType for Signs {
 
       // Assign
       "=" => Some(TokenType::new(Signs::ASSIGN)),
+      "=>" => Some(TokenType::new(Signs::ASSIGNARROW)),
       "+=" => Some(TokenType::new(Signs::PLUSASSIGN)),
       "-=" => Some(TokenType::new(Signs::MINUSASSIGN)),
       "*=" => Some(TokenType::new(Signs::MULTIPLYASSIGN)),

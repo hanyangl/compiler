@@ -43,6 +43,14 @@ impl Expression for Argument {
 }
 
 impl Argument {
+  pub fn new_box() -> Box<Expressions> {
+    Box::new(Expressions::ARGUMENT(Expression::new()))
+  }
+
+  pub fn new_box_from_token(token: Token) -> Box<Expressions> {
+    Box::new(Expressions::ARGUMENT(Expression::from_token(token)))
+  }
+
   pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Vec<Box<Expressions>>> {
     let mut arguments: Vec<Box<Expressions>> = Vec::new();
 
