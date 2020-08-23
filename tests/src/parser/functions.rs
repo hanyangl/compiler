@@ -20,6 +20,20 @@ fn test_function(value: &str, expect: Box<Statements>) {
 }
 
 #[cfg(test)]
+fn test_function_error(content: &str, expect: usize) {
+  let lexer = generate_lexer(content);
+  let mut parser = Parser::new(lexer);
+  parser.parse_program();
+
+  if parser.errors.len() > 0 {
+    parser.show_errors();
+    println!("\n");
+  }
+
+  assert_eq!(parser.errors.len(), expect);
+}
+
+#[cfg(test)]
 fn get_function() -> Function {
   Statement::from_token(Token::from_value(String::from("function"), 1, 1))
 }
@@ -197,7 +211,17 @@ fn parser_functions() {
 
   test_function("function add(x: number, y: number): number {}", arguments_function());
 
+  test_function_error("let empty = 1; function empty() {}", 1);
+  test_function_error("function empty() {} let empty = 1;", 1);
+  test_function_error("function add(x: number = 1, y: number) {}", 1);
+  test_function_error("function add(x: number = 1, y: number = 1) {}", 0);
+
   // Anonymous functions.
+  test_function_error("let empty = function () => {};", 1);
+  test_function_error("let empty = function () {};", 0);
+  test_function_error("let empty = () {};", 1);
+  test_function_error("let empty = () => {};", 0);
+
   test_function("let empty = function () {};", empty_anonymous_function_1());
   test_function("let empty = () => {};", empty_anonymous_function_2());
 
@@ -213,4 +237,11 @@ fn parser_functions() {
 
   test_function("let add = function (x: number, y: number): number {};", arguments_anonymous_function_1());
   test_function("let add = (x: number, y: number): number => {};", arguments_anonymous_function_2());
+
+  test_function_error("let empty = 1; empty = (): void => {  };", 1);
+  test_function_error("let empty = () => {}; empty = 1;", 1);
+  test_function_error("let add = function (x: number = 1, y: number) {};", 1);
+  test_function_error("let add = (x: number = 1, y: number) => {};", 1);
+  test_function_error("let add = function (x: number = 1, y: number = 1) {};", 0);
+  test_function_error("let add = (x: number = 1, y: number = 1) => {};", 0);
 }
