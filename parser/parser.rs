@@ -106,6 +106,11 @@ impl Parser {
       return Function::parse(self, environment);
     }
 
+    // Parse return statement.
+    if self.current_token_is(Keywords::new(Keywords::RETURN)) {
+      return Return::parse(self, environment);
+    }
+
     // Parse expression statement.
     Some(ExpressionStatement::parse(self, environment))
   }

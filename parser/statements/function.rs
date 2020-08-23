@@ -143,7 +143,14 @@ impl Function {
     }
 
     // Parse body.
-    function.body = Block::parse(parser, &mut function_environment);
+    match Block::parse(parser, function.data_type.clone(), &mut function_environment) {
+      Some(block) => {
+        function.body = block;
+      },
+      None => {
+        return None;
+      },
+    }
 
     // Check if the current token is the end of line.
     if parser.current_token_is(Box::new(Tokens::EOL)) {

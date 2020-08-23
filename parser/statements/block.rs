@@ -44,7 +44,11 @@ impl Block {
     Box::new(Statements::BLOCK(Statement::from_token(token)))
   }
 
-  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Box<Statements> {
+  pub fn parse<'a>(
+    parser: &'a mut Parser,
+    data_type: Token,
+    environment: &mut Environment,
+  ) -> Option<Box<Statements>> {
     let mut block: Block = Statement::from_token(parser.current_token.clone());
 
     // Get the next token.
@@ -55,7 +59,32 @@ impl Block {
       !parser.current_token_is(Box::new(Tokens::EOF)) {
       // Parse statement
       match parser.parse_statement(environment) {
-        Some(statement) => block.statements.push(statement),
+        Some(statement) => {
+          // Parse return data type.
+          match statement.clone().get_return() {
+            Some(return_s) => {
+              match data_type.token.clone().get_type() {
+                Some(data_type_token) => {
+                  if !return_s.data_type.token.is_type(data_type_token) {
+                    let line = parser.get_error_line(
+                      return_s.token.line - 1,
+                      return_s.token.position - 1,
+                      return_s.token.value.len(),
+                    );
+
+                    parser.errors.push(format!("{} the return value not satisfied the {} type.", line, data_type.value));
+
+                    return None;
+                  }
+                },
+                None => {},
+              }
+            },
+            None => {},
+          }
+
+          block.statements.push(statement);
+        },
         None => {},
       }
 
@@ -64,6 +93,6 @@ impl Block {
     }
 
     // Return the block statement.
-    Box::new(Statements::BLOCK(block))
+    Some(Box::new(Statements::BLOCK(block)))
   }
 }

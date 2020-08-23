@@ -215,6 +215,11 @@ fn parser_functions() {
   test_function_error("function empty() {} let empty = 1;", 1);
   test_function_error("function add(x: number = 1, y: number) {}", 1);
   test_function_error("function add(x: number = 1, y: number = 1) {}", 0);
+  test_function_error("function add(x: number): number { return x + '2'; }", 1);
+  test_function_error("function add(x: number): number { return; }", 1);
+  test_function_error("function add(x: number): number { return x + 2; }", 0);
+  test_function_error("function two(): void { return 2; }", 1);
+  test_function_error("function two(): void { return; }", 0);
 
   // Anonymous functions.
   test_function_error("let empty = function () => {};", 1);
@@ -244,4 +249,12 @@ fn parser_functions() {
   test_function_error("let add = (x: number = 1, y: number) => {};", 1);
   test_function_error("let add = function (x: number = 1, y: number = 1) {};", 0);
   test_function_error("let add = (x: number = 1, y: number = 1) => {};", 0);
+  test_function_error("let add = function (x: number): number { return x + '2'; };", 1);
+  test_function_error("let add = function (x: number): number { return; }", 1);
+  test_function_error("let add = function (x: number): number { return x + 2; }", 0);
+  test_function_error("let add = (x: number): number => { return x + '2'; }", 1);
+  test_function_error("let add = (x: number): number => { return; }", 1);
+  test_function_error("let add = (x: number): number => { return x + 2; }", 0);
+  test_function_error("let two = function(): void { return 2; }", 1);
+  test_function_error("let two = function(): void { return; }", 0);
 }
