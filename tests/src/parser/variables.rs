@@ -119,6 +119,20 @@ fn let_boolean_type(tokens: Vec<Token>) -> Box<Statements> {
   Box::new(Statements::VARIABLE(statement))
 }
 
+#[cfg(test)]
+fn test_variable_error(content: &str, expect: usize) {
+  let lexer = generate_lexer(content);
+  let mut parser = Parser::new(lexer);
+  parser.parse_program();
+
+  if parser.errors.len() > 0 {
+    parser.show_errors();
+    println!("\n");
+  }
+
+  assert_eq!(parser.errors.len(), expect);
+}
+
 #[test]
 fn parser_variables() {
   // String let
@@ -167,35 +181,12 @@ fn parser_variables() {
   test_variable_type("const extra = 2 <= 2 >= 2;", Token::from_value("boolean".to_string(), 0, 0));
 
   // Duplicate name
-  let lexer = generate_lexer("let lang = 'Sflyn'; const lang = 1;");
-  let mut parser = Parser::new(lexer);
-  parser.parse_program();
-
-  if parser.errors.len() > 0 {
-    parser.show_errors();
-    println!("\n");
-  }
-
-  assert_eq!(parser.errors.len(), 1);
+  test_variable_error("let lang = 'Sflyn'; const lang = 1;", 1);
 
   // Set new value
-  let lexer = generate_lexer(
-    format!(
-      "{}\n{}\n{}\n{}\n{}",
-      "let lang = 'Sflyn'; lang = 'Sflyn 2.0'; lang = 1;",
-      "const index: number = 0; index = 1;",
-      "let i = 0; i++; i--; i -= 1; i *= 1; i /= 1;",
-      "lang += 1; lang -= 1; lang--;",
-      "let bool: boolean = false; bool = true; bool = !true; bool = 1;",
-    ).as_str()
-  );
-
-  let mut parser = Parser::new(lexer);
-  parser.parse_program();
-
-  if parser.errors.len() > 0 {
-    parser.show_errors();
-  }
-
-  assert_eq!(parser.errors.len(), 6);
+  test_variable_error("let lang = 'Sflyn'; lang = 'Sflyn 2.0'; lang = 1;", 1);
+  test_variable_error("const index: number = 0; index = 1;", 1);
+  test_variable_error("let i = 0; i++; i--; i -= 1; i *= 1; i /= 1;", 0);
+  test_variable_error("lang += 1; lang -= 1; lang--;", 1);
+  test_variable_error("let bool: boolean = false; bool = true; bool = !true; bool = 1;", 1);
 }
