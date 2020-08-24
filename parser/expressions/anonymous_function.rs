@@ -2,7 +2,7 @@ use crate::{Environment, Parser};
 use crate::statements::{Statements, Block};
 use crate::tokens::{Token, Keywords, Signs, Tokens, TokenType};
 
-use super::{Expressions, Expression, Argument};
+use super::{Expressions, Expression, Argument, Call};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AnonymousFunction {
@@ -125,6 +125,8 @@ impl AnonymousFunction {
 
       parser.errors.push(format!("{} expect `{{`, got `{}` instead.", line, parser.current_token.value));
 
+      parser.next_token();
+
       return None;
     }
 
@@ -145,5 +147,62 @@ impl AnonymousFunction {
     }
 
     Some(Box::new(Expressions::ANONYMOUSFUNCTION(function)))
+  }
+
+  pub fn get_arguments<'a>(
+    parser: &'a mut Parser,
+    value: Box<Expressions>,
+    call: Call,
+  ) -> Option<(usize, usize, Vec<Token>, Token)> {
+    let mut min_arguments: usize = 0;
+    let mut max_arguments: usize = 0;
+    let mut data_types: Vec<Token> = Vec::new();
+
+    // Get the anonymous function.
+    match value.clone().get_anonymous_function() {
+      // Is an anonymous function.
+      Some(anonymous_function) => {
+        for argument_exp in anonymous_function.arguments.clone() {
+          // Get argument expression.
+          match argument_exp.get_argument() {
+            Some(argument) => {
+              // Add argument data type to the data types list.
+              data_types.push(argument.data_type);
+
+              // Check if the argument has a default value.
+              match argument.value {
+                // With default value.
+                Some(_) => {
+                  max_arguments += 1;
+                },
+                // Without default value.
+                None => {
+                  min_arguments += 1;
+                  max_arguments += 1;
+                },
+              }
+            },
+            None => {
+              return None;
+            },
+          }
+        }
+
+        return Some((min_arguments, max_arguments, data_types, anonymous_function.data_type));
+      },
+
+      // Is not an anonymous function.
+      None => {
+        let line = parser.get_error_line(
+          call.token.line - 1,
+          call.token.position - 1,
+          call.token.value.len(),
+        );
+
+        parser.errors.push(format!("{} the identifier is not a function.", line));
+
+        None
+      },
+    }
   }
 }

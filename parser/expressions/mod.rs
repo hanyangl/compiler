@@ -2,8 +2,10 @@ mod anonymous_function;
 mod argument;
 mod boolean;
 mod call;
+mod hashmap;
 mod identifier;
 mod infix;
+mod method;
 mod number;
 mod parser;
 mod prefix;
@@ -13,8 +15,10 @@ pub use anonymous_function::AnonymousFunction;
 pub use argument::Argument;
 pub use boolean::Boolean;
 pub use call::Call;
+pub use hashmap::HashMap;
 pub use identifier::Identifier;
 pub use infix::Infix;
+pub use method::Method;
 pub use number::Number;
 pub use parser::parse;
 pub use prefix::Prefix;
@@ -39,8 +43,10 @@ pub enum Expressions {
   ARGUMENT(Argument),
   BOOLEAN(Boolean),
   CALL(Call),
+  HASHMAP(HashMap),
   IDENTIFIER(Identifier),
   INFIX(Infix),
+  METHOD(Method),
   NUMBER(Number),
   PREFIX(Prefix),
   STRING(StringE),
@@ -49,8 +55,15 @@ pub enum Expressions {
 impl Expressions {
   pub fn get_anonymous_function(self) -> Option<AnonymousFunction> {
     match self {
-      Expressions::ANONYMOUSFUNCTION(function) => Some(function),
+      Expressions::ANONYMOUSFUNCTION(anonymous_function) => Some(anonymous_function),
       _ => None,
+    }
+  }
+
+  pub fn is_anonymous_function(self) -> bool {
+    match self {
+      Expressions::ANONYMOUSFUNCTION(_) => true,
+      _ => false,
     }
   }
 
@@ -75,6 +88,27 @@ impl Expressions {
     }
   }
 
+  pub fn is_call(self) -> bool {
+    match self {
+      Expressions::CALL(_) => true,
+      _ => false,
+    }
+  }
+
+  pub fn get_hashmap(self) -> Option<HashMap> {
+    match self {
+      Expressions::HASHMAP(hashmap) => Some(hashmap),
+      _ => None,
+    }
+  }
+
+  pub fn is_hashmap(self) -> bool {
+    match self {
+      Expressions::HASHMAP(_) => true,
+      _ => false,
+    }
+  }
+
   pub fn get_identifier(self) -> Option<Identifier> {
     match self {
       Expressions::IDENTIFIER(identifier) => Some(identifier),
@@ -86,6 +120,20 @@ impl Expressions {
     match self {
       Expressions::INFIX(infix) => Some(infix),
       _ => None,
+    }
+  }
+
+  pub fn get_method(self) -> Option<Method> {
+    match self {
+      Expressions::METHOD(method) => Some(method),
+      _ => None,
+    }
+  }
+
+  pub fn is_method(self) -> bool {
+    match self {
+      Expressions::METHOD(_) => true,
+      _ => false,
     }
   }
 
@@ -116,8 +164,10 @@ impl Expressions {
       Expressions::ARGUMENT(argument) => argument.token,
       Expressions::BOOLEAN(boolean) => boolean.token,
       Expressions::CALL(call) => call.token,
+      Expressions::HASHMAP(hashmap) => hashmap.token,
       Expressions::IDENTIFIER(identifier) => identifier.token,
       Expressions::INFIX(infix) => infix.token,
+      Expressions::METHOD(method) => method.token,
       Expressions::NUMBER(number) => number.token,
       Expressions::PREFIX(prefix) => prefix.token,
       Expressions::STRING(string) => string.token,
@@ -130,12 +180,13 @@ impl Expressions {
       Expressions::ARGUMENT(argument) => argument.string(),
       Expressions::BOOLEAN(boolean) => boolean.string(),
       Expressions::CALL(call) => call.string(),
+      Expressions::HASHMAP(hashmap) => hashmap.string(),
       Expressions::IDENTIFIER(identifier) => identifier.string(),
       Expressions::INFIX(infix) => infix.string(),
+      Expressions::METHOD(method) => method.string(),
       Expressions::NUMBER(number) => number.string(),
       Expressions::PREFIX(prefix) => prefix.string(),
       Expressions::STRING(string) => string.string(),
     }
   }
-
 }

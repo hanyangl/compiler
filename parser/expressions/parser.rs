@@ -51,15 +51,20 @@ pub fn parse<'a>(
 
   // Parse calls.
   if current_token.token.clone().is_identifier() &&
-    parser.next_token.token.clone().is_sign(Signs::LEFTPARENTHESES) {
+    parser.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) {
     expression = Call::parse(parser, environment);
+  }
+
+  // Parse hashmaps.
+  if current_token.token.clone().is_sign(Signs::LEFTBRACE) {
+    expression = HashMap::parse(parser, environment);
   }
 
   // Parse infix expression.
   while !parser.next_token_is(Signs::new(Signs::SEMICOLON)) &&
     !parser.next_token_is(Box::new(Tokens::EOL)) &&
     !parser.next_token_is(Box::new(Tokens::EOF)) &&
-    precedence <= parser.next_precedence()
+    precedence < parser.next_precedence()
   {
     let next_token: Box<Tokens> = parser.next_token.token.clone();
 
@@ -83,6 +88,17 @@ pub fn parse<'a>(
 
       // Set the new expression.
       expression = Some(Infix::parse(parser, expression, environment));
+
+      continue;
+    }
+
+    // Parse methods.
+    if next_token.clone().is_sign(Signs::ARROW) {
+      // Get the next token.
+      parser.next_token();
+
+      // Set the new expression.
+      expression = Method::parse(parser, expression, environment);
 
       continue;
     }

@@ -12,6 +12,9 @@ pub enum Types {
   NUMBER,
   BOOLEAN,
 
+  // Objects
+  HASHMAP,
+
   // Function
   VOID,
 }
@@ -29,6 +32,9 @@ impl TokenType for Types {
       "string" => Some(TokenType::new(Types::STRING)),
       "number" => Some(TokenType::new(Types::NUMBER)),
       "boolean" => Some(TokenType::new(Types::BOOLEAN)),
+
+      // Objects
+      "hashmap" => Some(TokenType::new(Types::HASHMAP)),
 
       // Function
       "void" => Some(TokenType::new(Types::VOID)),
@@ -162,6 +168,30 @@ impl Types {
     match exp.clone().get_anonymous_function() {
       Some(_) => {
         token = Token::from_value(String::from("void"), 0, 0);
+      },
+      None => {},
+    }
+
+    // Parse call.
+    match exp.clone().get_call() {
+      Some(call) => {
+        token = call.data_type.clone();
+      },
+      None => {},
+    }
+
+    // Parse hashmap.
+    match exp.clone().get_hashmap() {
+      Some(_) => {
+        token = Token::from_value(String::from("hashmap"), 0, 0);
+      },
+      None => {},
+    }
+
+    // Parse method.
+    match exp.clone().get_method() {
+      Some(method) => {
+        token = method.data_type.clone();
       },
       None => {},
     }

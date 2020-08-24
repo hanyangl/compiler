@@ -1,8 +1,13 @@
 use crate::{Environment, Parser, Precedence};
-use crate::tokens::{Token, Signs, TokenType, Tokens};
+use crate::tokens::{Token, Signs, TokenType, Tokens, Types};
 use crate::types::expression_is_type;
 
-use super::{Expressions, Expression, parse as parse_expression};
+use super::{
+  Expressions,
+  Expression,
+  Call,
+  parse as parse_expression,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Argument {
@@ -174,5 +179,80 @@ impl Argument {
 
     // Return arguments.
     Some(arguments)
+  }
+
+  pub fn parse_call_arguments<'a>(
+    parser: &'a mut Parser,
+    call: Call,
+    min_arguments: usize,
+    max_arguments: usize,
+    data_types: Vec<Token>,
+    environment: &mut Environment,
+  ) -> bool {
+    let line = parser.get_error_line(call.token.line - 1, call.token.position - 1, call.token.value.len());
+
+    // Check if the call has the minimum arguments.
+    if call.arguments.clone().len() < min_arguments {
+      parser.errors.push(
+        format!(
+          "{} expected {} minimum arguments, got {} instead.",
+          line,
+          min_arguments,
+          call.arguments.len(),
+        )
+      );
+
+      return false;
+    }
+
+    // Check if the call has the maximum arguments.
+    if call.arguments.clone().len() > max_arguments {
+      parser.errors.push(
+        format!(
+          "{} expected {} maximum arguments, got {} instead.",
+          line,
+          max_arguments,
+          call.arguments.len(),
+        )
+      );
+
+      return false;
+    }
+
+    let mut i: usize = 0;
+
+    // Parse arguments data types.
+    for argument in call.arguments.clone() {
+      // Get the data type for the argument.
+      let data_type_token = data_types[i].clone();
+
+      // Get the data type token.
+      match data_type_token.token.clone().get_type() {
+        Some(data_type) => {
+          // Get the data type of the argument.
+          match Types::from_expression(argument.clone(), environment).token.get_type() {
+            Some(data_type_argument) => {
+              if data_type != data_type_argument {
+                let line = parser.get_error_line(
+                  argument.clone().token().line - 1,
+                  argument.clone().token().position - 1,
+                  argument.clone().string().len(),
+                );
+
+                parser.errors.push(format!("{} not satisfied the {} type.", line, data_type_token.value));
+
+                return false;
+              }
+            },
+            None => {},
+          }
+        },
+        None => {},
+      }
+
+      i += 1;
+    }
+
+    true
   }
 }

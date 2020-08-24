@@ -36,4 +36,11 @@ impl Identifier {
   pub fn new_box_from_token(token: Token) -> Box<Expressions> {
     Box::new(Expressions::IDENTIFIER(Expression::from_token(token)))
   }
+
+  pub fn get(expression: Option<Box<Expressions>>) -> Option<Identifier> {
+    match expression {
+      Some(exp) => exp.get_identifier(),
+      None => None,
+    }
+  }
 }

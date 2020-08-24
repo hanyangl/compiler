@@ -8,6 +8,7 @@ pub struct Parser {
   lexer: Lexer,
   pub errors: Vec<String>,
 
+  pub last_token: Token,
   pub current_token: Token,
   pub next_token: Token,
 }
@@ -18,6 +19,7 @@ impl Parser {
       lexer,
       errors: Vec::new(),
 
+      last_token: Token::new_empty(),
       current_token: Token::new_empty(),
       next_token: Token::new_empty(),
     };
@@ -33,6 +35,7 @@ impl Parser {
   }
 
   pub fn next_token(&mut self) {
+    std::mem::swap(&mut self.last_token, &mut self.current_token);
     std::mem::swap(&mut self.current_token, &mut self.next_token);
     self.next_token = self.lexer.read_next_token();
   }
@@ -49,6 +52,10 @@ impl Parser {
       Some(sign) => Precedence::from_sign(sign),
       None => Precedence::LOWEST,
     }
+  }
+
+  pub fn last_token_is(&mut self, token: Box<Tokens>) -> bool {
+    self.last_token.token == token
   }
 
   pub fn current_token_is(&mut self, token: Box<Tokens>) -> bool {
