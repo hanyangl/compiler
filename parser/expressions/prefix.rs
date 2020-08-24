@@ -62,14 +62,12 @@ impl Prefix {
         // Parse negation prefix.
         if prefix.token.token.clone().is_sign(Signs::NEGATION) && !data_type.token.clone().is_type(Types::BOOLEAN) {
           parser.errors.push(format!("{} `{}` not satisfied the boolean type.", line, right_exp.string()));
-
           return None;
         }
 
         // Parse minus prefix.
         if prefix.token.token.clone().is_sign(Signs::MINUS) && !data_type.token.clone().is_type(Types::NUMBER) {
           parser.errors.push(format!("{} `{}` not satisfied the number type.", line, right_exp.string()));
-
           return None;
         }
       },

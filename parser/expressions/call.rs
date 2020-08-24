@@ -139,19 +139,13 @@ impl Call {
     if !environment.has_expression(call.token.value.clone()) &&
       !environment.has_statement(call.token.value.clone()) &&
       !parser.last_token_is(Signs::new(Signs::ARROW)) {
-      let line = parser.get_error_line_current_token();
-
-      parser.errors.push(format!("{} identifier not found.", line));
-
+      parser.errors.push(format!("{} identifier not found.", parser.get_error_line_current_token()));
       return None;
     }
 
     // Check if the next token is a left parentheses.
     if !parser.expect_token(Signs::new(Signs::LEFTPARENTHESES)) {
-      let line = parser.get_error_line_next_token();
-
-      parser.errors.push(format!("{} expect `(`, got `{}` instead.", line, parser.next_token.value));
-
+      parser.errors.push(format!("{} expect `(`, got `{}` instead.", parser.get_error_line_next_token(), parser.next_token.value));
       return None;
     }
 

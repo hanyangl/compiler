@@ -54,10 +54,7 @@ impl Number {
         Some(Box::new(Expressions::NUMBER(number)))
       },
       Err(_) => {
-        let line = parser.get_error_line_current_token();
-
-        parser.errors.push(format!("{} could not parse `{}` as integer.", line, parser.current_token.value));
-
+        parser.errors.push(format!("{} could not parse `{}` as integer.", parser.get_error_line_current_token(), parser.current_token.value));
         None
       },
     }

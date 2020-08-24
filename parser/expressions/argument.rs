@@ -69,7 +69,7 @@ impl Argument {
     while !parser.current_token_is(Signs::new(Signs::RIGHTPARENTHESES)) {
       // Check if the next token is an identifier.
       if !parser.expect_token(Box::new(Tokens::IDENTIFIER)) {
-        // TODO(Error)
+        parser.errors.push(format!("{} is not a valid identifier", parser.get_error_line_next_token()));
         return None;
       }
 
@@ -78,16 +78,13 @@ impl Argument {
       // Check if the argument name is already in use.
       if environment.has_first_expression(argument.token.value.clone()) ||
         environment.has_first_statement(argument.token.value.clone()) {
-        let line = parser.get_error_line_current_token();
-
-        parser.errors.push(format!("{} `{}` is already a function argument.", line, argument.token.value));
-
+        parser.errors.push(format!("{} `{}` is already a function argument.", parser.get_error_line_current_token(), argument.token.value));
         return None;
       }
 
       // Check if the next token is a colon.
       if !parser.expect_token(Signs::new(Signs::COLON)) {
-        // TODO(Error)
+        parser.errors.push(format!("{} expect `:`, got `{}` instead.", parser.get_error_line_next_token(), parser.next_token.value));
         return None;
       }
 
@@ -101,7 +98,7 @@ impl Argument {
           argument.data_type = parser.current_token.clone();
         },
         None => {
-          // TODO(Error)
+          parser.errors.push(format!("{} is not a valid data type.", parser.get_error_line_current_token()));
           return None;
         },
       }
@@ -129,7 +126,6 @@ impl Argument {
                 // Check if the default value is the correct data type.
                 if !expression_is_type(data_type, value.clone(), environment) {
                   parser.errors.push(format!("{} not satisfied the {} type.", line, argument.data_type.value));
-
                   return None;
                 }
               },
@@ -142,10 +138,7 @@ impl Argument {
           None => {},
         }
       } else if has_default {
-        let line = parser.get_error_line_next_token();
-
-        parser.errors.push(format!("{} the argument must has a default value.", line));
-
+        parser.errors.push(format!("{} the argument must has a default value.", parser.get_error_line_next_token()));
         return None;
       }
 
@@ -153,12 +146,6 @@ impl Argument {
       if parser.next_token_is(Signs::new(Signs::COMMA)) {
         // Get the next token.
         parser.next_token();
-
-        // Checck if the next token is a right parentheses.
-        if parser.next_token_is(Signs::new(Signs::RIGHTPARENTHESES)) {
-          // TODO(Error)
-          return None;
-        }
       }
 
       // Check if the next token is a right parentheses.

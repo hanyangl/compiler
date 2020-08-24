@@ -74,10 +74,7 @@ impl Variable {
     // Check if the name is used.
     if environment.has_expression(variable.name.clone().string()) ||
       environment.has_statement(variable.name.clone().string()) {
-      let line = parser.get_error_line_current_token();
-
-      parser.errors.push(format!("{} `{}` is already in use.", line, variable.name.clone().string()));
-
+      parser.errors.push(format!("{} `{}` is already in use.", parser.get_error_line_current_token(), variable.name.clone().string()));
       return None;
     }
 
@@ -137,10 +134,7 @@ impl Variable {
     } else {
       // Check if the next token is a colon.
       if !parser.expect_token(Signs::new(Signs::COLON)) {
-        let line = parser.get_error_line_next_token();
-
-        parser.errors.push(format!("{} expect `:`, got `{}` instead.", line, parser.next_token.value.clone()));
-
+        parser.errors.push(format!("{} expect `:`, got `{}` instead.", parser.get_error_line_next_token(), parser.next_token.value.clone()));
         return None;
       }
 
@@ -156,10 +150,7 @@ impl Variable {
 
           // Check if the next token is an assign sign.
           if !parser.expect_token(Signs::new(Signs::ASSIGN)) {
-            let line = parser.get_error_line_next_token();
-
-            parser.errors.push(format!("{} expect `=`, got `{}` instead.", line, parser.next_token.value.clone()));
-
+            parser.errors.push(format!("{} expect `=`, got `{}` instead.", parser.get_error_line_next_token(), parser.next_token.value.clone()));
             return None;
           }
 
@@ -170,10 +161,7 @@ impl Variable {
           match parse_expression(parser, Precedence::LOWEST, environment) {
             Some(exp) => {
               if !expression_is_type(data_type.clone(), exp.clone(), environment) {
-                let line = parser.get_error_line_current_token();
-
-                parser.errors.push(format!("{} not satisfied the {} type.", line, data_type_token.value));
-
+                parser.errors.push(format!("{} not satisfied the {} type.", parser.get_error_line_current_token(), data_type_token.value));
                 return None;
               }
 
@@ -183,10 +171,7 @@ impl Variable {
           }
         },
         None => {
-          let line = parser.get_error_line_next_token();
-
-          parser.errors.push(format!("{} `{}` is not a valid type.", line, parser.next_token.value.clone()));
-
+          parser.errors.push(format!("{} `{}` is not a valid type.", parser.get_error_line_next_token(), parser.next_token.value.clone()));
           return None;
         },
       }

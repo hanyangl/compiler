@@ -74,19 +74,13 @@ impl Function {
     // Check if the name is used.
     if environment.has_expression(function.name.clone().string()) ||
       environment.has_statement(function.name.clone().string()) {
-      let line = parser.get_error_line_current_token();
-
-      parser.errors.push(format!("{} `{}` is already in use.", line, function.name.clone().string()));
-
+      parser.errors.push(format!("{} `{}` is already in use.", parser.get_error_line_current_token(), function.name.clone().string()));
       return None;
     }
 
     // Check if the next token is a left parentheses.
     if !parser.expect_token(Signs::new(Signs::LEFTPARENTHESES)) {
-      let line = parser.get_error_line_next_token();
-
-      parser.errors.push(format!("{} expect `(`, got `{}` instead.", line, parser.next_token.value));
-
+      parser.errors.push(format!("{} expect `(`, got `{}` instead.", parser.get_error_line_next_token(), parser.next_token.value));
       return None;
     }
 
@@ -121,10 +115,7 @@ impl Function {
           function.data_type = parser.current_token.clone();
         },
         None => {
-          let line = parser.get_error_line_current_token();
-
-          parser.errors.push(format!("{} `{}` is not a valid type.", line, parser.current_token.value));
-
+          parser.errors.push(format!("{} `{}` is not a valid type.", parser.get_error_line_current_token(), parser.current_token.value));
           return None;
         },
       }
@@ -135,10 +126,7 @@ impl Function {
 
     // Check if the next token is a left brace.
     if !parser.current_token_is(Signs::new(Signs::LEFTBRACE)) {
-      let line = parser.get_error_line_current_token();
-
-      parser.errors.push(format!("{} expect `{{`, got `{}` instead.", line, parser.current_token.value));
-
+      parser.errors.push(format!("{} expect `{{`, got `{}` instead.", parser.get_error_line_current_token(), parser.current_token.value));
       return None;
     }
 
