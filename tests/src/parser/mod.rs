@@ -1,4 +1,5 @@
 mod functions;
+mod hashmaps;
 mod lexer;
 mod tokens;
 mod variables;
