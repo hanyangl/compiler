@@ -51,7 +51,11 @@ impl Variable {
     Box::new(Statements::VARIABLE(Statement::new()))
   }
 
-  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Box<Statements>> {
+  pub fn parse<'a>(
+    parser: &'a mut Parser,
+    environment: &mut Environment,
+    standar_library: bool,
+  ) -> Option<Box<Statements>> {
     let mut variable: Variable = Statement::from_token(parser.current_token.clone());
 
     // Check if the next token is a valid identifier.
@@ -74,7 +78,8 @@ impl Variable {
     // Check if the name is used.
     if environment.has_expression(variable.name.clone().string()) ||
       environment.has_statement(variable.name.clone().string()) {
-      parser.errors.push(format!("{} `{}` is already in use.", parser.get_error_line_current_token(), variable.name.clone().string()));
+      let line = parser.get_error_line_current_token();
+      parser.errors.push(format!("{} `{}` is already in use.", line, variable.name.clone().string()));
       return None;
     }
 
@@ -87,7 +92,7 @@ impl Variable {
       parser.next_token();
 
       // Parse current token (Variable value).
-      match parse_expression(parser, Precedence::LOWEST, environment) {
+      match parse_expression(parser, Precedence::LOWEST, environment, standar_library) {
         Some(exp) => {
           variable.data_type = Types::from_expression(exp.clone(), environment);
 
@@ -134,7 +139,8 @@ impl Variable {
     } else {
       // Check if the next token is a colon.
       if !parser.expect_token(Signs::new(Signs::COLON)) {
-        parser.errors.push(format!("{} expect `:`, got `{}` instead.", parser.get_error_line_next_token(), parser.next_token.value.clone()));
+        let line = parser.get_error_line_next_token();
+        parser.errors.push(format!("{} expect `:`, got `{}` instead.", line, parser.next_token.value.clone()));
         return None;
       }
 
@@ -150,7 +156,8 @@ impl Variable {
 
           // Check if the next token is an assign sign.
           if !parser.expect_token(Signs::new(Signs::ASSIGN)) {
-            parser.errors.push(format!("{} expect `=`, got `{}` instead.", parser.get_error_line_next_token(), parser.next_token.value.clone()));
+            let line = parser.get_error_line_next_token();
+            parser.errors.push(format!("{} expect `=`, got `{}` instead.", line, parser.next_token.value.clone()));
             return None;
           }
 
@@ -158,10 +165,11 @@ impl Variable {
           parser.next_token();
 
           // Parse current token (Variable value).
-          match parse_expression(parser, Precedence::LOWEST, environment) {
+          match parse_expression(parser, Precedence::LOWEST, environment, standar_library) {
             Some(exp) => {
               if !expression_is_type(data_type.clone(), exp.clone(), environment) {
-                parser.errors.push(format!("{} not satisfied the {} type.", parser.get_error_line_current_token(), data_type_token.value));
+                let line = parser.get_error_line_current_token();
+                parser.errors.push(format!("{} not satisfied the {} type.", line, data_type_token.value));
                 return None;
               }
 
@@ -171,7 +179,8 @@ impl Variable {
           }
         },
         None => {
-          parser.errors.push(format!("{} `{}` is not a valid type.", parser.get_error_line_next_token(), parser.next_token.value.clone()));
+          let line = parser.get_error_line_next_token();
+          parser.errors.push(format!("{} `{}` is not a valid type.", line, parser.next_token.value.clone()));
           return None;
         },
       }
@@ -179,12 +188,6 @@ impl Variable {
 
     // Check if the next token is a semicolon.
     if parser.next_token_is(Signs::new(Signs::SEMICOLON)) {
-      // Get the next token.
-      parser.next_token();
-    }
-
-    // Check if the next token is the end of line.
-    if parser.next_token_is(Box::new(Tokens::EOL)) {
       // Get the next token.
       parser.next_token();
     }

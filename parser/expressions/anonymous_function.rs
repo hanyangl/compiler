@@ -1,6 +1,6 @@
 use crate::{Environment, Parser};
 use crate::statements::{Statements, Block};
-use crate::tokens::{Token, Keywords, Signs, Tokens, TokenType};
+use crate::tokens::{Token, Keywords, Signs, TokenType};
 
 use super::{Expressions, Expression, Argument, Call};
 
@@ -52,7 +52,11 @@ impl Expression for AnonymousFunction {
 }
 
 impl AnonymousFunction {
-  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Box<Expressions>> {
+  pub fn parse<'a>(
+    parser: &'a mut Parser,
+    environment: &mut Environment,
+    standar_library: bool,
+  ) -> Option<Box<Expressions>> {
     let mut function: AnonymousFunction = Expression::from_token(parser.current_token.clone());
 
     // Check if the current token is a left parentheses.
@@ -65,7 +69,7 @@ impl AnonymousFunction {
     let mut function_environment = Environment::from_environment(environment.clone());
 
     // Parse arguments.
-    match Argument::parse(parser, &mut function_environment) {
+    match Argument::parse(parser, &mut function_environment, standar_library) {
       Some(arguments) => {
         function.arguments = arguments;
       },
@@ -93,9 +97,7 @@ impl AnonymousFunction {
         },
         None => {
           let line = parser.get_error_line_current_token();
-
           parser.errors.push(format!("{} `{}` is not a valid type.", line, parser.current_token.value));
-
           return None;
         },
       }
@@ -109,9 +111,7 @@ impl AnonymousFunction {
       // Check if the next token is an assign arrow sign.
       if !parser.current_token_is(Signs::new(Signs::ASSIGNARROW)) {
         let line = parser.get_error_line_current_token();
-
         parser.errors.push(format!("{} expect `=>`, got `{}` instead.", line, parser.current_token.value));
-
         return None;
       }
 
@@ -131,19 +131,13 @@ impl AnonymousFunction {
     }
 
     // Parse body.
-    match Block::parse(parser, function.data_type.clone(), &mut function_environment) {
+    match Block::parse(parser, function.data_type.clone(), &mut function_environment, standar_library) {
       Some(block) => {
         function.body = block;
       },
       None => {
         return None;
       },
-    }
-
-    // Check if the current token is the end of line.
-    if parser.current_token_is(Box::new(Tokens::EOL)) {
-      // Get the next token.
-      parser.next_token();
     }
 
     Some(Box::new(Expressions::ANONYMOUSFUNCTION(function)))
@@ -183,6 +177,7 @@ impl AnonymousFunction {
               }
             },
             None => {
+              println!("TODO(anonymous_function): Without arguments");
               return None;
             },
           }

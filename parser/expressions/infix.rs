@@ -59,6 +59,7 @@ impl Infix {
     parser: &'a mut Parser,
     left_expression: Option<Box<Expressions>>,
     environment: &mut Environment,
+    standar_library: bool,
   ) -> Box<Expressions> {
     let mut exp: Infix = Expression::from_token(parser.current_token.clone());
 
@@ -72,7 +73,7 @@ impl Infix {
     parser.next_token();
 
     // Set the right expression.
-    exp.right = parse_expression(parser, precedence, environment);
+    exp.right = parse_expression(parser, precedence, environment, standar_library);
 
     // Return the infix expression.
     Box::new(Expressions::INFIX(exp))

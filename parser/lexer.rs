@@ -104,11 +104,31 @@ impl Lexer {
     loop {
       let current_character_str = character_to_str(self.current_character.clone());
 
-      if current_character_str != " " && current_character_str != "\t" {
+      if current_character_str == "\n" {
+        self.current_line += 1;
+        self.current_line_position = 0;
+      }
+
+      if current_character_str != " " && current_character_str != "\t" && current_character_str != "\n" {
         break;
       }
 
       self.read_next_character();
+    }
+  }
+
+  /// Ignore comments.
+  fn skip_comments(&mut self) {
+    if character_to_str(self.current_character.clone()) == "/" && self.clone().get_next_character() == "/" {
+      loop {
+        if character_to_str(self.current_character.clone()) == "\n" {
+          self.skip_whitespace();
+          self.skip_comments();
+          break;
+        }
+
+        self.read_next_character();
+      }
     }
   }
 
@@ -165,6 +185,7 @@ impl Lexer {
   /// Read and get the next token.
   pub fn read_next_token(&mut self) -> Token {
     self.skip_whitespace();
+    self.skip_comments();
 
     if self.current_character == 0 {
       // End Of File
@@ -273,13 +294,7 @@ impl Lexer {
           },
 
           // Is not a sign token.
-          None => {
-            // End Of Line
-            if current_token.token.clone().is_end_of_line() {
-              self.current_line += 1;
-              self.current_line_position = 0;
-            }
-          },
+          None => {},
         }
 
         // Read the next character.

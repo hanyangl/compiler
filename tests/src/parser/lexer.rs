@@ -215,7 +215,6 @@ fn lexer_function() {
   function_tokens.push(Token::from_value(":".to_string(), 1, 30));
   function_tokens.push(Token::from_value("string".to_string(), 1, 32));
   function_tokens.push(Token::from_value("{".to_string(), 1, 39));
-  function_tokens.push(Token::from_value("\n".to_string(), 1, 40));
 
   function_tokens.push(Token::from_value("return".to_string(), 2, 1));
   function_tokens.push(get_string("'Hello, '", 2, 8));
@@ -224,7 +223,6 @@ fn lexer_function() {
   function_tokens.push(Token::from_value("+".to_string(), 2, 25));
   function_tokens.push(get_string("'!'", 2, 27));
   function_tokens.push(Token::from_value(";".to_string(), 2, 30));
-  function_tokens.push(Token::from_value("\n".to_string(), 2, 31));
 
   function_tokens.push(Token::from_value("}".to_string(), 3, 1));
   function_tokens.push(get_eof(3, 2));

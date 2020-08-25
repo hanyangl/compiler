@@ -51,7 +51,11 @@ impl Statement for Function {
 }
 
 impl Function {
-  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Box<Statements>> {
+  pub fn parse<'a>(
+    parser: &'a mut Parser,
+    environment: &mut Environment,
+    standar_library: bool,
+  ) -> Option<Box<Statements>> {
     let mut function: Function = Statement::from_token(parser.current_token.clone());
 
     // Check if the next token is a valid identifier.
@@ -74,13 +78,15 @@ impl Function {
     // Check if the name is used.
     if environment.has_expression(function.name.clone().string()) ||
       environment.has_statement(function.name.clone().string()) {
-      parser.errors.push(format!("{} `{}` is already in use.", parser.get_error_line_current_token(), function.name.clone().string()));
+      let line = parser.get_error_line_current_token();
+      parser.errors.push(format!("{} `{}` is already in use.", line, function.name.clone().string()));
       return None;
     }
 
     // Check if the next token is a left parentheses.
     if !parser.expect_token(Signs::new(Signs::LEFTPARENTHESES)) {
-      parser.errors.push(format!("{} expect `(`, got `{}` instead.", parser.get_error_line_next_token(), parser.next_token.value));
+      let line = parser.get_error_line_next_token();
+      parser.errors.push(format!("{} expect `(`, got `{}` instead.", line, parser.next_token.value));
       return None;
     }
 
@@ -88,7 +94,7 @@ impl Function {
     let mut function_environment = Environment::from_environment(environment.clone());
 
     // Parse arguments.
-    match Argument::parse(parser, &mut function_environment) {
+    match Argument::parse(parser, &mut function_environment, standar_library) {
       Some(arguments) => {
         function.arguments = arguments;
       },
@@ -115,7 +121,8 @@ impl Function {
           function.data_type = parser.current_token.clone();
         },
         None => {
-          parser.errors.push(format!("{} `{}` is not a valid type.", parser.get_error_line_current_token(), parser.current_token.value));
+          let line = parser.get_error_line_current_token();
+          parser.errors.push(format!("{} `{}` is not a valid type.", line, parser.current_token.value));
           return None;
         },
       }
@@ -126,24 +133,19 @@ impl Function {
 
     // Check if the next token is a left brace.
     if !parser.current_token_is(Signs::new(Signs::LEFTBRACE)) {
-      parser.errors.push(format!("{} expect `{{`, got `{}` instead.", parser.get_error_line_current_token(), parser.current_token.value));
+      let line = parser.get_error_line_current_token();
+      parser.errors.push(format!("{} expect `{{`, got `{}` instead.", line, parser.current_token.value));
       return None;
     }
 
     // Parse body.
-    match Block::parse(parser, function.data_type.clone(), &mut function_environment) {
+    match Block::parse(parser, function.data_type.clone(), &mut function_environment, standar_library) {
       Some(block) => {
         function.body = block;
       },
       None => {
         return None;
       },
-    }
-
-    // Check if the current token is the end of line.
-    if parser.current_token_is(Box::new(Tokens::EOL)) {
-      // Get the next token.
-      parser.next_token();
     }
 
     // Get the function box statement.

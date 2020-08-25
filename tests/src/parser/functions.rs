@@ -1,5 +1,5 @@
 #[cfg(test)]
-use sflyn_parser::{Parser, statements::*, tokens::*, expressions::*};
+use sflyn_parser::{Environment, Parser, statements::*, tokens::*, expressions::*};
 
 #[cfg(test)]
 use super::*;
@@ -8,7 +8,7 @@ use super::*;
 fn test_function(value: &str, expect: Box<Statements>) {
   let lexer = generate_lexer(value);
   let mut parser = Parser::new(lexer);
-  let statements = parser.parse_program();
+  let statements = parser.parse_program(&mut Environment::new(), false);
 
   if parser.errors.len() > 0 {
     parser.show_errors();
@@ -23,7 +23,7 @@ fn test_function(value: &str, expect: Box<Statements>) {
 fn test_function_error(content: &str, expect: usize) {
   let lexer = generate_lexer(content);
   let mut parser = Parser::new(lexer);
-  parser.parse_program();
+  parser.parse_program(&mut Environment::new(), false);
 
   if parser.errors.len() > 0 {
     parser.show_errors();

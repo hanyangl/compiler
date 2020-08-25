@@ -31,7 +31,13 @@ impl Parser {
   }
 
   pub fn show_errors(&mut self) {
-    println!("{}", self.errors.join("\n\n"));
+    println!(
+      "{}\n  {}  \n{}\n{}",
+      repeat_character(self.lexer.file_name.len() + 4, "-"),
+      self.lexer.file_name,
+      repeat_character(self.lexer.file_name.len() + 4, "-"),
+      self.errors.join("\n\n"),
+    );
   }
 
   pub fn next_token(&mut self) {
@@ -96,46 +102,53 @@ impl Parser {
     self.get_error_line(self.next_token.line - 1, self.next_token.position - 1, self.next_token.value.len())
   }
 
-  pub fn parse_statement(&mut self, environment: &mut Environment) -> Option<Box<Statements>> {
+  pub fn parse_statement(
+    &mut self,
+    environment: &mut Environment,
+    standar_library: bool,
+  ) -> Option<Box<Statements>> {
     // Parse variable statement.
     if self.current_token_is(Keywords::new(Keywords::LET)) ||
         self.current_token_is(Keywords::new(Keywords::CONST)) {
-      return Variable::parse(self, environment);
+      return Variable::parse(self, environment, standar_library);
     }
 
     // Parse variable set statement.
     if self.current_token_is(Box::new(Tokens::IDENTIFIER)) &&
-      !self.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) {
-      return VariableSet::parse(self, environment);
+      !self.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) &&
+      !self.next_token_is(Signs::new(Signs::ARROW)) {
+      return VariableSet::parse(self, environment, standar_library);
     }
 
     // Parse function statement.
     if self.current_token_is(Keywords::new(Keywords::FUNCTION)) {
-      return Function::parse(self, environment);
+      return Function::parse(self, environment, standar_library);
     }
 
     // Parse return statement.
     if self.current_token_is(Keywords::new(Keywords::RETURN)) {
-      return Return::parse(self, environment);
+      return Return::parse(self, environment, standar_library);
+    }
+
+    // Parse show statement in standar library.
+    if self.current_token.value.as_str() == "show" && standar_library {
+      return Show::parse(self, environment);
     }
 
     // Parse expression statement.
-    ExpressionStatement::parse(self, environment)
+    ExpressionStatement::parse(self, environment, standar_library)
   }
 
-  pub fn parse_program(&mut self) -> Vec<Box<Statements>> {
+  pub fn parse_program(
+    &mut self,
+    environment: &mut Environment,
+    standar_library: bool,
+  ) -> Vec<Box<Statements>> {
     let mut statements: Vec<Box<Statements>> = Vec::new();
-    let mut environment = Environment::new();
 
     while !self.current_token_is(Box::new(Tokens::EOF)) {
-      // Check if the current token is the end of line.
-      if self.current_token_is(Box::new(Tokens::EOL)) {
-        // Get the next token.
-        self.next_token();
-      }
-
       // Parse the statement.
-      match self.parse_statement(&mut environment) {
+      match self.parse_statement(environment, standar_library) {
         Some(statement) => {
           statements.push(statement);
         },

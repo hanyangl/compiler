@@ -7,6 +7,7 @@ pub fn parse<'a>(
   parser: &'a mut Parser,
   precedence: Precedence,
   environment: &mut Environment,
+  standar_library: bool,
 ) -> Option<Box<Expressions>> {
   let current_token: Token = parser.current_token.clone();
   let mut expression: Option<Box<Expressions>> = None;
@@ -36,7 +37,7 @@ pub fn parse<'a>(
   // Parse prefixes.
   if current_token.token.clone().is_sign(Signs::NEGATION) ||
     current_token.token.clone().is_sign(Signs::MINUS) {
-    expression = Prefix::parse(parser, environment);
+    expression = Prefix::parse(parser, environment, standar_library);
   }
 
   // Parse anonymous functions.
@@ -46,24 +47,22 @@ pub fn parse<'a>(
       parser.next_token.token.clone().is_sign(Signs::RIGHTPARENTHESES)
     )
   ) {
-    expression = AnonymousFunction::parse(parser, environment);
+    expression = AnonymousFunction::parse(parser, environment, standar_library);
   }
 
   // Parse calls.
   if current_token.token.clone().is_identifier() &&
     parser.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) {
-    expression = Call::parse(parser, environment);
+    expression = Call::parse(parser, environment, standar_library);
   }
 
   // Parse hashmaps.
   if current_token.token.clone().is_sign(Signs::LEFTBRACE) {
-    expression = HashMap::parse(parser, environment);
+    expression = HashMap::parse(parser, environment, standar_library);
   }
 
   // Parse infix expression.
   while !parser.next_token_is(Signs::new(Signs::SEMICOLON)) &&
-    !parser.next_token_is(Box::new(Tokens::EOL)) &&
-    !parser.next_token_is(Box::new(Tokens::EOF)) &&
     precedence < parser.next_precedence()
   {
     let next_token: Box<Tokens> = parser.next_token.token.clone();
@@ -87,7 +86,7 @@ pub fn parse<'a>(
       parser.next_token();
 
       // Set the new expression.
-      expression = Some(Infix::parse(parser, expression, environment));
+      expression = Some(Infix::parse(parser, expression, environment, standar_library));
 
       continue;
     }
@@ -98,7 +97,7 @@ pub fn parse<'a>(
       parser.next_token();
 
       // Set the new expression.
-      expression = Method::parse(parser, expression, environment);
+      expression = Method::parse(parser, expression, environment, standar_library);
 
       continue;
     }

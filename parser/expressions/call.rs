@@ -1,5 +1,5 @@
 use crate::{Environment, Parser, Precedence};
-use crate::tokens::{Token, Signs, TokenType, Tokens};
+use crate::tokens::{Token, Signs, TokenType};
 
 use super::{
   Expressions,
@@ -113,6 +113,7 @@ impl Call {
 
                   // Without value.
                   None => {
+                    println!("TODO(call): Without value");
                     return None;
                   },
                 }
@@ -120,6 +121,7 @@ impl Call {
 
               // Is not a variable.
               None => {
+                println!("TODO(call): Is not a variable");
                 return None;
               },
             }
@@ -132,20 +134,26 @@ impl Call {
     }
   }
 
-  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Box<Expressions>> {
+  pub fn parse<'a>(
+    parser: &'a mut Parser,
+    environment: &mut Environment,
+    standar_library: bool,
+  ) -> Option<Box<Expressions>> {
     let mut call: Call = Expression::from_token(parser.current_token.clone());
 
     // Check if the call identifier exists.
     if !environment.has_expression(call.token.value.clone()) &&
       !environment.has_statement(call.token.value.clone()) &&
       !parser.last_token_is(Signs::new(Signs::ARROW)) {
-      parser.errors.push(format!("{} identifier not found.", parser.get_error_line_current_token()));
+      let line = parser.get_error_line_current_token();
+      parser.errors.push(format!("{} identifier not found.", line));
       return None;
     }
 
     // Check if the next token is a left parentheses.
     if !parser.expect_token(Signs::new(Signs::LEFTPARENTHESES)) {
-      parser.errors.push(format!("{} expect `(`, got `{}` instead.", parser.get_error_line_next_token(), parser.next_token.value));
+      let line = parser.get_error_line_next_token();
+      parser.errors.push(format!("{} expect `(`, got `{}` instead.", line, parser.next_token.value));
       return None;
     }
 
@@ -161,7 +169,7 @@ impl Call {
       }
 
       // Parse expression.
-      match parse_expression(parser, Precedence::LOWEST, environment) {
+      match parse_expression(parser, Precedence::LOWEST, environment, standar_library) {
         Some(argument) => {
           call.arguments.push(argument);
         },
@@ -194,12 +202,6 @@ impl Call {
     if parser.current_token_is(Signs::new(Signs::SEMICOLON)) {
       call.semicolon = Some(parser.current_token.clone());
 
-      // Get the next token.
-      parser.next_token();
-    }
-
-    // Check if the current token is the end of line.
-    if parser.current_token_is(Box::new(Tokens::EOL)) {
       // Get the next token.
       parser.next_token();
     }

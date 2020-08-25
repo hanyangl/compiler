@@ -56,7 +56,11 @@ impl Argument {
     Box::new(Expressions::ARGUMENT(Expression::from_token(token)))
   }
 
-  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Vec<Box<Expressions>>> {
+  pub fn parse<'a>(
+    parser: &'a mut Parser,
+    environment: &mut Environment,
+    standar_library: bool,
+  ) -> Option<Vec<Box<Expressions>>> {
     let mut arguments: Vec<Box<Expressions>> = Vec::new();
 
     // Check if the next token is a right parentheses.
@@ -69,7 +73,8 @@ impl Argument {
     while !parser.current_token_is(Signs::new(Signs::RIGHTPARENTHESES)) {
       // Check if the next token is an identifier.
       if !parser.expect_token(Box::new(Tokens::IDENTIFIER)) {
-        parser.errors.push(format!("{} is not a valid identifier", parser.get_error_line_next_token()));
+        let line = parser.get_error_line_next_token();
+        parser.errors.push(format!("{} is not a valid identifier", line));
         return None;
       }
 
@@ -78,13 +83,15 @@ impl Argument {
       // Check if the argument name is already in use.
       if environment.has_first_expression(argument.token.value.clone()) ||
         environment.has_first_statement(argument.token.value.clone()) {
-        parser.errors.push(format!("{} `{}` is already a function argument.", parser.get_error_line_current_token(), argument.token.value));
+        let line = parser.get_error_line_current_token();
+        parser.errors.push(format!("{} `{}` is already a function argument.", line, argument.token.value));
         return None;
       }
 
       // Check if the next token is a colon.
       if !parser.expect_token(Signs::new(Signs::COLON)) {
-        parser.errors.push(format!("{} expect `:`, got `{}` instead.", parser.get_error_line_next_token(), parser.next_token.value));
+        let line = parser.get_error_line_next_token();
+        parser.errors.push(format!("{} expect `:`, got `{}` instead.", line, parser.next_token.value));
         return None;
       }
 
@@ -98,7 +105,8 @@ impl Argument {
           argument.data_type = parser.current_token.clone();
         },
         None => {
-          parser.errors.push(format!("{} is not a valid data type.", parser.get_error_line_current_token()));
+          let line = parser.get_error_line_current_token();
+          parser.errors.push(format!("{} is not a valid data type.", line));
           return None;
         },
       }
@@ -113,7 +121,7 @@ impl Argument {
         let current_token = parser.current_token.clone();
 
         // Parse default value expression.
-        match parse_expression(parser, Precedence::LOWEST, environment) {
+        match parse_expression(parser, Precedence::LOWEST, environment, standar_library) {
           Some(value) => {
             let line = parser.get_error_line(
               current_token.line - 1,
@@ -138,7 +146,8 @@ impl Argument {
           None => {},
         }
       } else if has_default {
-        parser.errors.push(format!("{} the argument must has a default value.", parser.get_error_line_next_token()));
+        let line = parser.get_error_line_next_token();
+        parser.errors.push(format!("{} the argument must has a default value.", line));
         return None;
       }
 

@@ -1,7 +1,7 @@
 use crate::Environment;
 use crate::expressions::{Expressions, parse as parse_expression};
 use crate::{Parser, Precedence};
-use crate::tokens::{Token, Signs, TokenType, Types, Tokens};
+use crate::tokens::{Token, Signs, TokenType, Types};
 
 use super::{Statement, Statements};
 
@@ -42,14 +42,18 @@ impl Statement for Return {
 }
 
 impl Return {
-  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Box<Statements>> {
+  pub fn parse<'a>(
+    parser: &'a mut Parser,
+    environment: &mut Environment,
+    standar_library: bool,
+  ) -> Option<Box<Statements>> {
     let mut return_s: Return = Statement::from_token(parser.current_token.clone());
 
     // Get the next token.
     parser.next_token();
 
     // Parse the value.
-    return_s.value = parse_expression(parser, Precedence::LOWEST, environment);
+    return_s.value = parse_expression(parser, Precedence::LOWEST, environment, standar_library);
 
     // Parse value data type.
     match return_s.value.clone() {
@@ -61,12 +65,6 @@ impl Return {
 
     // Check if the next token is a semicolon.
     if parser.next_token_is(Signs::new(Signs::SEMICOLON)) {
-      // Get the next token.
-      parser.next_token();
-    }
-
-    // Check if the next token is the end of line.
-    if parser.next_token_is(Box::new(Tokens::EOL)) {
       // Get the next token.
       parser.next_token();
     }

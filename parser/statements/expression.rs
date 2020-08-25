@@ -1,7 +1,7 @@
 use crate::Environment;
 use crate::expressions::{Expressions, parse as parse_expression};
 use crate::{Parser, Precedence};
-use crate::tokens::{Token, Signs};
+use crate::tokens::Token;
 
 use super::{Statement, Statements};
 
@@ -39,23 +39,21 @@ impl ExpressionStatement {
     Box::new(Statements::EXPRESSION(Statement::new()))
   }
 
-  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Box<Statements>> {
+  pub fn parse<'a>(
+    parser: &'a mut Parser,
+    environment: &mut Environment,
+    standar_library: bool,
+  ) -> Option<Box<Statements>> {
     let mut statement: ExpressionStatement = Statement::from_token(parser.current_token.clone());
 
     // Parse expression.
-    match parse_expression(parser, Precedence::LOWEST, environment) {
+    match parse_expression(parser, Precedence::LOWEST, environment, standar_library) {
       Some(expression) => {
         statement.expression = Some(expression);
       },
       None => {
         return None;
       },
-    }
-
-    // Check if the next token is a semicolon.
-    if parser.next_token.token.clone().is_sign(Signs::SEMICOLON) {
-      // Get the next token.
-      parser.next_token();
     }
 
     // Return statement.

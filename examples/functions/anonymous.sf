@@ -1,0 +1,33 @@
+// Basic
+let empty: void = function() {
+  return;
+};
+
+let empty1: void = () => {
+  return;
+};
+
+// Return types
+let lang: void = function(): string {
+  return "Sflyn";
+};
+
+let lang1: void = (): string => {
+  return "Sflyn";
+};
+
+let one: void = function(): number {
+  return 1;
+};
+
+let one1: void = (): number => {
+  return 1;
+};
+
+let example: void = function(): boolean {
+  return true;
+};
+
+let example1: void = (): boolean => {
+  return true;
+};

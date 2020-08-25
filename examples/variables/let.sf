@@ -1,0 +1,19 @@
+// String
+let lang: string = "Sflyn";
+let lang1: string = 'Sflyn';
+let lang2: string = "Sflyn";
+let lang3: string = "Sflyn" + "lang";
+let lang4: string = lang2 + "lang";
+
+// Number
+let ten: number = 10;
+let eleven: number = 11;
+let twelve: number = -12;
+let pi: number = 3.14;
+let something: number = eleven + twelve;
+
+// Boolean
+let is_example: boolean = true;
+let is_example1: boolean = false;
+let is_example2: boolean = !true;
+let is_example3: boolean = !!true;

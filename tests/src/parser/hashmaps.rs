@@ -1,5 +1,5 @@
 #[cfg(test)]
-use sflyn_parser::Parser;
+use sflyn_parser::{Environment, Parser};
 
 #[cfg(test)]
 use super::generate_lexer;
@@ -8,7 +8,7 @@ use super::generate_lexer;
 fn test_hashmap_error(content: &str, expect: usize) {
   let lexer = generate_lexer(content);
   let mut parser = Parser::new(lexer);
-  parser.parse_program();
+  parser.parse_program(&mut Environment::new(), false);
 
   if parser.errors.len() > 0 {
     parser.show_errors();

@@ -76,7 +76,11 @@ impl HashMap {
     item
   }
 
-  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Box<Expressions>> {
+  pub fn parse<'a>(
+    parser: &'a mut Parser,
+    environment: &mut Environment,
+    standar_library: bool, 
+  ) -> Option<Box<Expressions>> {
     let mut hashmap: HashMap = Expression::from_token(parser.current_token.clone());
 
     // Check if the next token is a right brace.
@@ -88,7 +92,8 @@ impl HashMap {
     while !parser.current_token_is(Signs::new(Signs::RIGHTBRACE)) {
       // Check if the next token is an identifier or a string.
       if !parser.expect_token(Box::new(Tokens::IDENTIFIER)) {
-        parser.errors.push(format!("{} is not a valid hashmap key.", parser.get_error_line_next_token()));
+        let line = parser.get_error_line_next_token();
+        parser.errors.push(format!("{} is not a valid hashmap key.", line));
         return None;
       }
 
@@ -101,13 +106,15 @@ impl HashMap {
 
       // Check if the key already exists in the HashMap.
       if hashmap.clone().has_key(key.clone()) {
-        parser.errors.push(format!("{} the hashmap key is already in use.", parser.get_error_line_current_token()));
+        let line = parser.get_error_line_current_token();
+        parser.errors.push(format!("{} the hashmap key is already in use.", line));
         return None;
       }
 
       // Check if the next token is a colon.
       if !parser.expect_token(Signs::new(Signs::COLON)) {
-        parser.errors.push(format!("{} expect `:`, got `{}` instead.", parser.get_error_line_next_token(), parser.next_token.value));
+        let line = parser.get_error_line_next_token();
+        parser.errors.push(format!("{} expect `:`, got `{}` instead.", line, parser.next_token.value));
         return None;
       }
 
@@ -115,7 +122,7 @@ impl HashMap {
       parser.next_token();
 
       // Parse expression.
-      match parse_expression(parser, Precedence::LOWEST, environment) {
+      match parse_expression(parser, Precedence::LOWEST, environment, standar_library) {
         Some(expression) => {
           hashmap.data.push(HashMapItem {
             key,

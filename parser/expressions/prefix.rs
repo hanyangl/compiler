@@ -40,14 +40,18 @@ impl Expression for Prefix {
 }
 
 impl Prefix {
-  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Box<Expressions>> {
+  pub fn parse<'a>(
+    parser: &'a mut Parser,
+    environment: &mut Environment,
+    standar_library: bool,
+  ) -> Option<Box<Expressions>> {
     let mut prefix: Prefix = Expression::from_token(parser.current_token.clone());
 
     // Get the next token.
     parser.next_token();
 
     // Parse the right expression.
-    prefix.right = parse_expression(parser, Precedence::PREFIX, environment);
+    prefix.right = parse_expression(parser, Precedence::PREFIX, environment, standar_library);
 
     match prefix.right.clone() {
       Some(right_exp) => {

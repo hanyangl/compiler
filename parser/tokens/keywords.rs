@@ -13,6 +13,9 @@ pub enum Keywords {
   // Boolean
   TRUE,
   FALSE,
+
+  // Standar library
+  SHOW,
 }
 
 impl TokenType for Keywords {

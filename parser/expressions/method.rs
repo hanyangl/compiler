@@ -129,6 +129,7 @@ impl Method {
                 }
               },
               None => {
+                println!("TODO(method): Anonymous function arguments");
                 return false;
               },
             }
@@ -136,6 +137,7 @@ impl Method {
 
           // Is not a call.
           None => {
+            println!("TODO(method): Is not a call");
             return false;
           },
         }
@@ -156,6 +158,7 @@ impl Method {
                   return Some(left_method.clone());
                 }
 
+                println!("TODO(method): Parse method");
                 return None;
               },
               None => {},
@@ -181,13 +184,24 @@ impl Method {
               return false;
             }
           },
-          None => {},
+          None => {
+            let line = parser.get_error_line(
+              left_identifier.token.line - 1,
+              left_identifier.token.position - 1,
+              left_identifier.value.len(),
+            );
+
+            parser.errors.push(format!("{} identifier not found.", line));
+
+            return false;
+          },
         }
       },
       None => {
         match Method::parse_method(parser, method, environment) {
           Some(_) => {},
           None => {
+            println!("TODO(method): Unknown");
             return false;
           },
         }
@@ -201,6 +215,7 @@ impl Method {
     parser: &'a mut Parser,
     left_expression: Option<Box<Expressions>>,
     environment: &mut Environment,
+    standar_library: bool,
   ) -> Option<Box<Expressions>> {
     let mut method: Method = Expression::from_token(parser.current_token.clone());
 
@@ -214,7 +229,7 @@ impl Method {
     parser.next_token();
 
     // Set the right expression.
-    method.right = parse_expression(parser, precedence, environment);
+    method.right = parse_expression(parser, precedence, environment, standar_library);
 
     // Parse expressions.
     if !Method::parse_expressions(parser, &mut method, environment) {

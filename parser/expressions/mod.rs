@@ -15,6 +15,7 @@ pub use anonymous_function::AnonymousFunction;
 pub use argument::Argument;
 pub use boolean::Boolean;
 pub use call::Call;
+pub use hashmap::HashMapItem;
 pub use hashmap::HashMap;
 pub use identifier::Identifier;
 pub use infix::Infix;

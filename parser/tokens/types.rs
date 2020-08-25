@@ -1,5 +1,6 @@
 use crate::Environment;
 use crate::expressions::Expressions;
+use crate::statements::Statements;
 
 use super::*;
 
@@ -46,15 +47,47 @@ impl TokenType for Types {
 }
 
 impl Types {
+  pub fn from_statement(statement: Box<Statements>) -> Token {
+    let mut token: Token = Token::new_empty();
+
+    // Parse variable.
+    match statement.clone().get_variable() {
+      Some(variable) => {
+        token = variable.data_type;
+      },
+      None => {},
+    }
+
+    // Parse function.
+    match statement.clone().get_function() {
+      Some(function) => {
+        token = function.data_type;
+      },
+      None => {},
+    }
+
+    // Return token.
+    token
+  }
+
   pub fn from_expression(exp: Box<Expressions>, environment: &mut Environment) -> Token {
     let mut token: Token = Token::new_empty();
 
     // Parse identifier.
     match exp.clone().get_identifier() {
       Some(identifier) => {
-        match environment.get_expression(identifier.value) {
+        // Get expression.
+        match environment.get_expression(identifier.value.clone()) {
           Some(env_exp) => {
             token = Types::from_expression(env_exp, environment);
+          },
+          None => {},
+        }
+
+        // Get statement.
+        match environment.get_statement(identifier.value) {
+          Some(env_stmt) => {
+            token = Types::from_statement(env_stmt);
           },
           None => {},
         }

@@ -52,19 +52,6 @@ impl Token {
       }
     }
 
-    // Others
-    if token == illegal {
-      match value.as_str() {
-        // EOL
-        "\n" => {
-          token = Box::new(Tokens::EOL);
-        },
-
-        // Default
-        _ => {},
-      }
-    }
-
     // Get the new token and return it
     Token::new(token, value, line, position)
   }

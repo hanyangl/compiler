@@ -49,7 +49,11 @@ impl Statement for VariableSet {
 }
 
 impl VariableSet {
-  pub fn parse<'a>(parser: &'a mut Parser, environment: &mut Environment) -> Option<Box<Statements>> {
+  pub fn parse<'a>(
+    parser: &'a mut Parser,
+    environment: &mut Environment,
+    standar_library: bool,
+  ) -> Option<Box<Statements>> {
     let mut variable: VariableSet = Statement::from_token(parser.current_token.clone());
 
     // Parse assigns signs.
@@ -65,7 +69,7 @@ impl VariableSet {
       parser.next_token();
 
       // Parse the value expression.
-      match parse_expression(parser, Precedence::LOWEST, environment) {
+      match parse_expression(parser, Precedence::LOWEST, environment, standar_library) {
         Some(value_exp) => {
           variable.value = Some(value_exp);
         },
@@ -97,12 +101,6 @@ impl VariableSet {
 
     // Check if the next token is a semicolon.
     if parser.next_token_is(Signs::new(Signs::SEMICOLON)) {
-      // Get the next token.
-      parser.next_token();
-    }
-
-    // Check if the next token is the end of line.
-    if parser.next_token_is(Box::new(Tokens::EOL)) {
       // Get the next token.
       parser.next_token();
     }

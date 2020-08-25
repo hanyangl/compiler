@@ -20,7 +20,6 @@ pub enum Tokens {
   SIGN(Signs),
   TYPE(Types),
 
-  EOL,
   EOF,
 }
 
@@ -101,14 +100,6 @@ impl Tokens {
   pub fn is_type(self, expect: Types) -> bool {
     match self {
       Tokens::TYPE(data_type) => data_type == expect,
-      _ => false,
-    }
-  }
-
-  /// Check if the token is the end of the line.
-  pub fn is_end_of_line(self) -> bool {
-    match self {
-      Tokens::EOL => true,
       _ => false,
     }
   }

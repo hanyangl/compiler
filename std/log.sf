@@ -1,0 +1,34 @@
+const log = {
+  // Show a console message.
+  // 
+  // ## Example
+  // ```sf
+  // log->write("Hello world!");
+  // // Output: Hello world!
+  // ```
+  write: (message: string) => {
+    show(message);
+  },
+
+  // Show an error console message.
+  //
+  // ## Example
+  // ```sf
+  // log->error("Testing!");
+  // // Output: [ERROR] Testing!
+  // ```
+  error: (message: string) => {
+    show("[ERROR] " + message);
+  },
+
+  // Show a warning console message.
+  //
+  // ## Example
+  // ```sf
+  // log->warning("Caution!");
+  // // Output: [WARNING] Caution!
+  // ```
+  warning: (message: string) => {
+    show("[WARNING] " + message);
+  },
+};
