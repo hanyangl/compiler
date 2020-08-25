@@ -45,7 +45,7 @@ impl Return {
   pub fn parse<'a>(
     parser: &'a mut Parser,
     environment: &mut Environment,
-    standar_library: bool,
+    standard_library: bool,
   ) -> Option<Box<Statements>> {
     let mut return_s: Return = Statement::from_token(parser.current_token.clone());
 
@@ -53,7 +53,7 @@ impl Return {
     parser.next_token();
 
     // Parse the value.
-    return_s.value = parse_expression(parser, Precedence::LOWEST, environment, standar_library);
+    return_s.value = parse_expression(parser, Precedence::LOWEST, environment, standard_library);
 
     // Parse value data type.
     match return_s.value.clone() {

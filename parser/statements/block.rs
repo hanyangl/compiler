@@ -48,7 +48,7 @@ impl Block {
     parser: &'a mut Parser,
     data_type: Token,
     environment: &mut Environment,
-    standar_library: bool,
+    standard_library: bool,
   ) -> Option<Box<Statements>> {
     let mut block: Block = Statement::from_token(parser.current_token.clone());
 
@@ -59,7 +59,7 @@ impl Block {
     while !parser.current_token_is(Signs::new(Signs::RIGHTBRACE)) &&
       !parser.current_token_is(Box::new(Tokens::EOF)) {
       // Parse statement
-      match parser.parse_statement(environment, standar_library) {
+      match parser.parse_statement(environment, standard_library) {
         Some(statement) => {
           // Parse return data type.
           match statement.clone().get_return() {

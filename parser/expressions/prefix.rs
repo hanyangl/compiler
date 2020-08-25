@@ -43,7 +43,7 @@ impl Prefix {
   pub fn parse<'a>(
     parser: &'a mut Parser,
     environment: &mut Environment,
-    standar_library: bool,
+    standard_library: bool,
   ) -> Option<Box<Expressions>> {
     let mut prefix: Prefix = Expression::from_token(parser.current_token.clone());
 
@@ -51,7 +51,7 @@ impl Prefix {
     parser.next_token();
 
     // Parse the right expression.
-    prefix.right = parse_expression(parser, Precedence::PREFIX, environment, standar_library);
+    prefix.right = parse_expression(parser, Precedence::PREFIX, environment, standard_library);
 
     match prefix.right.clone() {
       Some(right_exp) => {

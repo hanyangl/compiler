@@ -54,7 +54,7 @@ impl Function {
   pub fn parse<'a>(
     parser: &'a mut Parser,
     environment: &mut Environment,
-    standar_library: bool,
+    standard_library: bool,
   ) -> Option<Box<Statements>> {
     let mut function: Function = Statement::from_token(parser.current_token.clone());
 
@@ -94,7 +94,7 @@ impl Function {
     let mut function_environment = Environment::from_environment(environment.clone());
 
     // Parse arguments.
-    match Argument::parse(parser, &mut function_environment, standar_library) {
+    match Argument::parse(parser, &mut function_environment, standard_library) {
       Some(arguments) => {
         function.arguments = arguments;
       },
@@ -139,7 +139,7 @@ impl Function {
     }
 
     // Parse body.
-    match Block::parse(parser, function.data_type.clone(), &mut function_environment, standar_library) {
+    match Block::parse(parser, function.data_type.clone(), &mut function_environment, standard_library) {
       Some(block) => {
         function.body = block;
       },

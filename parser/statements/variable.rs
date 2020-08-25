@@ -54,7 +54,7 @@ impl Variable {
   pub fn parse<'a>(
     parser: &'a mut Parser,
     environment: &mut Environment,
-    standar_library: bool,
+    standard_library: bool,
   ) -> Option<Box<Statements>> {
     let mut variable: Variable = Statement::from_token(parser.current_token.clone());
 
@@ -92,7 +92,7 @@ impl Variable {
       parser.next_token();
 
       // Parse current token (Variable value).
-      match parse_expression(parser, Precedence::LOWEST, environment, standar_library) {
+      match parse_expression(parser, Precedence::LOWEST, environment, standard_library) {
         Some(exp) => {
           variable.data_type = Types::from_expression(exp.clone(), environment);
 
@@ -165,7 +165,7 @@ impl Variable {
           parser.next_token();
 
           // Parse current token (Variable value).
-          match parse_expression(parser, Precedence::LOWEST, environment, standar_library) {
+          match parse_expression(parser, Precedence::LOWEST, environment, standard_library) {
             Some(exp) => {
               if !expression_is_type(data_type.clone(), exp.clone(), environment) {
                 let line = parser.get_error_line_current_token();

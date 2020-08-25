@@ -215,7 +215,7 @@ impl Method {
     parser: &'a mut Parser,
     left_expression: Option<Box<Expressions>>,
     environment: &mut Environment,
-    standar_library: bool,
+    standard_library: bool,
   ) -> Option<Box<Expressions>> {
     let mut method: Method = Expression::from_token(parser.current_token.clone());
 
@@ -229,7 +229,7 @@ impl Method {
     parser.next_token();
 
     // Set the right expression.
-    method.right = parse_expression(parser, precedence, environment, standar_library);
+    method.right = parse_expression(parser, precedence, environment, standard_library);
 
     // Parse expressions.
     if !Method::parse_expressions(parser, &mut method, environment) {

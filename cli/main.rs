@@ -39,7 +39,7 @@ pub fn main() {
       // Create a new environment.
       let mut environment = Environment::new();
 
-      // Add standar libraries.
+      // Add standard libraries.
       library::add_libraries(&mut environment);
 
       // Parse file.

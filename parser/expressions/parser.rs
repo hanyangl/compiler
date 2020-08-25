@@ -7,7 +7,7 @@ pub fn parse<'a>(
   parser: &'a mut Parser,
   precedence: Precedence,
   environment: &mut Environment,
-  standar_library: bool,
+  standard_library: bool,
 ) -> Option<Box<Expressions>> {
   let current_token: Token = parser.current_token.clone();
   let mut expression: Option<Box<Expressions>> = None;
@@ -37,7 +37,7 @@ pub fn parse<'a>(
   // Parse prefixes.
   if current_token.token.clone().is_sign(Signs::NEGATION) ||
     current_token.token.clone().is_sign(Signs::MINUS) {
-    expression = Prefix::parse(parser, environment, standar_library);
+    expression = Prefix::parse(parser, environment, standard_library);
   }
 
   // Parse anonymous functions.
@@ -47,18 +47,18 @@ pub fn parse<'a>(
       parser.next_token.token.clone().is_sign(Signs::RIGHTPARENTHESES)
     )
   ) {
-    expression = AnonymousFunction::parse(parser, environment, standar_library);
+    expression = AnonymousFunction::parse(parser, environment, standard_library);
   }
 
   // Parse calls.
   if current_token.token.clone().is_identifier() &&
     parser.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) {
-    expression = Call::parse(parser, environment, standar_library);
+    expression = Call::parse(parser, environment, standard_library);
   }
 
   // Parse hashmaps.
   if current_token.token.clone().is_sign(Signs::LEFTBRACE) {
-    expression = HashMap::parse(parser, environment, standar_library);
+    expression = HashMap::parse(parser, environment, standard_library);
   }
 
   // Parse infix expression.
@@ -86,7 +86,7 @@ pub fn parse<'a>(
       parser.next_token();
 
       // Set the new expression.
-      expression = Some(Infix::parse(parser, expression, environment, standar_library));
+      expression = Some(Infix::parse(parser, expression, environment, standard_library));
 
       continue;
     }
@@ -97,7 +97,7 @@ pub fn parse<'a>(
       parser.next_token();
 
       // Set the new expression.
-      expression = Method::parse(parser, expression, environment, standar_library);
+      expression = Method::parse(parser, expression, environment, standard_library);
 
       continue;
     }

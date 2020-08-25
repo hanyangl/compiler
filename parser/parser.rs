@@ -105,50 +105,50 @@ impl Parser {
   pub fn parse_statement(
     &mut self,
     environment: &mut Environment,
-    standar_library: bool,
+    standard_library: bool,
   ) -> Option<Box<Statements>> {
     // Parse variable statement.
     if self.current_token_is(Keywords::new(Keywords::LET)) ||
         self.current_token_is(Keywords::new(Keywords::CONST)) {
-      return Variable::parse(self, environment, standar_library);
+      return Variable::parse(self, environment, standard_library);
     }
 
     // Parse variable set statement.
     if self.current_token_is(Box::new(Tokens::IDENTIFIER)) &&
       !self.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) &&
       !self.next_token_is(Signs::new(Signs::ARROW)) {
-      return VariableSet::parse(self, environment, standar_library);
+      return VariableSet::parse(self, environment, standard_library);
     }
 
     // Parse function statement.
     if self.current_token_is(Keywords::new(Keywords::FUNCTION)) {
-      return Function::parse(self, environment, standar_library);
+      return Function::parse(self, environment, standard_library);
     }
 
     // Parse return statement.
     if self.current_token_is(Keywords::new(Keywords::RETURN)) {
-      return Return::parse(self, environment, standar_library);
+      return Return::parse(self, environment, standard_library);
     }
 
-    // Parse show statement in standar library.
-    if self.current_token.value.as_str() == "show" && standar_library {
+    // Parse show statement in standard library.
+    if self.current_token.value.as_str() == "show" && standard_library {
       return Show::parse(self, environment);
     }
 
     // Parse expression statement.
-    ExpressionStatement::parse(self, environment, standar_library)
+    ExpressionStatement::parse(self, environment, standard_library)
   }
 
   pub fn parse_program(
     &mut self,
     environment: &mut Environment,
-    standar_library: bool,
+    standard_library: bool,
   ) -> Vec<Box<Statements>> {
     let mut statements: Vec<Box<Statements>> = Vec::new();
 
     while !self.current_token_is(Box::new(Tokens::EOF)) {
       // Parse the statement.
-      match self.parse_statement(environment, standar_library) {
+      match self.parse_statement(environment, standard_library) {
         Some(statement) => {
           statements.push(statement);
         },

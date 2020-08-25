@@ -59,7 +59,7 @@ impl Argument {
   pub fn parse<'a>(
     parser: &'a mut Parser,
     environment: &mut Environment,
-    standar_library: bool,
+    standard_library: bool,
   ) -> Option<Vec<Box<Expressions>>> {
     let mut arguments: Vec<Box<Expressions>> = Vec::new();
 
@@ -121,7 +121,7 @@ impl Argument {
         let current_token = parser.current_token.clone();
 
         // Parse default value expression.
-        match parse_expression(parser, Precedence::LOWEST, environment, standar_library) {
+        match parse_expression(parser, Precedence::LOWEST, environment, standard_library) {
           Some(value) => {
             let line = parser.get_error_line(
               current_token.line - 1,

@@ -11,7 +11,7 @@ pub fn get_sflyn_path() -> String {
   }
 }
 
-/// Get the standar library path.
+/// Get the standard library path.
 fn get_std_path() -> String {
   format!("{}/std/", get_sflyn_path())
 }
@@ -44,7 +44,7 @@ fn add_library(name: &str, environment: &mut Environment) {
       // Create a new parser.
       let mut parser = Parser::new(lexer);
 
-      // Parse program as standar library.
+      // Parse program as standard library.
       let statements = parser.parse_program(&mut Environment::new(), true);
 
       // Check if the file contains syntax errors.
@@ -80,7 +80,7 @@ fn add_library(name: &str, environment: &mut Environment) {
   }
 }
 
-/// Add standar libraries to the environment.
+/// Add standard libraries to the environment.
 /// **CAUTION** Add this before parse other files.
 pub fn add_libraries(environment: &mut Environment) {
   // Add log library.

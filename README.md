@@ -4,7 +4,7 @@ Compiler for the **Sflyn** programming language.
 ## [Documentation](https://github.com/sflynlang/docs)
 
 ## Sflyn path
-You need set the root directory in the `SFLYN_PATH` environment variable. In this directory you need put the standar library in a directory called `std`. For example, if you `SFLYN_PATH` is `/home/sflyn/.sflyn/`, the standar library must be in `/home/sflyn/.sflyn/std/`.
+You need set the root directory in the `SFLYN_PATH` environment variable. In this directory you need put the standard library in a directory called `std`. For example, if you `SFLYN_PATH` is `/home/sflyn/.sflyn/`, the standard library must be in `/home/sflyn/.sflyn/std/`.
 
 ## Testing examples files
 You must have the `SFLYN_PATH` configured, then run the following command:

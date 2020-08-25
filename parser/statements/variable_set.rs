@@ -52,7 +52,7 @@ impl VariableSet {
   pub fn parse<'a>(
     parser: &'a mut Parser,
     environment: &mut Environment,
-    standar_library: bool,
+    standard_library: bool,
   ) -> Option<Box<Statements>> {
     let mut variable: VariableSet = Statement::from_token(parser.current_token.clone());
 
@@ -69,7 +69,7 @@ impl VariableSet {
       parser.next_token();
 
       // Parse the value expression.
-      match parse_expression(parser, Precedence::LOWEST, environment, standar_library) {
+      match parse_expression(parser, Precedence::LOWEST, environment, standard_library) {
         Some(value_exp) => {
           variable.value = Some(value_exp);
         },

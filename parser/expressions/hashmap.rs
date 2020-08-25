@@ -79,7 +79,7 @@ impl HashMap {
   pub fn parse<'a>(
     parser: &'a mut Parser,
     environment: &mut Environment,
-    standar_library: bool, 
+    standard_library: bool, 
   ) -> Option<Box<Expressions>> {
     let mut hashmap: HashMap = Expression::from_token(parser.current_token.clone());
 
@@ -122,7 +122,7 @@ impl HashMap {
       parser.next_token();
 
       // Parse expression.
-      match parse_expression(parser, Precedence::LOWEST, environment, standar_library) {
+      match parse_expression(parser, Precedence::LOWEST, environment, standard_library) {
         Some(expression) => {
           hashmap.data.push(HashMapItem {
             key,
