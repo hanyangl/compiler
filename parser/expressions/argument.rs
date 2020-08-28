@@ -121,7 +121,7 @@ impl Argument {
         let current_token = parser.current_token.clone();
 
         // Parse default value expression.
-        match parse_expression(parser, Precedence::LOWEST, environment, standard_library) {
+        match parse_expression(parser, Some(argument.data_type.clone()), Precedence::LOWEST, environment, standard_library) {
           Some(value) => {
             let line = parser.get_error_line(
               current_token.line - 1,

@@ -43,7 +43,7 @@ impl Expression for AnonymousFunction {
       self.data_type.value,
     );
 
-    if self.token.token.clone().is_keyword(Keywords::FUNCTION) {
+    if self.token.token.clone().expect_keyword(Keywords::FUNCTION) {
       return format!("{} {} {}", self.token.value, function, self.body.string());
     }
 
@@ -107,7 +107,7 @@ impl AnonymousFunction {
     }
 
     // Check if the function token is a left parentheses.
-    if function.token.token.clone().is_sign(Signs::LEFTPARENTHESES) {
+    if function.token.token.clone().expect_sign(Signs::LEFTPARENTHESES) {
       // Check if the next token is an assign arrow sign.
       if !parser.current_token_is(Signs::new(Signs::ASSIGNARROW)) {
         let line = parser.get_error_line_current_token();

@@ -1,5 +1,5 @@
 use crate::Environment;
-use crate::expressions::Expressions;
+use crate::expressions::{Expressions, ArrayType};
 use crate::statements::Statements;
 
 use super::*;
@@ -15,6 +15,7 @@ pub enum Types {
 
   // Objects
   HASHMAP,
+  ARRAY(ArrayType),
 
   // Function
   VOID,
@@ -26,6 +27,11 @@ impl TokenType for Types {
   }
 
   fn from_value(value: String) -> Option<Box<Tokens>> {
+    // Parse array type.
+    if value.clone().ends_with("[]") {
+      return Some(TokenType::new(Types::ARRAY(ArrayType::parse(value))));
+    }
+
     match value.as_str() {
       // Basic
       "null" => Some(TokenType::new(Types::NULL)),
@@ -47,6 +53,13 @@ impl TokenType for Types {
 }
 
 impl Types {
+  pub fn get_array(self) -> Option<ArrayType> {
+    match self {
+      Types::ARRAY(array) => Some(array),
+      _ => None,
+    }
+  }
+
   pub fn from_statement(statement: Box<Statements>) -> Token {
     let mut token: Token = Token::new_empty();
 
@@ -137,34 +150,35 @@ impl Types {
         };
 
         // Parse to string.
-        if operator.clone().is_sign(Signs::PLUS) && (
-          left.token.clone().is_type(Types::STRING) ||
-          right.token.clone().is_type(Types::STRING)
+        if operator.clone().expect_sign(Signs::PLUS) && (
+          left.token.clone().expect_type(Types::STRING) ||
+          right.token.clone().expect_type(Types::STRING)
         ) {
           token = Token::from_value(String::from("string"), 0, 0);
         }
 
         // Parse to number.
-        else if left.token.clone().is_type(Types::NUMBER) && right.token.clone().is_type(Types::NUMBER) && (
-          operator.clone().is_sign(Signs::PLUS) ||
-          operator.clone().is_sign(Signs::MINUS) ||
-          operator.clone().is_sign(Signs::DIVIDE) ||
-          operator.clone().is_sign(Signs::MULTIPLY) ||
-          operator.clone().is_sign(Signs::EMPOWERMENT) ||
-          operator.clone().is_sign(Signs::MODULE)
+        else if left.token.clone().expect_type(Types::NUMBER) &&
+          right.token.clone().expect_type(Types::NUMBER) && (
+          operator.clone().expect_sign(Signs::PLUS) ||
+          operator.clone().expect_sign(Signs::MINUS) ||
+          operator.clone().expect_sign(Signs::DIVIDE) ||
+          operator.clone().expect_sign(Signs::MULTIPLY) ||
+          operator.clone().expect_sign(Signs::EMPOWERMENT) ||
+          operator.clone().expect_sign(Signs::MODULE)
         ) {
           token = Token::from_value(String::from("number"), 0, 0);
         }
 
         // Parse to boolean.
-        else if operator.clone().is_sign(Signs::EQUAL) ||
-          operator.clone().is_sign(Signs::EQUALTYPE) ||
-          operator.clone().is_sign(Signs::NOTEQUAL) ||
-          operator.clone().is_sign(Signs::NOTEQUALTYPE) ||
-          operator.clone().is_sign(Signs::LESSTHAN) ||
-          operator.clone().is_sign(Signs::LESSOREQUALTHAN) ||
-          operator.clone().is_sign(Signs::GREATERTHAN) ||
-          operator.clone().is_sign(Signs::GREATEROREQUALTHAN) {
+        else if operator.clone().expect_sign(Signs::EQUAL) ||
+          operator.clone().expect_sign(Signs::EQUALTYPE) ||
+          operator.clone().expect_sign(Signs::NOTEQUAL) ||
+          operator.clone().expect_sign(Signs::NOTEQUALTYPE) ||
+          operator.clone().expect_sign(Signs::LESSTHAN) ||
+          operator.clone().expect_sign(Signs::LESSOREQUALTHAN) ||
+          operator.clone().expect_sign(Signs::GREATERTHAN) ||
+          operator.clone().expect_sign(Signs::GREATEROREQUALTHAN) {
           token = Token::from_value(String::from("boolean"), 0, 0);
         }
       },
@@ -177,12 +191,12 @@ impl Types {
         let operator = prefix.token.token.clone();
 
         // Parse negation prefix.
-        if operator.clone().is_sign(Signs::NEGATION) {
+        if operator.clone().expect_sign(Signs::NEGATION) {
           token = Token::from_value(String::from("boolean"), 0, 0);
         }
 
         // Parse minus prefix.
-        if operator.clone().is_sign(Signs::MINUS) {
+        if operator.clone().expect_sign(Signs::MINUS) {
           token = Token::from_value(String::from("number"), 0, 0);
         }
       },
@@ -225,6 +239,33 @@ impl Types {
     match exp.clone().get_method() {
       Some(method) => {
         token = method.data_type.clone();
+      },
+      None => {},
+    }
+
+    // Parse array.
+    match exp.clone().get_array() {
+      Some(array) => {
+        let mut types: Vec<String> = Vec::new();
+
+        for data_type in array.types {
+          let mut has = false;
+
+          for type_string in types.iter() {
+            if type_string.clone() == data_type.value.clone() {
+              has = true;
+              break;
+            }
+          }
+
+          if has {
+            continue;
+          }
+
+          types.push(data_type.value);
+        }
+
+        token = Token::from_value(format!("{}[]", types.join(" | ")), 0, 0);
       },
       None => {},
     }

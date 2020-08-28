@@ -1,5 +1,12 @@
 use crate::Environment;
-use crate::expressions::{Expressions, Identifier, parse as parse_expression};
+
+use crate::expressions::{
+  Expressions,
+  Identifier,
+  parse as parse_expression,
+  types::parse as parse_type,
+};
+
 use crate::{Parser, Precedence};
 use crate::tokens::*;
 use crate::types::expression_is_type;
@@ -63,7 +70,7 @@ impl Variable {
       let line = parser.get_error_line_next_token();
       let mut message = format!("{} `{}` is not a valid variable name.", line, parser.next_token.value.clone());
 
-      if parser.next_token.token.clone().is_sign(Signs::COLON) {
+      if parser.next_token_is(Signs::new(Signs::COLON)) {
         message = format!("{} you must enter the variable name.", line);
       }
 
@@ -83,7 +90,7 @@ impl Variable {
       return None;
     }
 
-    // Check if the next token is an assign sin.
+    // Check if the next token is an assign sign.
     if parser.next_token_is(Signs::new(Signs::ASSIGN)) {
       // Get the next token.
       parser.next_token();
@@ -92,7 +99,7 @@ impl Variable {
       parser.next_token();
 
       // Parse current token (Variable value).
-      match parse_expression(parser, Precedence::LOWEST, environment, standard_library) {
+      match parse_expression(parser, None, Precedence::LOWEST, environment, standard_library) {
         Some(exp) => {
           variable.data_type = Types::from_expression(exp.clone(), environment);
 
@@ -144,15 +151,14 @@ impl Variable {
         return None;
       }
 
-      // Check if the next token is a valid type.
-      match parser.next_token.token.clone().get_type() {
-        Some(data_type) => {
-          // Get the next token.
-          parser.next_token();
+      // Get the next token.
+      parser.next_token();
 
+      // Parse type.
+      match parse_type(parser) {
+        Some(data_type) => {
           // Set the variable type.
-          let data_type_token = parser.current_token.clone();
-          variable.data_type = data_type_token.clone();
+          variable.data_type = data_type.clone();
 
           // Check if the next token is an assign sign.
           if !parser.expect_token(Signs::new(Signs::ASSIGN)) {
@@ -165,11 +171,21 @@ impl Variable {
           parser.next_token();
 
           // Parse current token (Variable value).
-          match parse_expression(parser, Precedence::LOWEST, environment, standard_library) {
+          match parse_expression(
+            parser,
+            Some(data_type.clone()),
+            Precedence::LOWEST,
+            environment,
+            standard_library,
+          ) {
             Some(exp) => {
-              if !expression_is_type(data_type.clone(), exp.clone(), environment) {
+              if !expression_is_type(
+                data_type.token.clone().get_type().unwrap(),
+                exp.clone(),
+                environment,
+              ) {
                 let line = parser.get_error_line_current_token();
-                parser.errors.push(format!("{} not satisfied the {} type.", line, data_type_token.value));
+                parser.errors.push(format!("{} not satisfied the `{}` type.", line, data_type.value));
                 return None;
               }
 
@@ -179,8 +195,7 @@ impl Variable {
           }
         },
         None => {
-          let line = parser.get_error_line_next_token();
-          parser.errors.push(format!("{} `{}` is not a valid type.", line, parser.next_token.value.clone()));
+          println!("TODO(variable): Parse type");
           return None;
         },
       }

@@ -41,7 +41,7 @@ impl Token {
         None => {},
       }
     }
-    
+
     // Get data type
     if token == illegal {
       match Types::from_value(value.clone()) {

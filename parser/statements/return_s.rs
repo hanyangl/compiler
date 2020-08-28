@@ -53,7 +53,7 @@ impl Return {
     parser.next_token();
 
     // Parse the value.
-    return_s.value = parse_expression(parser, Precedence::LOWEST, environment, standard_library);
+    return_s.value = parse_expression(parser, None, Precedence::LOWEST, environment, standard_library);
 
     // Parse value data type.
     match return_s.value.clone() {

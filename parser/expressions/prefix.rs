@@ -51,7 +51,7 @@ impl Prefix {
     parser.next_token();
 
     // Parse the right expression.
-    prefix.right = parse_expression(parser, Precedence::PREFIX, environment, standard_library);
+    prefix.right = parse_expression(parser, None, Precedence::PREFIX, environment, standard_library);
 
     match prefix.right.clone() {
       Some(right_exp) => {
@@ -64,13 +64,15 @@ impl Prefix {
         );
 
         // Parse negation prefix.
-        if prefix.token.token.clone().is_sign(Signs::NEGATION) && !data_type.token.clone().is_type(Types::BOOLEAN) {
+        if prefix.token.token.clone().expect_sign(Signs::NEGATION) &&
+          !data_type.token.clone().expect_type(Types::BOOLEAN) {
           parser.errors.push(format!("{} `{}` not satisfied the boolean type.", line, right_exp.string()));
           return None;
         }
 
         // Parse minus prefix.
-        if prefix.token.token.clone().is_sign(Signs::MINUS) && !data_type.token.clone().is_type(Types::NUMBER) {
+        if prefix.token.token.clone().expect_sign(Signs::MINUS) &&
+          !data_type.token.clone().expect_type(Types::NUMBER) {
           parser.errors.push(format!("{} `{}` not satisfied the number type.", line, right_exp.string()));
           return None;
         }

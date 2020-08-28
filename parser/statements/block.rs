@@ -66,7 +66,7 @@ impl Block {
             Some(return_s) => {
               match data_type.token.clone().get_type() {
                 Some(data_type_token) => {
-                  if !return_s.data_type.token.is_type(data_type_token) {
+                  if !return_s.data_type.token.expect_type(data_type_token) {
                     let line = parser.get_error_line(
                       return_s.token.line - 1,
                       return_s.token.position - 1,

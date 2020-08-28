@@ -1,5 +1,6 @@
 mod anonymous_function;
 mod argument;
+mod array;
 mod boolean;
 mod call;
 mod hashmap;
@@ -10,13 +11,14 @@ mod number;
 mod parser;
 mod prefix;
 mod string;
+pub mod types;
 
 pub use anonymous_function::AnonymousFunction;
 pub use argument::Argument;
+pub use array::{ArrayType, Array};
 pub use boolean::Boolean;
 pub use call::Call;
-pub use hashmap::HashMapItem;
-pub use hashmap::HashMap;
+pub use hashmap::{HashMapItem, HashMap};
 pub use identifier::Identifier;
 pub use infix::Infix;
 pub use method::Method;
@@ -42,6 +44,7 @@ pub trait Expression {
 pub enum Expressions {
   ANONYMOUSFUNCTION(AnonymousFunction),
   ARGUMENT(Argument),
+  ARRAY(Array),
   BOOLEAN(Boolean),
   CALL(Call),
   HASHMAP(HashMap),
@@ -71,6 +74,13 @@ impl Expressions {
   pub fn get_argument(self) -> Option<Argument> {
     match self {
       Expressions::ARGUMENT(argument) => Some(argument),
+      _ => None,
+    }
+  }
+
+  pub fn get_array(self) -> Option<Array> {
+    match self {
+      Expressions::ARRAY(array) => Some(array),
       _ => None,
     }
   }
@@ -163,6 +173,7 @@ impl Expressions {
     match self {
       Expressions::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.token,
       Expressions::ARGUMENT(argument) => argument.token,
+      Expressions::ARRAY(array) => array.token,
       Expressions::BOOLEAN(boolean) => boolean.token,
       Expressions::CALL(call) => call.token,
       Expressions::HASHMAP(hashmap) => hashmap.token,
@@ -179,6 +190,7 @@ impl Expressions {
     match self {
       Expressions::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.string(),
       Expressions::ARGUMENT(argument) => argument.string(),
+      Expressions::ARRAY(array) => array.string(),
       Expressions::BOOLEAN(boolean) => boolean.string(),
       Expressions::CALL(call) => call.string(),
       Expressions::HASHMAP(hashmap) => hashmap.string(),

@@ -130,9 +130,9 @@ impl Parser {
       return Return::parse(self, environment, standard_library);
     }
 
-    // Parse show statement in standard library.
-    if self.current_token.value.as_str() == "show" && standard_library {
-      return Show::parse(self, environment);
+    // Parse library statement in standard library.
+    if self.current_token.value.as_str() == "library" && standard_library {
+      return Library::parse(self, environment);
     }
 
     // Parse expression statement.

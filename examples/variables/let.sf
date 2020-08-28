@@ -17,3 +17,7 @@ let is_example: boolean = true;
 let is_example1: boolean = false;
 let is_example2: boolean = !true;
 let is_example3: boolean = !!true;
+
+// Array
+let numbers: number[] = [0, 1, 2, 3, 4];
+let letters: string[] = ['A', 'B', 'C', 'D', 'E'];

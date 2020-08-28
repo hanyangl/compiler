@@ -73,7 +73,7 @@ impl Infix {
     parser.next_token();
 
     // Set the right expression.
-    exp.right = parse_expression(parser, precedence, environment, standard_library);
+    exp.right = parse_expression(parser, None, precedence, environment, standard_library);
 
     // Return the infix expression.
     Box::new(Expressions::INFIX(exp))

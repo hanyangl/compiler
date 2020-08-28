@@ -20,7 +20,7 @@ impl Expression for Boolean {
   fn from_token(token: Token) -> Boolean {
     Boolean {
       token: token.clone(),
-      value: token.token.is_keyword(Keywords::TRUE),
+      value: token.token.expect_keyword(Keywords::TRUE),
     }
   }
 

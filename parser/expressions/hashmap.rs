@@ -122,7 +122,7 @@ impl HashMap {
       parser.next_token();
 
       // Parse expression.
-      match parse_expression(parser, Precedence::LOWEST, environment, standard_library) {
+      match parse_expression(parser, None, Precedence::LOWEST, environment, standard_library) {
         Some(expression) => {
           hashmap.data.push(HashMapItem {
             key,

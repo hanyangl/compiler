@@ -47,7 +47,7 @@ impl ExpressionStatement {
     let mut statement: ExpressionStatement = Statement::from_token(parser.current_token.clone());
 
     // Parse expression.
-    match parse_expression(parser, Precedence::LOWEST, environment, standard_library) {
+    match parse_expression(parser, None, Precedence::LOWEST, environment, standard_library) {
       Some(expression) => {
         statement.expression = Some(expression);
       },

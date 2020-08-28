@@ -3,32 +3,32 @@ const log = {
   // 
   // ## Example
   // ```sf
-  // log->write("Hello world!");
+  // log->write('Hello world!');
   // // Output: Hello world!
   // ```
   write: (message: string) => {
-    show(message);
+    library('print', message);
   },
 
   // Show an error console message.
   //
   // ## Example
   // ```sf
-  // log->error("Testing!");
+  // log->error('Testing!');
   // // Output: [ERROR] Testing!
   // ```
   error: (message: string) => {
-    show("[ERROR] " + message);
+    library('print', '[ERROR] ' + message);
   },
 
   // Show a warning console message.
   //
   // ## Example
   // ```sf
-  // log->warning("Caution!");
+  // log->warning('Caution!');
   // // Output: [WARNING] Caution!
   // ```
   warning: (message: string) => {
-    show("[WARNING] " + message);
+    library('print', '[WARNING] ' + message);
   },
 };

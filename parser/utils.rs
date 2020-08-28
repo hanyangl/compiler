@@ -2,7 +2,7 @@
 /// 
 /// ## Example
 /// ```
-/// use crate::utils::repeat_character;
+/// use sflyn_parser::utils::repeat_character;
 /// 
 /// let message = repeat_character(4, "-");
 /// // Returns: "----"

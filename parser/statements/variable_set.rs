@@ -31,8 +31,8 @@ impl Statement for VariableSet {
   }
 
   fn string(self) -> String {
-    if self.assign.token.clone().is_sign(Signs::PLUSPLUS) ||
-      self.assign.token.clone().is_sign(Signs::MINUSMINUS) {
+    if self.assign.token.clone().expect_sign(Signs::PLUSPLUS) ||
+      self.assign.token.clone().expect_sign(Signs::MINUSMINUS) {
       return format!("{}{};", self.token.value, self.assign.value);
     }
 
@@ -69,7 +69,7 @@ impl VariableSet {
       parser.next_token();
 
       // Parse the value expression.
-      match parse_expression(parser, Precedence::LOWEST, environment, standard_library) {
+      match parse_expression(parser, None, Precedence::LOWEST, environment, standard_library) {
         Some(value_exp) => {
           variable.value = Some(value_exp);
         },
@@ -113,7 +113,7 @@ impl VariableSet {
           // Is a variable.
           Some(var) => {
             // Check if the original variable is a const.
-            if var.token.token.clone().is_keyword(Keywords::CONST) {
+            if var.token.token.clone().expect_keyword(Keywords::CONST) {
               let line = parser.get_error_line(
                 variable.token.line - 1,
                 variable.token.position - 1,
@@ -125,8 +125,8 @@ impl VariableSet {
               return None;
             }
 
-            if !variable.assign.token.clone().is_sign(Signs::ASSIGN) &&
-              !var.data_type.token.clone().is_type(Types::NUMBER) {
+            if !variable.assign.token.clone().expect_sign(Signs::ASSIGN) &&
+              !var.data_type.token.clone().expect_type(Types::NUMBER) {
               let line = parser.get_error_line(
                 variable.token.line - 1,
                 variable.token.position - 1,

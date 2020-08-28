@@ -17,3 +17,7 @@ const is_example: boolean = true;
 const is_example1: boolean = false;
 const is_example2: boolean = !true;
 const is_example3: boolean = !!true;
+
+// Array
+const numbers: number[] = [0, 1, 2, 3, 4];
+const letters: string[] = ['A', 'B', 'C', 'D', 'E'];
