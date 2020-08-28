@@ -113,13 +113,6 @@ impl Parser {
       return Variable::parse(self, environment, standard_library);
     }
 
-    // Parse variable set statement.
-    if self.current_token_is(Box::new(Tokens::IDENTIFIER)) &&
-      !self.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) &&
-      !self.next_token_is(Signs::new(Signs::ARROW)) {
-      return VariableSet::parse(self, environment, standard_library);
-    }
-
     // Parse function statement.
     if self.current_token_is(Keywords::new(Keywords::FUNCTION)) {
       return Function::parse(self, environment, standard_library);
@@ -133,6 +126,13 @@ impl Parser {
     // Parse library statement in standard library.
     if self.current_token.value.as_str() == "library" && standard_library {
       return Library::parse(self, environment);
+    }
+
+    // Parse variable set statement.
+    if self.current_token_is(Box::new(Tokens::IDENTIFIER)) &&
+      !self.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) &&
+      !self.next_token_is(Signs::new(Signs::ARROW)) {
+      return VariableSet::parse(self, environment, standard_library);
     }
 
     // Parse expression statement.

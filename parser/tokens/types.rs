@@ -53,6 +53,13 @@ impl TokenType for Types {
 }
 
 impl Types {
+  pub fn is_array(self) -> bool {
+    match self {
+      Types::ARRAY(_) => true,
+      _ => false,
+    }
+  }
+
   pub fn get_array(self) -> Option<ArrayType> {
     match self {
       Types::ARRAY(array) => Some(array),

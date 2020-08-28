@@ -192,14 +192,8 @@ impl Call {
       None => {},
     }
 
-    // Check if the current token is a right parentheses.
-    if parser.current_token_is(Signs::new(Signs::RIGHTPARENTHESES)) {
-      // Get the next token.
-      parser.next_token();
-    }
-
     // Check if the current token is a semicolon.
-    if parser.current_token_is(Signs::new(Signs::SEMICOLON)) {
+    if parser.next_token_is(Signs::new(Signs::SEMICOLON)) {
       call.semicolon = Some(parser.current_token.clone());
 
       // Get the next token.
