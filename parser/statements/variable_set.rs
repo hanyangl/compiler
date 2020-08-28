@@ -196,17 +196,63 @@ impl VariableSet {
               None => {},
             }
 
-            if !variable.assign.token.clone().expect_sign(Signs::ASSIGN) &&
-              !var.data_type.token.clone().expect_type(Types::NUMBER) {
-              let line = parser.get_error_line(
-                variable.token.line - 1,
-                variable.token.position - 1,
-                variable.token.value.len()
-              );
+            // Check if it is not an assign token.
+            if !variable.assign.token.clone().expect_sign(Signs::ASSIGN) {
+              let mut is_valid = true;
 
-              parser.errors.push(format!("{} the variable is not of `number` type.", line));
+              // Check if the value token is a data type.
+              if var.data_type.token.clone().is_type() {
+                // Check if the value data type is an array.
+                if var.data_type.token.clone().get_type().unwrap().is_array() {
+                  // Get the variable value.
+                  match var.value {
+                    Some(last_value) => {
+                      // Get the array from value.
+                      match last_value.get_array() {
+                        Some(array) => {
+                          // Get the array position.
+                          match variable.array_position.clone() {
+                            Some(position) => {
+                              let mut index: usize = 0;
 
-              return None;
+                              // Check if the position is a prefix expression. (-1)
+                              if position.clone().is_prefix() {
+                                index = array.types.len() - 1;
+                              }
+                              // Check if the position is a number expression.
+                              else if position.clone().is_number() {
+                                index = position.get_number().unwrap().token.value.parse().expect("");
+                              }
+
+                              // Check if the position array type is a number.
+                              is_valid = array.types[index].token.clone().expect_type(Types::NUMBER);
+                            },
+                            None => {},
+                          }
+                        },
+                        None => {}
+                      }
+                    },
+                    None => {},
+                  }
+                }
+                // Check if the value data type is a number.
+                else if !var.data_type.token.clone().expect_type(Types::NUMBER) {
+                  is_valid = false;
+                }
+              }
+
+              if !is_valid {
+                let line = parser.get_error_line(
+                  variable.token.line - 1,
+                  variable.token.position - 1,
+                  variable.token.value.len()
+                );
+
+                parser.errors.push(format!("{} the variable is not of `number` type.", line));
+
+                return None;
+              }
             }
 
             // Parse new value.
@@ -214,6 +260,7 @@ impl VariableSet {
               Some(new_value) => {
                 match var.data_type.token.clone().get_type() {
                   Some(data_type) => {
+                    // Check if the value expression is a valid type.
                     if !expression_is_type(data_type.clone(), new_value.clone(), environment) {
                       let line = parser.get_error_line(
                         new_value.clone().token().line - 1,

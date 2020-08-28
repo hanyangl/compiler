@@ -155,10 +155,24 @@ impl Expressions {
     }
   }
 
+  pub fn is_number(self) -> bool {
+    match self {
+      Expressions::NUMBER(_) => true,
+      _ => false,
+    }
+  }
+
   pub fn get_prefix(self) -> Option<Prefix> {
     match self {
       Expressions::PREFIX(prefix) => Some(prefix),
       _ => None,
+    }
+  }
+
+  pub fn is_prefix(self) -> bool {
+    match self {
+      Expressions::PREFIX(_) => true,
+      _ => false,
     }
   }
 
