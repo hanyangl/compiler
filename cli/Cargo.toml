@@ -2,7 +2,7 @@
 name = "sflyn"
 version = "0.0.1"
 license = "MIT"
-authors = ["Daniel Solarte <danielsolartech@hotmail.com>"]
+authors = ["Sflynlang"]
 homepage = "https://github.com/sflynlang/compiler/README.md"
 repository = "https://github.com/sflynlang/compiler"
 edition = "2018"
@@ -14,9 +14,10 @@ path = "main.rs"
 
 [dependencies]
 sflyn_parser = { path = "../parser", version = "0.0.1" }
+sflyn_compiler = { path = "../compiler", version = "0.0.1" }
 
 [package.metadata.winres]
 OriginalFilename = "sflyn.exe"
-LegalCopyright = "Daniel Solarte"
+LegalCopyright = "Sflynlang"
 ProductName = "Sflyn"
 FileDescription = "A compiler for Sflyn."

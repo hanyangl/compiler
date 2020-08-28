@@ -1,5 +1,5 @@
 [package]
-name = "sflyn_parser"
+name = "sflyn_compiler"
 version = "0.0.1"
 license = "MIT"
 authors = ["Sflynlang"]
@@ -9,3 +9,6 @@ edition = "2018"
 
 [lib]
 path = "lib.rs"
+
+[dependencies]
+sflyn_parser = { path = "../parser", version = "0.0.1" }

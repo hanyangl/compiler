@@ -2,7 +2,7 @@
 name = "sflyn_tests"
 version = "0.0.1"
 license = "MIT"
-authors = ["Daniel Solarte <danielsolartech@hotmail.com>"]
+authors = ["Sflynlang"]
 homepage = "https://github.com/sflynlang/compiler/README.md"
 repository = "https://github.com/sflynlang/compiler"
 edition = "2018"

@@ -1,4 +1,5 @@
 use sflyn_parser::{Environment, Lexer, library, Parser};
+use sflyn_compiler;
 
 use std::{env, fs, path::Path};
 
@@ -51,10 +52,7 @@ pub fn main() {
         return;
       }
 
-      for stmt in statements {
-        println!("{}", stmt.string());
-      }
-
+      sflyn_compiler::evaluator::program(statements, &mut sflyn_compiler::Environment::new());
       return;
     }
 

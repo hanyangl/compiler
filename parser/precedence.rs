@@ -7,10 +7,11 @@ pub enum Precedence {
   LESSGREATER = 2,
   SUM = 3,
   PRODUCT = 4,
-  PREFIX = 5,
-  CALL = 6,
-  INDEX = 7,
-  METHOD = 8,
+  EMPOWERMENT = 5,
+  PREFIX = 6,
+  CALL = 7,
+  INDEX = 8,
+  METHOD = 9,
 }
 
 impl Precedence {
@@ -34,7 +35,11 @@ impl Precedence {
 
       // PRODUCT
       Signs::MULTIPLY |
-      Signs::DIVIDE => Precedence::PRODUCT,
+      Signs::DIVIDE |
+      Signs::MODULE => Precedence::PRODUCT,
+
+      // EMPOWERMENT
+      Signs::EMPOWERMENT => Precedence::EMPOWERMENT,
 
       // CALL
       Signs::LEFTPARENTHESES => Precedence::CALL,

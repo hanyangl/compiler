@@ -79,10 +79,24 @@ impl Expressions {
     }
   }
 
+  pub fn is_argument(self) -> bool {
+    match self {
+      Expressions::ARGUMENT(_) => true,
+      _ => false,
+    }
+  }
+
   pub fn get_array(self) -> Option<Array> {
     match self {
       Expressions::ARRAY(array) => Some(array),
       _ => None,
+    }
+  }
+
+  pub fn is_array(self) -> bool {
+    match self {
+      Expressions::ARRAY(_) => true,
+      _ => false,
     }
   }
 
@@ -93,10 +107,24 @@ impl Expressions {
     }
   }
 
+  pub fn is_array_index(self) -> bool {
+    match self {
+      Expressions::ARRAYINDEX(_) => true,
+      _ => false,
+    }
+  }
+
   pub fn get_boolean(self) -> Option<Boolean> {
     match self {
       Expressions::BOOLEAN(boolean) => Some(boolean),
       _ => None,
+    }
+  }
+
+  pub fn is_boolean(self) -> bool {
+    match self {
+      Expressions::BOOLEAN(_) => true,
+      _ => false,
     }
   }
 
@@ -135,10 +163,24 @@ impl Expressions {
     }
   }
 
+  pub fn is_identifier(self) -> bool {
+    match self {
+      Expressions::IDENTIFIER(_) => true,
+      _ => false,
+    }
+  }
+
   pub fn get_infix(self) -> Option<Infix> {
     match self {
       Expressions::INFIX(infix) => Some(infix),
       _ => None,
+    }
+  }
+
+  pub fn is_infix(self) -> bool {
+    match self {
+      Expressions::INFIX(_) => true,
+      _ => false,
     }
   }
 
@@ -188,6 +230,13 @@ impl Expressions {
     match self {
       Expressions::STRING(string) => Some(string),
       _ => None,
+    }
+  }
+
+  pub fn is_string(self) -> bool {
+    match self {
+      Expressions::STRING(_) => true,
+      _ => false,
     }
   }
 
