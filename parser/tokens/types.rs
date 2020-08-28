@@ -277,6 +277,14 @@ impl Types {
       None => {},
     }
 
+    // Parse array index.
+    match exp.clone().get_array_index() {
+      Some(array_index) => {
+        token = array_index.data_type;
+      },
+      None => {},
+    }
+
     // Return token.
     token
   }

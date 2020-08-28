@@ -15,7 +15,7 @@ pub mod types;
 
 pub use anonymous_function::AnonymousFunction;
 pub use argument::Argument;
-pub use array::{ArrayType, Array};
+pub use array::{ArrayType, Array, ArrayIndex};
 pub use boolean::Boolean;
 pub use call::Call;
 pub use hashmap::{HashMapItem, HashMap};
@@ -45,6 +45,7 @@ pub enum Expressions {
   ANONYMOUSFUNCTION(AnonymousFunction),
   ARGUMENT(Argument),
   ARRAY(Array),
+  ARRAYINDEX(ArrayIndex),
   BOOLEAN(Boolean),
   CALL(Call),
   HASHMAP(HashMap),
@@ -81,6 +82,13 @@ impl Expressions {
   pub fn get_array(self) -> Option<Array> {
     match self {
       Expressions::ARRAY(array) => Some(array),
+      _ => None,
+    }
+  }
+
+  pub fn get_array_index(self) -> Option<ArrayIndex> {
+    match self {
+      Expressions::ARRAYINDEX(array_index) => Some(array_index),
       _ => None,
     }
   }
@@ -188,6 +196,7 @@ impl Expressions {
       Expressions::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.token,
       Expressions::ARGUMENT(argument) => argument.token,
       Expressions::ARRAY(array) => array.token,
+      Expressions::ARRAYINDEX(array_index) => array_index.token,
       Expressions::BOOLEAN(boolean) => boolean.token,
       Expressions::CALL(call) => call.token,
       Expressions::HASHMAP(hashmap) => hashmap.token,
@@ -205,6 +214,7 @@ impl Expressions {
       Expressions::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.string(),
       Expressions::ARGUMENT(argument) => argument.string(),
       Expressions::ARRAY(array) => array.string(),
+      Expressions::ARRAYINDEX(array_index) => array_index.string(),
       Expressions::BOOLEAN(boolean) => boolean.string(),
       Expressions::CALL(call) => call.string(),
       Expressions::HASHMAP(hashmap) => hashmap.string(),

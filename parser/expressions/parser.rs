@@ -15,6 +15,7 @@ pub fn parse<'a>(
 
   // Parse identifiers.
   if current_token.token.clone().is_identifier() &&
+    !parser.next_token.token.clone().expect_sign(Signs::LEFTBRACKET) &&
     !parser.next_token.token.clone().expect_sign(Signs::LEFTPARENTHESES) {
     expression = Some(Identifier::new_box_from_token(current_token.clone()));
   }
@@ -65,6 +66,12 @@ pub fn parse<'a>(
   // Parse arrays.
   if current_token.token.clone().expect_sign(Signs::LEFTBRACKET) {
     expression = Array::parse(parser, data_type, environment, standard_library);
+  }
+
+  // Parse array index.
+  if current_token.token.clone().is_identifier() &&
+    parser.next_token_is(Signs::new(Signs::LEFTBRACKET)) {
+    expression = ArrayIndex::parse(parser, environment, standard_library);
   }
 
   // Parse infix expression.

@@ -1,5 +1,5 @@
 use crate::Environment;
-use crate::expressions::{Expressions, Number, parse as parse_expression};
+use crate::expressions::{ArrayIndex, Expressions, Number, parse as parse_expression};
 use crate::{Parser, Precedence};
 use crate::tokens::*;
 use crate::types::expression_is_type;
@@ -75,43 +75,9 @@ impl VariableSet {
       // Parse expression.
       variable.array_position = parse_expression(parser, None, Precedence::LOWEST, environment, standard_library);
 
-      match variable.array_position.clone() {
-        Some(position) => {
-          let line = parser.get_error_line(
-            position.clone().token().line - 1,
-            left_token.position.clone(),
-            position.clone().string().len(),
-          );
-
-          // Check if the expression is a valid number.
-          if !expression_is_type(Types::NUMBER, position.clone(), environment) {
-            parser.errors.push(format!("{} is not a valid `number` type.", line));
-            return None;
-          }
-
-          // Check if the expression has a dot.
-          if position.clone().string().contains('.') {
-            parser.errors.push(format!("{} the index value can not contains a dot.", line));
-            return None;
-          }
-
-          // Get the prefix expression.
-          match position.clone().get_prefix() {
-            Some(prefix) => {
-              match prefix.clone().right {
-                Some(right_exp) => {
-                  if right_exp.get_number().unwrap().value != 1.0 {
-                    parser.errors.push(format!("{} the index can not be other than '-1' or a positive number.", line));
-                    return None;
-                  }
-                },
-                None => {},
-              }
-            },
-            None => {},
-          }
-        },
-        None => {},
+      // Parse array position.
+      if !ArrayIndex::parse_index(parser, variable.array_position.clone(), left_token, environment) {
+        return None;
       }
 
       // Check if the next token is a right bracket.
@@ -166,6 +132,12 @@ impl VariableSet {
       parser.next_token();
     }
 
+    let token_line = parser.get_error_line(
+      variable.token.line - 1,
+      variable.token.position - 1,
+      variable.token.value.len()
+    );
+
     // Get the environment expression for the variable name.
     match environment.get_statement(variable.token.value.clone()) {
       Some(env_stmt) => {
@@ -173,15 +145,9 @@ impl VariableSet {
         match env_stmt.clone().get_variable() {
           // Is a variable.
           Some(var) => {
-            let line = parser.get_error_line(
-              variable.token.line.clone() - 1,
-              variable.token.position.clone() - 1,
-              variable.token.value.clone().len()
-            );
-
             // Check if the original variable is a const.
             if var.token.token.clone().expect_keyword(Keywords::CONST) {
-              parser.errors.push(format!("{} you can not set a value to a const.", line));
+              parser.errors.push(format!("{} you can not set a value to a const.", token_line));
               return None;
             }
 
@@ -189,7 +155,7 @@ impl VariableSet {
             match variable.array_position.clone() {
               Some(_) => {
                 if !var.data_type.token.clone().is_type() || !var.data_type.token.clone().get_type().unwrap().is_array() {
-                  parser.errors.push(format!("{} `{}` is not an array.", line, variable.token.value));
+                  parser.errors.push(format!("{} `{}` is not an array.", token_line, variable.token.value));
                   return None;
                 }
               },
@@ -243,14 +209,7 @@ impl VariableSet {
               }
 
               if !is_valid {
-                let line = parser.get_error_line(
-                  variable.token.line - 1,
-                  variable.token.position - 1,
-                  variable.token.value.len()
-                );
-
-                parser.errors.push(format!("{} the variable is not of `number` type.", line));
-
+                parser.errors.push(format!("{} `{}` is not of `number` type.", token_line, variable.token.value));
                 return None;
               }
             }
@@ -282,27 +241,13 @@ impl VariableSet {
 
           // Is not a variable.
           None => {
-            let line = parser.get_error_line(
-              variable.token.line - 1,
-              variable.token.position - 1,
-              variable.token.value.len()
-            );
-
-            parser.errors.push(format!("{} `{}` is not a variable.", line, variable.token.value));
-
+            parser.errors.push(format!("{} `{}` is not a variable.", token_line, variable.token.value));
             return None;
           },
         }
       },
       None => {
-        let line = parser.get_error_line(
-          variable.token.line - 1,
-          variable.token.position - 1,
-          variable.token.value.len()
-        );
-
-        parser.errors.push(format!("{} `{}` not found.", line, variable.token.value));
-
+        parser.errors.push(format!("{} `{}` not found.", token_line, variable.token.value));
         return None;
       },
     }
