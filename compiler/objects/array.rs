@@ -13,7 +13,7 @@ impl Object for Array {
       elements.push(element.string());
     }
 
-    format!("[{}]", elements.join("\n"))
+    format!("[{}]", elements.join(", "))
   }
 }
 

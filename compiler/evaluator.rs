@@ -24,5 +24,7 @@ pub fn program(
   }
 
   // Only for test!
-  println!("Env: {:?}", environment);
+  for (key, value) in environment.store.clone() {
+    println!("{} = {}", key, value.string());
+  }
 }
