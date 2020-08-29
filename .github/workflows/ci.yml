@@ -1,0 +1,67 @@
+name: Rust CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
+    steps:
+      - name: Install Rust
+        uses: hecrj/setup-rust-action@v1
+
+      - uses: actions/checkout@v2
+
+      - name: Log versions
+        run: cargo --version
+
+      - name: Build release
+        run: cargo build --release --locked --all-targets
+
+      - name: Test release
+        run: cargo test --release --locked --all-targets
+
+      - name: Create source code (Linux)
+        if: |
+          startsWith(matrix.os, 'ubuntu') &&
+          github.repository == 'sflynlang/compiler' &&
+          startsWith(github.ref, 'refs/tags/v')
+        run: |
+          mkdir -p target/release
+          zip -r target/release/sflyn-src.zip std/* LICENSE README.md
+
+      - name: Pre-release (Linux)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          cd target/release
+          zip -r sflyn-x86_64-unknown-linux-gnu.zip sflyn
+
+      - name: Pre-release (Windows)
+        if: startsWith(matrix.os, 'windows')
+        run: Compress-Archive -CompressionLevel Optimal -Force -Path target/release/sflyn.exe -DestinationPath target/release/sflyn-x86_64-pc-windows-msvc.zip
+
+      - name: Pre-release (MacOS)
+        if: startsWith(matrix.os, 'macOS')
+        run: |
+          cd target/release
+          zip -r sflyn-x86_64-apple-darwin.zip sflyn
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: |
+          github.repository == 'sflynlang/compiler' &&
+          startsWith(github.ref, 'refs/tags/v')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            target/release/sflyn-src.zip
+            target/release/sflyn-x86_64-unknown-linux-gnu.zip
+            target/release/sflyn-x86_64-pc-windows-msvc.zip
+            target/release/sflyn-x86_64-apple-darwin.zip
+          draft: true
