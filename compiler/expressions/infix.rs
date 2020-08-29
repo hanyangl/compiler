@@ -5,10 +5,7 @@ use sflyn_parser::expressions::{Infix, Expression};
 
 use super::evaluate as evaluate_expression;
 
-pub fn evaluate(
-  infix: Infix,
-  environment: &mut Environment,
-) -> Box<Objects> {
+pub fn evaluate(infix: Infix, environment: &mut Environment) -> Box<Objects> {
   let error = Error::new(format!("Unknown infix: {}", infix.clone().string()));
 
   // Evaluate left expression.

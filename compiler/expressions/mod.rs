@@ -1,10 +1,14 @@
+mod call;
+mod hashmap;
 mod infix;
+mod method;
 mod prefix;
 
 use crate::Environment;
 use crate::objects::*;
 
 use sflyn_parser::expressions::{Expressions, Expression, Identifier};
+use sflyn_parser::tokens::Keywords;
 
 pub fn evaluate_expressions(
   expressions: Vec<Box<Expressions>>,
@@ -37,12 +41,39 @@ pub fn evaluate(
     // Is an expression.
     Some(exp) => {
       // Anonymous function
+      if exp.clone().is_anonymous_function() {
+        let function = exp.clone().get_anonymous_function().unwrap();
+
+        // Add default arguments
+        for argument in function.arguments.clone() {
+          let function_argument = argument.get_argument().unwrap();
+
+          if !function_argument.clone().has_default_value() {
+            continue;
+          }
+
+          let value_object = evaluate(function_argument.value, environment);
+
+          environment.set(function_argument.token.value.clone(), value_object);
+        }
+
+        return AnonymousFunction::new(
+          function.token.token.clone().expect_keyword(Keywords::FUNCTION),
+          function.arguments.clone(),
+          function.data_type.clone(),
+          function.body.clone(),
+          environment.clone(),
+        );
+      }
 
       // Argument
 
       // Array
       if exp.clone().is_array() {
-        let elements = evaluate_expressions(exp.clone().get_array().unwrap().data, environment);
+        let elements = evaluate_expressions(
+          exp.clone().get_array().unwrap().data,
+          environment,
+        );
 
         if elements.len() == 1 && elements[0].clone().is_error() {
           return elements[0].clone();
@@ -98,8 +129,14 @@ pub fn evaluate(
       }
 
       // Call
+      if exp.clone().is_call() {
+        return call::evaluate(exp.clone().get_call().unwrap(), environment);
+      }
 
       // HashMap
+      if exp.clone().is_hashmap() {
+        return hashmap::evaluate(exp.clone().get_hashmap().unwrap(), environment);
+      }
 
       // Identifier
       if exp.clone().is_identifier() {
@@ -117,6 +154,9 @@ pub fn evaluate(
       }
 
       // Method
+      if exp.clone().is_method() {
+        return method::evaluate(exp.clone().get_method().unwrap(), environment);
+      }
 
       // Number
       if exp.clone().is_number() {

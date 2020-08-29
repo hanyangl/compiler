@@ -1,18 +1,22 @@
+mod anonymous_function;
 mod array;
 mod boolean;
 mod error;
 mod hashmap;
 mod null;
 mod number;
+mod print;
 mod return_o;
 mod string;
 
+pub use anonymous_function::AnonymousFunction;
 pub use array::Array;
 pub use boolean::Boolean;
 pub use error::Error;
-pub use hashmap::HashMap;
+pub use hashmap::{HashItem, HashMap};
 pub use null::Null;
 pub use number::Number;
+pub use print::Print;
 pub use return_o::ReturnO;
 pub use string::StringO;
 
@@ -31,17 +35,33 @@ pub trait Object {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Objects {
+  ANONYMOUSFUNCTION(AnonymousFunction),
   ARRAY(Array),
   BOOLEAN(Boolean),
   ERROR(Error),
   HASHMAP(HashMap),
   NULL(Null),
   NUMBER(Number),
+  PRINT(Print),
   RETURN(ReturnO),
   STRING(StringO),
 }
 
 impl Objects {
+  pub fn get_anonymous_function(self) -> Option<AnonymousFunction> {
+    match self {
+      Objects::ANONYMOUSFUNCTION(anonymous_function) => Some(anonymous_function),
+      _ => None,
+    }
+  }
+
+  pub fn is_anonymous_function(self) -> bool {
+    match self {
+      Objects::ANONYMOUSFUNCTION(_) => true,
+      _ => false,
+    }
+  }
+
   pub fn get_array(self) -> Option<Array> {
     match self {
       Objects::ARRAY(array) => Some(array),
@@ -133,6 +153,20 @@ impl Objects {
     }
   }
 
+  pub fn get_print(self) -> Option<Print> {
+    match self {
+      Objects::PRINT(print) => Some(print),
+      _ => None,
+    }
+  }
+
+  pub fn is_print(self) -> bool {
+    match self {
+      Objects::PRINT(_) => true,
+      _ => false,
+    }
+  }
+
   pub fn get_return(self) -> Option<ReturnO> {
     match self {
       Objects::RETURN(return_o) => Some(return_o),
@@ -172,12 +206,14 @@ impl Objects {
 
   pub fn string(self) -> String {
     match self {
+      Objects::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.string(),
       Objects::ARRAY(array) => array.string(),
       Objects::BOOLEAN(boolean) => boolean.string(),
       Objects::ERROR(error) => error.string(),
       Objects::HASHMAP(hashmap) => hashmap.string(),
       Objects::NULL(null) => null.string(),
       Objects::NUMBER(number) => number.string(),
+      Objects::PRINT(print) => print.string(),
       Objects::RETURN(return_o) => return_o.string(),
       Objects::STRING(string) => string.string(),
     }

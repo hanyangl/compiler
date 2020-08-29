@@ -1,6 +1,6 @@
 [package]
 name = "sflyn"
-version = "0.0.1"
+version = "1.0.0"
 license = "MIT"
 authors = ["Sflynlang"]
 homepage = "https://github.com/sflynlang/compiler/README.md"
@@ -13,8 +13,8 @@ name = "sflyn"
 path = "main.rs"
 
 [dependencies]
-sflyn_parser = { path = "../parser", version = "0.0.1" }
-sflyn_compiler = { path = "../compiler", version = "0.0.1" }
+sflyn_parser = { path = "../parser", version = "1.0.0" }
+sflyn_compiler = { path = "../compiler", version = "1.0.0" }
 
 [package.metadata.winres]
 OriginalFilename = "sflyn.exe"

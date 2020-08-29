@@ -46,10 +46,24 @@ impl Statements {
     }
   }
 
+  pub fn is_block(self) -> bool {
+    match self {
+      Statements::BLOCK(_) => true,
+      _ => false,
+    }
+  }
+
   pub fn get_expression(self) -> Option<ExpressionStatement> {
     match self {
       Statements::EXPRESSION(exp) => Some(exp),
       _ => None,
+    }
+  }
+
+  pub fn is_expression(self) -> bool {
+    match self {
+      Statements::EXPRESSION(_) => true,
+      _ => false,
     }
   }
 
@@ -74,6 +88,13 @@ impl Statements {
     }
   }
 
+  pub fn is_library(self) -> bool {
+    match self {
+      Statements::LIBRARY(_) => true,
+      _ => false,
+    }
+  }
+
   pub fn get_return(self) -> Option<Return> {
     match self {
       Statements::RETURN(return_s) => Some(return_s),
@@ -81,10 +102,24 @@ impl Statements {
     }
   }
 
+  pub fn is_return(self) -> bool {
+    match self {
+      Statements::RETURN(_) => true,
+      _ => false,
+    }
+  }
+
   pub fn get_variable_set(self) -> Option<VariableSet> {
     match self {
       Statements::VARIABLESET(variable_set) => Some(variable_set),
       _ => None,
+    }
+  }
+
+  pub fn is_variable_set(self) -> bool {
+    match self {
+      Statements::VARIABLESET(_) => true,
+      _ => false,
     }
   }
 

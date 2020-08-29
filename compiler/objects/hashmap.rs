@@ -2,7 +2,7 @@ use super::{Objects, Object};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct HashItem {
-  pub key: Box<Objects>,
+  pub key: String,
   pub value: Box<Objects>,
 }
 
@@ -18,11 +18,17 @@ impl Object for HashMap {
     for item in self.data {
       data.push(format!(
         "{}: {}",
-        item.key.string(),
+        item.key,
         item.value.string(),
       ));
     }
 
     format!("{{ {} }}", data.join(", "))
+  }
+}
+
+impl HashMap {
+  pub fn new(data: Vec<HashItem>) -> Box<Objects> {
+    Box::new(Objects::HASHMAP(HashMap { data }))
   }
 }

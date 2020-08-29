@@ -1,7 +1,7 @@
 use std::{env, fs, path::Path};
 
 use crate::Environment;
-use crate::{Lexer, Parser};
+use crate::{Lexer, Parser, statements::Statements};
 
 /// Get the sflyn main path.
 pub fn get_sflyn_path() -> String {
@@ -32,8 +32,7 @@ fn get_library_content(name: &str) -> Option<String> {
   ))
 }
 
-/// Add a library to the environment.
-fn add_library(name: &str, environment: &mut Environment) {
+pub fn get_library_statements(name: &str) -> Vec<Box<Statements>> {
   // Get the library file content.
   match get_library_content(name) {
     // Library file exists.
@@ -50,37 +49,44 @@ fn add_library(name: &str, environment: &mut Environment) {
       // Check if the file contains syntax errors.
       if parser.errors.len() > 0 {
         parser.show_errors();
-        return;
+        return Vec::new();
       }
 
-      // Add variables or functions statements to the environment.
-      for statement in statements {
-        if !statement.clone().is_variable() && !statement.clone().is_function() {
-          continue;
-        }
-
-        match statement.clone().get_variable() {
-          Some(variable) => {
-            environment.set_statement(variable.name.clone().string(), statement.clone());
-          },
-          None => {
-            match statement.clone().get_function() {
-              Some(function) => {
-                environment.set_statement(function.name.string(), statement.clone());
-              },
-              None => {},
-            }
-          },
-        }
-      }
+      return statements;
     },
-
-    // Library file does not exist.
     None => {},
+  }
+
+  Vec::new()
+}
+
+/// Add a library to the parser environment.
+fn add_library(name: &str, environment: &mut Environment) {
+  let statements = get_library_statements(name);
+
+  // Add variables or functions statements to the parser environment.
+  for statement in statements {
+    if !statement.clone().is_variable() && !statement.clone().is_function() {
+      continue;
+    }
+
+    match statement.clone().get_variable() {
+      Some(variable) => {
+        environment.set_statement(variable.name.clone().string(), statement.clone());
+      },
+      None => {
+        match statement.clone().get_function() {
+          Some(function) => {
+            environment.set_statement(function.name.string(), statement.clone());
+          },
+          None => {},
+        }
+      },
+    }
   }
 }
 
-/// Add standard libraries to the environment.
+/// Add standard libraries to the parser environment.
 /// **CAUTION** Add this before parse other files.
 pub fn add_libraries(environment: &mut Environment) {
   // Add log library.

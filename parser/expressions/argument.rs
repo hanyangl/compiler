@@ -56,6 +56,13 @@ impl Argument {
     Box::new(Expressions::ARGUMENT(Expression::from_token(token)))
   }
 
+  pub fn has_default_value(self) -> bool {
+    match self.value {
+      Some(_) => true,
+      None => false,
+    }
+  }
+
   pub fn parse<'a>(
     parser: &'a mut Parser,
     environment: &mut Environment,

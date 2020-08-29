@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 [[package]]
 name = "sflyn"
-version = "0.0.1"
+version = "1.0.0"
 dependencies = [
  "sflyn_compiler",
  "sflyn_parser",
@@ -10,18 +10,18 @@ dependencies = [
 
 [[package]]
 name = "sflyn_compiler"
-version = "0.0.1"
+version = "1.0.0"
 dependencies = [
  "sflyn_parser",
 ]
 
 [[package]]
 name = "sflyn_parser"
-version = "0.0.1"
+version = "1.0.0"
 
 [[package]]
 name = "sflyn_tests"
-version = "0.0.1"
+version = "1.0.0"
 dependencies = [
  "sflyn_parser",
 ]

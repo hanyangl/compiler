@@ -5,10 +5,7 @@ use sflyn_parser::expressions::{Prefix, Expression};
 
 use super::evaluate as evaluate_expression;
 
-pub fn evaluate(
-  prefix: Prefix,
-  environment: &mut Environment,
-) -> Box<Objects> {
+pub fn evaluate(prefix: Prefix, environment: &mut Environment) -> Box<Objects> {
   // Evaluate right expression.
   let right_object = evaluate_expression(prefix.right.clone(), environment);
 

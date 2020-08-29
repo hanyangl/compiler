@@ -1,11 +1,11 @@
-use sflyn_parser::{Environment, Lexer, library, Parser};
+use sflyn_parser;
 use sflyn_compiler;
 
 use std::{env, fs, path::Path};
 
 pub fn main() {
   // Get the sflyn path.
-  let sflyn_path = library::get_sflyn_path();
+  let sflyn_path = sflyn_parser::library::get_sflyn_path();
 
   // Check if the slfyn path exists.
   if sflyn_path.as_str() == "" {
@@ -32,19 +32,19 @@ pub fn main() {
       let file_content = fs::read_to_string(file_path).expect("The file does not exists.");
 
       // Create a new lexer.
-      let lexer = Lexer::new(file_name, file_content);
+      let lexer = sflyn_parser::Lexer::new(file_name, file_content);
 
       // Create a new parser.
-      let mut parser = Parser::new(lexer);
+      let mut parser = sflyn_parser::Parser::new(lexer);
 
-      // Create a new environment.
-      let mut environment = Environment::new();
+      // Create a new environment for the parser.
+      let mut environment_parser = sflyn_parser::Environment::new();
 
       // Add standard libraries.
-      library::add_libraries(&mut environment);
+      sflyn_parser::library::add_libraries(&mut environment_parser);
 
       // Parse file.
-      let statements = parser.parse_program(&mut environment, false);
+      let statements = parser.parse_program(&mut environment_parser, false);
 
       // Check if the parser contains errors.
       if parser.errors.len() > 0 {
@@ -52,7 +52,14 @@ pub fn main() {
         return;
       }
 
-      sflyn_compiler::evaluator::program(statements, &mut sflyn_compiler::Environment::new());
+      // Create a new environment for the compiler.
+      let mut environment_compiler = sflyn_compiler::Environment::new();
+
+      // Add standard libraries.
+      sflyn_compiler::library::add_libraries(&mut environment_compiler);
+
+      // Compile file.
+      sflyn_compiler::evaluator::program(statements, &mut environment_compiler);
       return;
     }
 
