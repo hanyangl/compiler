@@ -1,4 +1,5 @@
 use crate::Environment;
+use crate::expressions::evaluate;
 
 use sflyn_parser::expressions::Expressions;
 use sflyn_parser::statements::Statements;
@@ -38,6 +39,23 @@ impl Object for AnonymousFunction {
 }
 
 impl AnonymousFunction {
+  pub fn add_arguments_to_environment(
+    arguments: Vec<Box<Expressions>>,
+    environment: &mut Environment,
+  ) {
+    for argument in arguments {
+      let function_argument = argument.get_argument().unwrap();
+
+      if !function_argument.clone().has_default_value() {
+        continue;
+      }
+
+      let value_object = evaluate(function_argument.value, environment);
+
+      environment.set(function_argument.token.value.clone(), value_object);
+    }
+  }
+
   pub fn new(
     has_function: bool,
     arguments: Vec<Box<Expressions>>,

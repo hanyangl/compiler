@@ -45,17 +45,7 @@ pub fn evaluate(
         let function = exp.clone().get_anonymous_function().unwrap();
 
         // Add default arguments
-        for argument in function.arguments.clone() {
-          let function_argument = argument.get_argument().unwrap();
-
-          if !function_argument.clone().has_default_value() {
-            continue;
-          }
-
-          let value_object = evaluate(function_argument.value, environment);
-
-          environment.set(function_argument.token.value.clone(), value_object);
-        }
+        AnonymousFunction::add_arguments_to_environment(function.arguments.clone(), environment);
 
         return AnonymousFunction::new(
           function.token.token.clone().expect_keyword(Keywords::FUNCTION),

@@ -26,7 +26,5 @@ pub fn evaluate(library: Library, environment: &mut Environment) -> Box<Objects>
     return Print::new(value_object.string());
   }
 
-  println!("Option: {:?}\n\nValue: {:?}\n", option_object, value_object);
-
   Error::new(String::from("Unknown"))
 }

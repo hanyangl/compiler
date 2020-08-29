@@ -10,3 +10,9 @@ impl Object for ReturnO {
     self.value.string()
   }
 }
+
+impl ReturnO {
+  pub fn new(value: Box<Objects>) -> Box<Objects> {
+    Box::new(Objects::RETURN(ReturnO { value }))
+  }
+}

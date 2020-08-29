@@ -5,6 +5,8 @@
 ![Forks](https://img.shields.io/github/forks/sflynlang/compiler?style=social)
 
 [![Discord](https://img.shields.io/discord/743142851642261644?label=Discord)](https://discord.gg/zkTMFSr)
+![License](https://img.shields.io/github/license/sflynlang/compiler)
+![Downloads](https://img.shields.io/github/downloads/sflynlang/compiler/total)
 ![Code Size](https://img.shields.io/github/languages/code-size/sflynlang/compiler)
 
 Compiler for the **Sflyn** programming language.
@@ -21,6 +23,6 @@ You must have the `SFLYN_PATH` configured, then run the following command:
 cargo run (file path)
 
 # Examples
-cargo run ../examples/hello_world.sf
-cargo run ../examples/variables/let.sf
+cargo run ./examples/hello_world.sf
+cargo run ./examples/variables/let.sf
 ```

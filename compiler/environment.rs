@@ -41,10 +41,6 @@ impl Environment {
   }
 
   pub fn set(&mut self, name: String, object: Box<Objects>) {
-    if self.has(name.clone()) {
-      return;
-    }
-
     self.store.insert(name, object);
   }
 }

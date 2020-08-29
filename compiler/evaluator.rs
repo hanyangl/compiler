@@ -11,7 +11,13 @@ pub fn program(statements: Vec<Box<Statements>>, environment: &mut Environment) 
         Some(object) => {
           // Check if the object is an error or a print object.
           if object.clone().is_error() || object.clone().is_print() {
-            println!("{}", object.string());
+            let mut return_value = object.string();
+
+            return_value = str::replace(return_value.as_str(), "\\n", "\n");
+            return_value = str::replace(return_value.as_str(), "\\r", "\r");
+            return_value = str::replace(return_value.as_str(), "\\t", "\t");
+
+            println!("{}", return_value);
           }
         },
         None => {},
