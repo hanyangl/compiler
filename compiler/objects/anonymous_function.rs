@@ -40,6 +40,7 @@ impl Object for AnonymousFunction {
 
 impl AnonymousFunction {
   pub fn add_arguments_to_environment(
+    file_name: String,
     arguments: Vec<Box<Expressions>>,
     environment: &mut Environment,
   ) {
@@ -50,7 +51,7 @@ impl AnonymousFunction {
         continue;
       }
 
-      let value_object = evaluate(function_argument.value, environment);
+      let value_object = evaluate(file_name.clone(), function_argument.value, environment);
 
       environment.set(function_argument.token.value.clone(), value_object);
     }

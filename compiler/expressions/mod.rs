@@ -11,13 +11,14 @@ use sflyn_parser::expressions::{Expressions, Expression, Identifier};
 use sflyn_parser::tokens::Keywords;
 
 pub fn evaluate_expressions(
+  file_name: String,
   expressions: Vec<Box<Expressions>>,
   environment: &mut Environment,
 ) -> Vec<Box<Objects>> {
   let mut objects: Vec<Box<Objects>> = Vec::new();
 
   for expression in expressions {
-    let object = evaluate(Some(expression.clone()), environment);
+    let object = evaluate(file_name.clone(), Some(expression.clone()), environment);
 
     // Check if the object is an error.
     if object.clone().is_error() {
@@ -34,6 +35,7 @@ pub fn evaluate_expressions(
 }
 
 pub fn evaluate(
+  file_name: String,
   expression: Option<Box<Expressions>>,
   environment: &mut Environment,
 ) -> Box<Objects> {
@@ -45,7 +47,11 @@ pub fn evaluate(
         let function = exp.clone().get_anonymous_function().unwrap();
 
         // Add default arguments
-        AnonymousFunction::add_arguments_to_environment(function.arguments.clone(), environment);
+        AnonymousFunction::add_arguments_to_environment(
+          file_name.clone(),
+          function.arguments.clone(),
+          environment,
+        );
 
         return AnonymousFunction::new(
           function.token.token.clone().expect_keyword(Keywords::FUNCTION),
@@ -61,6 +67,7 @@ pub fn evaluate(
       // Array
       if exp.clone().is_array() {
         let elements = evaluate_expressions(
+          file_name.clone(),
           exp.clone().get_array().unwrap().data,
           environment,
         );
@@ -78,6 +85,7 @@ pub fn evaluate(
 
         // Evaluate the array name.
         let identifier_object = evaluate(
+          file_name.clone(),
           Some(Identifier::new_box_from_token(array_index.token.clone())),
           environment,
         );
@@ -88,7 +96,7 @@ pub fn evaluate(
         }
 
         // Evaluate the array index.
-        let index_object = evaluate(array_index.index.clone(), environment);
+        let index_object = evaluate(file_name.clone(), array_index.index.clone(), environment);
 
         // Check if the index object is an error.
         if index_object.clone().is_error() {
@@ -120,12 +128,20 @@ pub fn evaluate(
 
       // Call
       if exp.clone().is_call() {
-        return call::evaluate(exp.clone().get_call().unwrap(), environment);
+        return call::evaluate(
+          file_name.clone(),
+          exp.clone().get_call().unwrap(),
+          environment,
+        );
       }
 
       // HashMap
       if exp.clone().is_hashmap() {
-        return hashmap::evaluate(exp.clone().get_hashmap().unwrap(), environment);
+        return hashmap::evaluate(
+          file_name.clone(),
+          exp.clone().get_hashmap().unwrap(),
+          environment,
+        );
       }
 
       // Identifier
@@ -140,12 +156,20 @@ pub fn evaluate(
 
       // Infix
       if exp.clone().is_infix() {
-        return infix::evaluate(exp.clone().get_infix().unwrap(), environment);
+        return infix::evaluate(
+          file_name.clone(),
+          exp.clone().get_infix().unwrap(),
+          environment,
+        );
       }
 
       // Method
       if exp.clone().is_method() {
-        return method::evaluate(exp.clone().get_method().unwrap(), environment);
+        return method::evaluate(
+          file_name.clone(),
+          exp.clone().get_method().unwrap(),
+          environment,
+        );
       }
 
       // Number
@@ -155,7 +179,11 @@ pub fn evaluate(
 
       // Prefix
       if exp.clone().is_prefix() {
-        return prefix::evaluate(exp.clone().get_prefix().unwrap(), environment);
+        return prefix::evaluate(
+          file_name.clone(),
+          exp.clone().get_prefix().unwrap(),
+          environment,
+        );
       }
 
       // String

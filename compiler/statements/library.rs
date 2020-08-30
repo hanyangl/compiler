@@ -4,9 +4,17 @@ use crate::expressions::evaluate as evaluate_expression;
 
 use sflyn_parser::statements::Library;
 
-pub fn evaluate(library: Library, environment: &mut Environment) -> Box<Objects> {
+pub fn evaluate(
+  file_name: String,
+  library: Library,
+  environment: &mut Environment,
+) -> Box<Objects> {
   // Compile option expression.
-  let option_object = evaluate_expression(Some(library.option.clone()), environment);
+  let option_object = evaluate_expression(
+    file_name.clone(),
+    Some(library.option.clone()),
+    environment,
+  );
 
   // Check if the option object is an error.
   if option_object.clone().is_error() {
@@ -14,7 +22,11 @@ pub fn evaluate(library: Library, environment: &mut Environment) -> Box<Objects>
   }
 
   // Compile value expression.
-  let value_object = evaluate_expression(Some(library.value.clone()), environment);
+  let value_object = evaluate_expression(
+    file_name,
+    Some(library.value.clone()),
+    environment,
+  );
 
   // Check if the value object is an error.
   if value_object.clone().is_error() {

@@ -5,11 +5,15 @@ use sflyn_parser::expressions::{Infix, Expression};
 
 use super::evaluate as evaluate_expression;
 
-pub fn evaluate(infix: Infix, environment: &mut Environment) -> Box<Objects> {
+pub fn evaluate(
+  file_name: String,
+  infix: Infix,
+  environment: &mut Environment,
+) -> Box<Objects> {
   let error = Error::new(format!("Unknown infix: {}", infix.clone().string()));
 
   // Evaluate left expression.
-  let left_object = evaluate_expression(infix.left.clone(), environment);
+  let left_object = evaluate_expression(file_name.clone(), infix.left.clone(), environment);
 
   // Check if the left object is an error.
   if left_object.clone().is_error() {
@@ -17,7 +21,7 @@ pub fn evaluate(infix: Infix, environment: &mut Environment) -> Box<Objects> {
   }
 
   // Evaluate right expression.
-  let right_object = evaluate_expression(infix.right.clone(), environment);
+  let right_object = evaluate_expression(file_name.clone(), infix.right.clone(), environment);
 
   // Check if the right object is an error.
   if right_object.clone().is_error() {

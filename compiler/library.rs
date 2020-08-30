@@ -8,7 +8,7 @@ fn add_library(name: &str, environment: &mut Environment) {
   let statements = library::get_library_statements(name);
 
   // Compile statements as standard library.
-  evaluator::program(statements, environment);
+  evaluator::program(name.to_string(), statements, environment);
 }
 
 /// Add standard libraries to the compiler environment.

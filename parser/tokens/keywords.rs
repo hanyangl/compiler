@@ -13,6 +13,14 @@ pub enum Keywords {
   // Boolean
   TRUE,
   FALSE,
+
+  // Alias
+  AS,
+
+  // Modules
+  IMPORT,
+  EXPORT,
+  FROM,
 }
 
 impl TokenType for Keywords {
@@ -33,6 +41,14 @@ impl TokenType for Keywords {
       // Bolean
       "true" => Some(TokenType::new(Keywords::TRUE)),
       "false" => Some(TokenType::new(Keywords::FALSE)),
+
+      // Alias
+      "as" => Some(TokenType::new(Keywords::AS)),
+
+      // Modules
+      "import" => Some(TokenType::new(Keywords::IMPORT)),
+      "export" => Some(TokenType::new(Keywords::EXPORT)),
+      "from" => Some(TokenType::new(Keywords::FROM)),
 
       // Default
       _ => None,

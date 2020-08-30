@@ -2,6 +2,7 @@ mod environment;
 pub mod expressions;
 mod lexer;
 pub mod library;
+pub mod modules;
 pub mod statements;
 pub mod tokens;
 mod parser;

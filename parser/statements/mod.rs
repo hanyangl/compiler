@@ -1,14 +1,18 @@
 mod block;
+mod export;
 mod expression;
 mod function;
+mod import;
 mod library;
 mod return_s;
 mod variable_set;
 mod variable;
 
 pub use block::Block;
+pub use export::Export;
 pub use expression::ExpressionStatement;
 pub use function::Function;
+pub use import::Import;
 pub use library::Library;
 pub use return_s::Return;
 pub use variable_set::VariableSet;
@@ -30,8 +34,10 @@ pub trait Statement {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statements {
   BLOCK(Block),
+  EXPORT(Export),
   EXPRESSION(ExpressionStatement),
   FUNCTION(Function),
+  IMPORT(Import),
   LIBRARY(Library),
   RETURN(Return),
   VARIABLESET(VariableSet),
@@ -49,6 +55,20 @@ impl Statements {
   pub fn is_block(self) -> bool {
     match self {
       Statements::BLOCK(_) => true,
+      _ => false,
+    }
+  }
+
+  pub fn get_export(self) -> Option<Export> {
+    match self {
+      Statements::EXPORT(export) => Some(export),
+      _ => None,
+    }
+  }
+
+  pub fn is_export(self) -> bool {
+    match self {
+      Statements::EXPORT(_) => true,
       _ => false,
     }
   }
@@ -77,6 +97,20 @@ impl Statements {
   pub fn is_function(self) -> bool {
     match self {
       Statements::FUNCTION(_) => true,
+      _ => false,
+    }
+  }
+
+  pub fn get_import(self) -> Option<Import> {
+    match self {
+      Statements::IMPORT(import) => Some(import),
+      _ => None,
+    }
+  }
+
+  pub fn is_import(self) -> bool {
+    match self {
+      Statements::IMPORT(_) => true,
       _ => false,
     }
   }
@@ -140,8 +174,10 @@ impl Statements {
   pub fn string(self) -> String {
     match self {
       Statements::BLOCK(block) => block.string(),
+      Statements::EXPORT(export) => export.string(),
       Statements::EXPRESSION(exp) => exp.string(),
       Statements::FUNCTION(function) => function.string(),
+      Statements::IMPORT(import) => import.string(),
       Statements::LIBRARY(library) => library.string(),
       Statements::RETURN(return_s) => return_s.string(),
       Statements::VARIABLE(variable) => variable.string(),

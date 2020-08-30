@@ -5,9 +5,13 @@ use sflyn_parser::expressions::{Prefix, Expression};
 
 use super::evaluate as evaluate_expression;
 
-pub fn evaluate(prefix: Prefix, environment: &mut Environment) -> Box<Objects> {
+pub fn evaluate(
+  file_name: String,
+  prefix: Prefix,
+  environment: &mut Environment,
+) -> Box<Objects> {
   // Evaluate right expression.
-  let right_object = evaluate_expression(prefix.right.clone(), environment);
+  let right_object = evaluate_expression(file_name, prefix.right.clone(), environment);
 
   // Check if the object is an error.
   if right_object.clone().is_error() {

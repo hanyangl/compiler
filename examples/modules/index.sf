@@ -1,0 +1,9 @@
+import {
+  say_hi,
+  pi,
+  numb,
+} from './core';
+
+log->write(say_hi('Sflyn 2.0'));
+
+log->error(pi + " - " + numb);

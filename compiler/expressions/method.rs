@@ -5,9 +5,13 @@ use sflyn_parser::expressions::Method;
 
 use super::evaluate as evaluate_expression;
 
-pub fn evaluate(method: Method, environment: &mut Environment) -> Box<Objects> {
+pub fn evaluate(
+  file_name: String,
+  method: Method,
+  environment: &mut Environment,
+) -> Box<Objects> {
   // Compile left expression.
-  let left_object = evaluate_expression(method.left, environment);
+  let left_object = evaluate_expression(file_name.clone(), method.left, environment);
 
   // Check if the left object is an error.
   if left_object.clone().is_error() {
@@ -27,7 +31,7 @@ pub fn evaluate(method: Method, environment: &mut Environment) -> Box<Objects> {
   }
 
   // Compile right expression.
-  let right_object = evaluate_expression(method.right, &mut right_environment);
+  let right_object = evaluate_expression(file_name, method.right, &mut right_environment);
 
   // Check if the right object is an error.
   if right_object.clone().is_error() {

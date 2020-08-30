@@ -6,7 +6,11 @@ use sflyn_parser::expressions::Call;
 
 use super::evaluate_expressions;
 
-pub fn evaluate(call: Call, environment: &mut Environment) -> Box<Objects> {
+pub fn evaluate(
+  file_name: String,
+  call: Call,
+  environment: &mut Environment,
+) -> Box<Objects> {
   // Get the function object.
   let function_object = match environment.get(call.token.value.clone()) {
     Some(object) => object,
@@ -19,7 +23,7 @@ pub fn evaluate(call: Call, environment: &mut Environment) -> Box<Objects> {
   }
 
   // Compile arguments.
-  let arguments = evaluate_expressions(call.arguments.clone(), environment);
+  let arguments = evaluate_expressions(file_name.clone(), call.arguments.clone(), environment);
 
   // Check if the first argument is an error.
   if arguments.len() == 1 && arguments[0].clone().is_error() {
@@ -45,7 +49,11 @@ pub fn evaluate(call: Call, environment: &mut Environment) -> Box<Objects> {
       index += 1;
     }
 
-    return match statements::evaluate(anonymous_function.body.clone(),&mut function_environment) {
+    return match statements::evaluate(
+      file_name.clone(),
+      anonymous_function.body.clone(),
+      &mut function_environment,
+    ) {
       Some(object) => object,
       None => Error::new(format!("Unknown statement: {}", anonymous_function.body.string())),
     };

@@ -5,7 +5,7 @@ use super::utils::repeat_character;
 
 #[derive(Debug, Clone)]
 pub struct Parser {
-  lexer: Lexer,
+  pub lexer: Lexer,
   pub errors: Vec<String>,
 
   pub last_token: Token,
@@ -107,15 +107,19 @@ impl Parser {
     environment: &mut Environment,
     standard_library: bool,
   ) -> Option<Box<Statements>> {
-    // Parse variable statement.
-    if self.current_token_is(Keywords::new(Keywords::LET)) ||
-        self.current_token_is(Keywords::new(Keywords::CONST)) {
-      return Variable::parse(self, environment, standard_library);
+    // Parse export statement.
+    if self.current_token_is(Keywords::new(Keywords::EXPORT)) {
+      return Export::parse(self, environment, standard_library);
     }
 
     // Parse function statement.
     if self.current_token_is(Keywords::new(Keywords::FUNCTION)) {
       return Function::parse(self, environment, standard_library);
+    }
+
+    // Parse import statement.
+    if self.current_token_is(Keywords::new(Keywords::IMPORT)) {
+      return Import::parse(self, environment, standard_library);
     }
 
     // Parse return statement.
@@ -128,10 +132,17 @@ impl Parser {
       return Library::parse(self, environment);
     }
 
+    // Parse variable statement.
+    if self.current_token_is(Keywords::new(Keywords::LET)) ||
+        self.current_token_is(Keywords::new(Keywords::CONST)) {
+      return Variable::parse(self, environment, standard_library);
+    }
+
     // Parse variable set statement.
     if self.current_token_is(Box::new(Tokens::IDENTIFIER)) &&
       !self.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) &&
-      !self.next_token_is(Signs::new(Signs::ARROW)) {
+      !self.next_token_is(Signs::new(Signs::ARROW)) &&
+      !self.next_token_is(Signs::new(Signs::SEMICOLON)) {
       return VariableSet::parse(self, environment, standard_library);
     }
 

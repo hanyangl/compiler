@@ -32,7 +32,7 @@ pub fn main() {
       let file_content = fs::read_to_string(file_path).expect("The file does not exists.");
 
       // Create a new lexer.
-      let lexer = sflyn_parser::Lexer::new(file_name, file_content);
+      let lexer = sflyn_parser::Lexer::new(file_name.clone(), file_content);
 
       // Create a new parser.
       let mut parser = sflyn_parser::Parser::new(lexer);
@@ -59,7 +59,7 @@ pub fn main() {
       sflyn_compiler::library::add_libraries(&mut environment_compiler);
 
       // Compile file.
-      sflyn_compiler::evaluator::program(statements, &mut environment_compiler);
+      sflyn_compiler::evaluator::program(file_name, statements, &mut environment_compiler);
       return;
     }
 
