@@ -1,9 +1,17 @@
-use crate::Environment;
-use crate::expressions::{Expressions, Identifier, Argument};
-use crate::Parser;
-use crate::tokens::*;
+use crate::{
+  Argument,
+  Error,
+  Expressions,
+  Identifier,
+  Parser,
+  tokens::*,
+};
 
-use super::{Statements, Statement, Block};
+use super::{
+  Block,
+  Statement,
+  Statements,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Function {
@@ -20,7 +28,7 @@ impl Statement for Function {
       token: Token::new_empty(),
       name: Identifier::new_box(),
       arguments: Vec::new(),
-      data_type: Token::from_value(String::from("void"), 0, 0),
+      data_type: Token::from_value("any", 0, 0),
       body: Block::new_box(),
     }
   }
@@ -53,53 +61,43 @@ impl Statement for Function {
 impl Function {
   pub fn parse<'a>(
     parser: &'a mut Parser,
-    environment: &mut Environment,
     standard_library: bool,
-  ) -> Option<Box<Statements>> {
+    with_this: bool,
+  ) -> Result<Box<Statements>, Error> {
     let mut function: Function = Statement::from_token(parser.current_token.clone());
 
     // Check if the next token is a valid identifier.
     if !parser.expect_token(Box::new(Tokens::IDENTIFIER)) {
-      let line = parser.get_error_line_next_token();
-      let mut message = format!("{} `{}` is not a valid function name.", line, parser.next_token.value.clone());
+      let mut message = format!("`{}` is not a valid function name.", parser.next_token.value.clone());
 
       if parser.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) {
-        message = format!("{} you must enter the function name.", line);
+        message = String::from("you must enter the function name.");
       }
 
-      parser.errors.push(message);
-
-      return None;
+      return Err(Error::from_token(
+        message,
+        parser.next_token.clone(),
+      ));
     }
 
     // Set the function name.
     function.name = Identifier::new_box_from_token(parser.current_token.clone());
 
-    // Check if the name is used.
-    if environment.has_expression(function.name.clone().string()) ||
-      environment.has_statement(function.name.clone().string()) {
-      let line = parser.get_error_line_current_token();
-      parser.errors.push(format!("{} `{}` is already in use.", line, function.name.clone().string()));
-      return None;
-    }
-
     // Check if the next token is a left parentheses.
     if !parser.expect_token(Signs::new(Signs::LEFTPARENTHESES)) {
-      let line = parser.get_error_line_next_token();
-      parser.errors.push(format!("{} expect `(`, got `{}` instead.", line, parser.next_token.value));
-      return None;
+      return Err(Error::from_token(
+        format!("expect `(`, got `{}` instead.", parser.next_token.value.clone()),
+        parser.next_token.clone(),
+      ));
     }
 
-    // Set a new environment for the function.
-    let mut function_environment = Environment::from_environment(environment.clone());
-
     // Parse arguments.
-    match Argument::parse(parser, &mut function_environment, standard_library) {
-      Some(arguments) => {
+    match Argument::parse(parser, standard_library, with_this) {
+      Ok(arguments) => {
         function.arguments = arguments;
       },
-      None => {
-        return None;
+      Err(error) => {
+        return Err(error);
       },
     }
 
@@ -121,9 +119,10 @@ impl Function {
           function.data_type = parser.current_token.clone();
         },
         None => {
-          let line = parser.get_error_line_current_token();
-          parser.errors.push(format!("{} `{}` is not a valid type.", line, parser.current_token.value));
-          return None;
+          return Err(Error::from_token(
+            format!("`{}` is not a valid type.", parser.current_token.value.clone()),
+            parser.current_token.clone(),
+          ));
         },
       }
 
@@ -133,28 +132,23 @@ impl Function {
 
     // Check if the next token is a left brace.
     if !parser.current_token_is(Signs::new(Signs::LEFTBRACE)) {
-      let line = parser.get_error_line_current_token();
-      parser.errors.push(format!("{} expect `{{`, got `{}` instead.", line, parser.current_token.value));
-      return None;
+      return Err(Error::from_token(
+        format!("expect `{{`, got `{}` instead.", parser.current_token.value.clone()),
+        parser.current_token.clone(),
+      ));
     }
 
     // Parse body.
-    match Block::parse(parser, function.data_type.clone(), &mut function_environment, standard_library) {
-      Some(block) => {
-        function.body = block;
+    match Block::parse(parser, standard_library, false, with_this) {
+      Ok(body) => {
+        function.body = body;
       },
-      None => {
-        return None;
+      Err(error) => {
+        return Err(error);
       },
     }
 
-    // Get the function box statement.
-    let function_box = Box::new(Statements::FUNCTION(function.clone()));
-
-    // Set the function to the enviroment.
-    environment.set_statement(function.name.string(), function_box.clone());
-
     // Return function statement.
-    Some(function_box)
+    Ok(Box::new(Statements::FUNCTION(function.clone())))
   }
 }

@@ -1,0 +1,10 @@
+
+internal class Log {
+
+  internal write(message: string): void;
+
+  public error(message: string): void {
+    this.write('[ERROR] ' + message);
+  }
+
+}

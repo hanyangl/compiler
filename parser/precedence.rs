@@ -1,4 +1,7 @@
-use super::tokens::Signs;
+use super::tokens::{
+  Keywords,
+  Signs,
+};
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum Precedence {
@@ -12,9 +15,20 @@ pub enum Precedence {
   CALL = 7,
   INDEX = 8,
   METHOD = 9,
+  ALIAS = 10,
 }
 
 impl Precedence {
+  pub fn from_keyword(keyword: Keywords) -> Precedence {
+    match keyword {
+      // ALIAS
+      Keywords::AS => Precedence::ALIAS,
+
+      // Default
+      _ => Precedence::LOWEST,
+    }
+  }
+
   pub fn from_sign(sign: Signs) -> Precedence {
     match sign {
       // EQUALS
@@ -39,10 +53,14 @@ impl Precedence {
       Signs::MODULE => Precedence::PRODUCT,
 
       // EMPOWERMENT
-      Signs::EMPOWERMENT => Precedence::EMPOWERMENT,
+      Signs::EMPOWERMENT |
+      Signs::CARER => Precedence::EMPOWERMENT,
 
       // CALL
       Signs::LEFTPARENTHESES => Precedence::CALL,
+
+      // Index
+      Signs::LEFTBRACKET => Precedence::INDEX,
 
       // METHOD
       Signs::ARROW => Precedence::METHOD,

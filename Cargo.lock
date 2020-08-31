@@ -4,24 +4,9 @@
 name = "sflyn"
 version = "1.0.0"
 dependencies = [
- "sflyn_compiler",
- "sflyn_parser",
-]
-
-[[package]]
-name = "sflyn_compiler"
-version = "1.0.0"
-dependencies = [
  "sflyn_parser",
 ]
 
 [[package]]
 name = "sflyn_parser"
 version = "1.0.0"
-
-[[package]]
-name = "sflyn_tests"
-version = "1.0.0"
-dependencies = [
- "sflyn_parser",
-]

@@ -1,8 +1,21 @@
-use crate::{Environment, Parser};
-use crate::statements::{Statements, Block};
-use crate::tokens::{Token, Keywords, Signs, TokenType};
+use crate::{
+  Block,
+  Error,
+  Statements,
+  Parser,
+  tokens::{
+    Keywords,
+    Signs,
+    Token,
+  },
+};
 
-use super::{Expressions, Expression, Argument, Call};
+use super::{
+  Argument,
+  Expression,
+  Expressions,
+  parse_type,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AnonymousFunction {
@@ -17,7 +30,7 @@ impl Expression for AnonymousFunction {
     AnonymousFunction {
       token: Token::new_empty(),
       arguments: Vec::new(),
-      data_type: Token::from_value(String::from("void"), 0, 0),
+      data_type: Token::from_value("any", 0, 0),
       body: Block::new_box(),
     }
   }
@@ -54,9 +67,9 @@ impl Expression for AnonymousFunction {
 impl AnonymousFunction {
   pub fn parse<'a>(
     parser: &'a mut Parser,
-    environment: &mut Environment,
     standard_library: bool,
-  ) -> Option<Box<Expressions>> {
+    with_this: bool,
+  ) -> Result<Box<Expressions>, Error> {
     let mut function: AnonymousFunction = Expression::from_token(parser.current_token.clone());
 
     // Check if the current token is a left parentheses.
@@ -65,16 +78,13 @@ impl AnonymousFunction {
       parser.next_token();
     }
 
-    // Set a new environment for the function.
-    let mut function_environment = Environment::from_environment(environment.clone());
-
     // Parse arguments.
-    match Argument::parse(parser, &mut function_environment, standard_library) {
-      Some(arguments) => {
+    match Argument::parse(parser, standard_library, with_this) {
+      Ok(arguments) => {
         function.arguments = arguments;
       },
-      None => {
-        return None;
+      Err(error) => {
+        return Err(error);
       },
     }
 
@@ -90,15 +100,16 @@ impl AnonymousFunction {
       parser.next_token();
 
       // Get the return data type.
-      match parser.current_token.token.clone().get_type() {
-        Some(_) => {
+      match parse_type(parser, false) {
+        Ok(data_type) => {
           // Set the function return data type.
-          function.data_type = parser.current_token.clone();
+          function.data_type = data_type;
         },
-        None => {
-          let line = parser.get_error_line_current_token();
-          parser.errors.push(format!("{} `{}` is not a valid type.", line, parser.current_token.value));
-          return None;
+        Err(_) => {
+          return Err(Error::from_token(
+            String::from("is not a valid type."),
+            parser.current_token.clone(),
+          ));
         },
       }
 
@@ -110,9 +121,10 @@ impl AnonymousFunction {
     if function.token.token.clone().expect_sign(Signs::LEFTPARENTHESES) {
       // Check if the next token is an assign arrow sign.
       if !parser.current_token_is(Signs::new(Signs::ASSIGNARROW)) {
-        let line = parser.get_error_line_current_token();
-        parser.errors.push(format!("{} expect `=>`, got `{}` instead.", line, parser.current_token.value));
-        return None;
+        return Err(Error::from_token(
+          format!("expect `=>`, got `{}` instead.", parser.current_token.value.clone()),
+          parser.current_token.clone(),
+        ));
       }
 
       // Get the next token.
@@ -121,83 +133,22 @@ impl AnonymousFunction {
 
     // Check if the next token is a left brace.
     if !parser.current_token_is(Signs::new(Signs::LEFTBRACE)) {
-      let line = parser.get_error_line_current_token();
-
-      parser.errors.push(format!("{} expect `{{`, got `{}` instead.", line, parser.current_token.value));
-
-      parser.next_token();
-
-      return None;
+      return Err(Error::from_token(
+        format!("expect `{{`, got `{}` instead.", parser.current_token.value.clone()),
+        parser.current_token.clone(),
+      ));
     }
 
     // Parse body.
-    match Block::parse(parser, function.data_type.clone(), &mut function_environment, standard_library) {
-      Some(block) => {
-        function.body = block;
+    match Block::parse(parser, standard_library, false, with_this) {
+      Ok(body) => {
+        function.body = body;
       },
-      None => {
-        return None;
-      },
-    }
-
-    Some(Box::new(Expressions::ANONYMOUSFUNCTION(function)))
-  }
-
-  pub fn get_arguments<'a>(
-    parser: &'a mut Parser,
-    value: Box<Expressions>,
-    call: Call,
-  ) -> Option<(usize, usize, Vec<Token>, Token)> {
-    let mut min_arguments: usize = 0;
-    let mut max_arguments: usize = 0;
-    let mut data_types: Vec<Token> = Vec::new();
-
-    // Get the anonymous function.
-    match value.clone().get_anonymous_function() {
-      // Is an anonymous function.
-      Some(anonymous_function) => {
-        for argument_exp in anonymous_function.arguments.clone() {
-          // Get argument expression.
-          match argument_exp.get_argument() {
-            Some(argument) => {
-              // Add argument data type to the data types list.
-              data_types.push(argument.data_type);
-
-              // Check if the argument has a default value.
-              match argument.value {
-                // With default value.
-                Some(_) => {
-                  max_arguments += 1;
-                },
-                // Without default value.
-                None => {
-                  min_arguments += 1;
-                  max_arguments += 1;
-                },
-              }
-            },
-            None => {
-              println!("TODO(anonymous_function): Without arguments");
-              return None;
-            },
-          }
-        }
-
-        return Some((min_arguments, max_arguments, data_types, anonymous_function.data_type));
-      },
-
-      // Is not an anonymous function.
-      None => {
-        let line = parser.get_error_line(
-          call.token.line - 1,
-          call.token.position - 1,
-          call.token.value.len(),
-        );
-
-        parser.errors.push(format!("{} the identifier is not a function.", line));
-
-        None
+      Err(error) => {
+        return Err(error);
       },
     }
+
+    Ok(Box::new(Expressions::ANONYMOUSFUNCTION(function)))
   }
 }

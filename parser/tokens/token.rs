@@ -15,44 +15,25 @@ impl Token {
   }
 
   pub fn new_empty() -> Token {
-    Token::new(Box::new(Tokens::ILLEGAL), String::new(), 1, 1)
+    Token::new(Box::new(Tokens::ILLEGAL), String::new(), 0, 0)
   }
 
-  pub fn from_value(value: String, line: usize, position: usize) -> Token {
-    let illegal = Box::new(Tokens::ILLEGAL);
-    let mut token = illegal.clone();
+  pub fn from_value(value: &str, line: usize, position: usize) -> Token {
+    let mut token = Box::new(Tokens::ILLEGAL);
 
     // Get keyword
-    if token == illegal {
-      match Keywords::from_value(value.clone()) {
-        Some(keyword) => {
-          token = keyword;
-        },
-        None => {},
-      }
+    if let Ok(keyword) = Keywords::from_value(value) {
+      token = Box::new(Tokens::KEYWORD(keyword));
     }
-
     // Get sign
-    if token == illegal {
-      match Signs::from_value(value.clone()) {
-        Some(sign) => {
-          token = sign;
-        },
-        None => {},
-      }
+    else if let Ok(sign) = Signs::from_value(value) {
+      token = Box::new(Tokens::SIGN(sign));
     }
-
     // Get data type
-    if token == illegal {
-      match Types::from_value(value.clone()) {
-        Some(data_type) => {
-          token = data_type;
-        },
-        None => {},
-      }
+    else if let Ok(data_type) = Types::from_value(value) {
+      token = Box::new(Tokens::TYPE(data_type));
     }
 
-    // Get the new token and return it
-    Token::new(token, value, line, position)
+    Token::new(token, value.to_string(), line, position)
   }
 }

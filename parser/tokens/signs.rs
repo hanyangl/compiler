@@ -1,8 +1,10 @@
-use super::{TokenType, Tokens};
+use super::Tokens;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Signs {
   // Delimeters
+  DOT,
+  DOTDOTDOT,
   COMMA,
   COLON,
   SEMICOLON,
@@ -47,73 +49,83 @@ pub enum Signs {
   MULTIPLY,
   DIVIDE,
   EMPOWERMENT,
+  CARER,
   MODULE,
 
   // Others
-  NEGATION,
+  NOT,
   ARROW,
+  AT,
+  BITOR,
+  BITAND,
 }
 
-impl TokenType for Signs {
-  fn new(sign: Signs) -> Box<Tokens> {
+impl Signs {
+  pub fn new(sign: Signs) -> Box<Tokens> {
     Box::new(Tokens::SIGN(sign))
   }
 
-  fn from_value(value: String) -> Option<Box<Tokens>> {
-    match value.as_str() {
+  pub fn from_value(value: &str) -> Result<Signs, ()> {
+    match value {
       // Delimeters
-      "," => Some(TokenType::new(Signs::COMMA)),
-      ":" => Some(TokenType::new(Signs::COLON)),
-      ";" => Some(TokenType::new(Signs::SEMICOLON)),
+      "." => Ok(Signs::DOT),
+      "..." => Ok(Signs::DOTDOTDOT),
+      "," => Ok(Signs::COMMA),
+      ":" => Ok(Signs::COLON),
+      ";" => Ok(Signs::SEMICOLON),
 
-      "(" => Some(TokenType::new(Signs::LEFTPARENTHESES)),
-      ")" => Some(TokenType::new(Signs::RIGHTPARENTHESES)),
+      "(" => Ok(Signs::LEFTPARENTHESES),
+      ")" => Ok(Signs::RIGHTPARENTHESES),
 
-      "[" => Some(TokenType::new(Signs::LEFTBRACKET)),
-      "]" => Some(TokenType::new(Signs::RIGHTBRACKET)),
+      "[" => Ok(Signs::LEFTBRACKET),
+      "]" => Ok(Signs::RIGHTBRACKET),
 
-      "{" => Some(TokenType::new(Signs::LEFTBRACE)),
-      "}" => Some(TokenType::new(Signs::RIGHTBRACE)),
+      "{" => Ok(Signs::LEFTBRACE),
+      "}" => Ok(Signs::RIGHTBRACE),
 
       // Assign
-      "=" => Some(TokenType::new(Signs::ASSIGN)),
-      "=>" => Some(TokenType::new(Signs::ASSIGNARROW)),
-      "+=" => Some(TokenType::new(Signs::PLUSASSIGN)),
-      "-=" => Some(TokenType::new(Signs::MINUSASSIGN)),
-      "*=" => Some(TokenType::new(Signs::MULTIPLYASSIGN)),
-      "/=" => Some(TokenType::new(Signs::DIVIDEASSIGN)),
+      "=" => Ok(Signs::ASSIGN),
+      "=>" => Ok(Signs::ASSIGNARROW),
+      "+=" => Ok(Signs::PLUSASSIGN),
+      "-=" => Ok(Signs::MINUSASSIGN),
+      "*=" => Ok(Signs::MULTIPLYASSIGN),
+      "/=" => Ok(Signs::DIVIDEASSIGN),
 
-      "++" => Some(TokenType::new(Signs::PLUSPLUS)),
-      "--" => Some(TokenType::new(Signs::MINUSMINUS)),
+      "++" => Ok(Signs::PLUSPLUS),
+      "--" => Ok(Signs::MINUSMINUS),
 
       // Conditions
-      "==" => Some(TokenType::new(Signs::EQUAL)),
-      "===" => Some(TokenType::new(Signs::EQUALTYPE)),
-      "!=" => Some(TokenType::new(Signs::NOTEQUAL)),
-      "!==" => Some(TokenType::new(Signs::NOTEQUALTYPE)),
+      "==" => Ok(Signs::EQUAL),
+      "===" => Ok(Signs::EQUALTYPE),
+      "!=" => Ok(Signs::NOTEQUAL),
+      "!==" => Ok(Signs::NOTEQUALTYPE),
 
-      "<" => Some(TokenType::new(Signs::LESSTHAN)),
-      "<=" => Some(TokenType::new(Signs::LESSOREQUALTHAN)),
-      ">" => Some(TokenType::new(Signs::GREATERTHAN)),
-      ">=" => Some(TokenType::new(Signs::GREATEROREQUALTHAN)),
+      "<" => Ok(Signs::LESSTHAN),
+      "<=" => Ok(Signs::LESSOREQUALTHAN),
+      ">" => Ok(Signs::GREATERTHAN),
+      ">=" => Ok(Signs::GREATEROREQUALTHAN),
 
-      "&&" => Some(TokenType::new(Signs::AND)),
-      "||" => Some(TokenType::new(Signs::OR)),
+      "&&" => Ok(Signs::AND),
+      "||" => Ok(Signs::OR),
 
-      // Maths
-      "+" => Some(TokenType::new(Signs::PLUS)),
-      "-" => Some(TokenType::new(Signs::MINUS)),
-      "*" => Some(TokenType::new(Signs::MULTIPLY)),
-      "/" => Some(TokenType::new(Signs::DIVIDE)),
-      "**" => Some(TokenType::new(Signs::EMPOWERMENT)),
-      "%" => Some(TokenType::new(Signs::MODULE)),
+      // Operators
+      "+" => Ok(Signs::PLUS),
+      "-" => Ok(Signs::MINUS),
+      "*" => Ok(Signs::MULTIPLY),
+      "/" => Ok(Signs::DIVIDE),
+      "**" => Ok(Signs::EMPOWERMENT),
+      "^" => Ok(Signs::CARER),
+      "%" => Ok(Signs::MODULE),
 
       // Others
-      "!" => Some(TokenType::new(Signs::NEGATION)),
-      "->" => Some(TokenType::new(Signs::ARROW)),
+      "!" => Ok(Signs::NOT),
+      "->" => Ok(Signs::ARROW),
+      "@" => Ok(Signs::AT),
+      "|" => Ok(Signs::BITOR),
+      "&" => Ok(Signs::BITAND),
 
       // Default
-      _ => None,
+      _ => Err(()),
     }
   }
 }

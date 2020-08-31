@@ -1,52 +1,84 @@
-use crate::{Environment, Parser};
-use crate::tokens::Token;
+use crate::{
+  Error,
+  Parser,
+  tokens::{
+    Keywords,
+    Signs,
+    Token,
+  },
+};
 
-use super::{Expression, Expressions, parse as parse_expression};
+use super::{
+  Expression,
+  Expressions,
+  Identifier,
+  parse_expression,
+};
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum InfixType {
+  INFIX,
+  ALIAS,
+  METHOD,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Infix {
   pub token: Token,
-  pub left: Option<Box<Expressions>>,
+  pub itype: InfixType,
+  pub left: Box<Expressions>,
   pub operator: String,
-  pub right: Option<Box<Expressions>>,
+  pub right: Box<Expressions>,
 }
 
 impl Expression for Infix {
   fn new() -> Infix {
     Infix {
       token: Token::new_empty(),
-      left: None,
+      itype: InfixType::INFIX,
+      left: Identifier::new_box(),
       operator: String::new(),
-      right: None,
+      right: Identifier::new_box(),
     }
   }
 
   fn from_token(token: Token) -> Infix {
     Infix {
       token: token.clone(),
-      left: None,
+      itype: InfixType::INFIX,
+      left: Identifier::new_box(),
       operator: token.value,
-      right: None,
+      right: Identifier::new_box(),
     }
   }
 
   fn string(self) -> String {
+    let whitespace = if self.clone().is_method() { "" } else { " " };
+
     format!(
-      "{} {} {}",
-      match self.left {
-        Some(left) => left.string(),
-        None => String::new(),
-      },
+      "{}{}{}{}{}",
+      self.left.string(),
+      whitespace,
       self.operator,
-      match self.right {
-        Some(right) => right.string(),
-        None => String::new(),
-      }
+      whitespace,
+      self.right.string(),
     )
   }
 }
 
 impl Infix {
+  pub fn is_infix(self) -> bool {
+    self.itype == InfixType::INFIX
+  }
+
+  pub fn is_alias(self) -> bool {
+    self.itype == InfixType::ALIAS
+  }
+
+  pub fn is_method(self) -> bool {
+    self.itype == InfixType::METHOD
+  }
+
   pub fn new_box() -> Box<Expressions> {
     Box::new(Expressions::INFIX(Expression::new()))
   }
@@ -57,14 +89,23 @@ impl Infix {
 
   pub fn parse<'a>(
     parser: &'a mut Parser,
-    left_expression: Option<Box<Expressions>>,
-    environment: &mut Environment,
+    left_expression: Box<Expressions>,
     standard_library: bool,
-  ) -> Box<Expressions> {
-    let mut exp: Infix = Expression::from_token(parser.current_token.clone());
+    with_this: bool,
+  ) -> Result<Box<Expressions>, Error> {
+    let mut infix: Infix = Expression::from_token(parser.current_token.clone());
+
+    // Check if it is an alias expression.
+    if parser.current_token_is(Keywords::new(Keywords::AS)) {
+      infix.itype = InfixType::ALIAS;
+    }
+    // Check if it is a method expression.
+    else if parser.current_token_is(Signs::new(Signs::ARROW)) {
+      infix.itype = InfixType::METHOD;
+    }
 
     // Set the left expression.
-    exp.left = left_expression;
+    infix.left = left_expression;
 
     // Get the current precedence.
     let precedence = parser.current_precedence();
@@ -73,9 +114,16 @@ impl Infix {
     parser.next_token();
 
     // Set the right expression.
-    exp.right = parse_expression(parser, None, precedence, environment, standard_library);
+    match parse_expression(parser, precedence, standard_library, with_this) {
+      Ok(right) => {
+        infix.right = right;
+      },
+      Err(error) => {
+        return Err(error);
+      },
+    }
 
     // Return the infix expression.
-    Box::new(Expressions::INFIX(exp))
+    Ok(Box::new(Expressions::INFIX(infix)))
   }
 }

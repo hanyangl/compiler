@@ -1,6 +1,9 @@
 use crate::tokens::Token;
 
-use super::{Expression, Expressions};
+use super::{
+  Expression,
+  Expressions,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct StringE {

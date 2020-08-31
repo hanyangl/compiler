@@ -1,7 +1,15 @@
-use crate::Parser;
-use crate::tokens::{Token, Keywords};
+use crate::{
+  Parser,
+  tokens::{
+    Keywords,
+    Token,
+  },
+};
 
-use super::{Expression, Expressions};
+use super::{
+  Expression,
+  Expressions,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Boolean {

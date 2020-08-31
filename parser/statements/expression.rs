@@ -1,36 +1,41 @@
-use crate::Environment;
-use crate::expressions::{Expressions, parse as parse_expression};
-use crate::{Parser, Precedence};
-use crate::tokens::Token;
+use crate::{
+  Error,
+  Expressions,
+  Identifier,
+  parse_expression,
+  Parser,
+  Precedence,
+  tokens::Token,
+};
 
-use super::{Statement, Statements};
+use super::{
+  Statement,
+  Statements,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExpressionStatement {
   pub token: Token,
-  pub expression: Option<Box<Expressions>>,
+  pub expression: Box<Expressions>,
 }
 
 impl Statement for ExpressionStatement {
   fn new() -> ExpressionStatement {
     ExpressionStatement {
       token: Token::new_empty(),
-      expression: None,
+      expression: Identifier::new_box(),
     }
   }
 
   fn from_token(token: Token) -> ExpressionStatement {
     ExpressionStatement {
       token,
-      expression: None,
+      expression: Identifier::new_box(),
     }
   }
 
   fn string(self) -> String {
-    match self.expression {
-      Some(exp) => exp.string(),
-      None => String::new(),
-    }
+    self.expression.string()
   }
 }
 
@@ -41,22 +46,22 @@ impl ExpressionStatement {
 
   pub fn parse<'a>(
     parser: &'a mut Parser,
-    environment: &mut Environment,
     standard_library: bool,
-  ) -> Option<Box<Statements>> {
+    with_this: bool,
+  ) -> Result<Box<Statements>, Error> {
     let mut statement: ExpressionStatement = Statement::from_token(parser.current_token.clone());
 
     // Parse expression.
-    match parse_expression(parser, None, Precedence::LOWEST, environment, standard_library) {
-      Some(expression) => {
-        statement.expression = Some(expression);
+    match parse_expression(parser, Precedence::LOWEST, standard_library, with_this) {
+      Ok(expression) => {
+        statement.expression = expression;
       },
-      None => {
-        return None;
+      Err(error) => {
+        return Err(error);
       },
     }
 
     // Return statement.
-    Some(Box::new(Statements::EXPRESSION(statement)))
+    Ok(Box::new(Statements::EXPRESSION(statement)))
   }
 }

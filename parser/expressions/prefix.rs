@@ -1,13 +1,25 @@
-use crate::{Environment, Parser, Precedence};
-use crate::tokens::{Token, Types, Signs};
+use crate::{
+  Error,
+  Parser,
+  Precedence,
+  tokens::{
+    Keywords,
+    Token,
+  },
+};
 
-use super::{Expression, Expressions, parse as parse_expression};
+use super::{
+  Expression,
+  Expressions,
+  Identifier,
+  parse_expression,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Prefix {
   pub token: Token,
   pub operator: String,
-  pub right: Option<Box<Expressions>>,
+  pub right: Box<Expressions>,
 }
 
 impl Expression for Prefix {
@@ -15,7 +27,7 @@ impl Expression for Prefix {
     Prefix {
       token: Token::new_empty(),
       operator: String::new(),
-      right: None,
+      right: Identifier::new_box(),
     }
   }
 
@@ -23,18 +35,19 @@ impl Expression for Prefix {
     Prefix {
       token: token.clone(),
       operator: token.value,
-      right: None,
+      right: Identifier::new_box(),
     }
   }
 
   fn string(self) -> String {
     format!(
       "{}{}",
-      self.operator,
-      match self.right {
-        Some(right) => right.string(),
-        None => String::new(),
+      if self.token.token.expect_keyword(Keywords::NEW) {
+        format!("{} ", self.operator)
+      } else {
+        self.operator
       },
+      self.right.string(),
     )
   }
 }
@@ -42,45 +55,25 @@ impl Expression for Prefix {
 impl Prefix {
   pub fn parse<'a>(
     parser: &'a mut Parser,
-    environment: &mut Environment,
     standard_library: bool,
-  ) -> Option<Box<Expressions>> {
+    with_this: bool,
+  ) -> Result<Box<Expressions>, Error> {
     let mut prefix: Prefix = Expression::from_token(parser.current_token.clone());
 
     // Get the next token.
     parser.next_token();
 
     // Parse the right expression.
-    prefix.right = parse_expression(parser, None, Precedence::PREFIX, environment, standard_library);
-
-    match prefix.right.clone() {
-      Some(right_exp) => {
-        let data_type = Types::from_expression(right_exp.clone(), environment);
-
-        let line = parser.get_error_line(
-          right_exp.clone().token().line - 1,
-          right_exp.clone().token().position - 1,
-          right_exp.clone().string().len()
-        );
-
-        // Parse negation prefix.
-        if prefix.token.token.clone().expect_sign(Signs::NEGATION) &&
-          !data_type.token.clone().expect_type(Types::BOOLEAN) {
-          parser.errors.push(format!("{} `{}` not satisfied the boolean type.", line, right_exp.string()));
-          return None;
-        }
-
-        // Parse minus prefix.
-        if prefix.token.token.clone().expect_sign(Signs::MINUS) &&
-          !data_type.token.clone().expect_type(Types::NUMBER) {
-          parser.errors.push(format!("{} `{}` not satisfied the number type.", line, right_exp.string()));
-          return None;
-        }
+    match parse_expression(parser, Precedence::PREFIX, standard_library, with_this) {
+      Ok(right) => {
+        prefix.right = right;
       },
-      None => {},
+      Err(error) => {
+        return Err(error);
+      },
     }
 
     // Return the prefix expression.
-    Some(Box::new(Expressions::PREFIX(prefix)))
+    Ok(Box::new(Expressions::PREFIX(prefix)))
   }
 }

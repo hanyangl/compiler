@@ -1,7 +1,13 @@
-use crate::Parser;
-use crate::tokens::Token;
+use crate::{
+  Error,
+  Parser,
+  tokens::Token,
+};
 
-use super::{Expression, Expressions};
+use super::{
+  Expression,
+  Expressions,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Number {
@@ -37,27 +43,25 @@ impl Number {
   pub fn new_box_from_token(token: Token) -> Box<Expressions> {
     let mut number: Number = Expression::from_token(token.clone());
 
-    number.value = match token.value.parse::<f64>() {
-      Ok(value) => value,
-      Err(_) => 0.0,
-    };
+    if let Ok(value) = token.value.parse::<f64>() {
+      number.value = value;
+    }
 
     Box::new(Expressions::NUMBER(number))
   }
 
-  pub fn parse<'a>(parser: &'a mut Parser) -> Option<Box<Expressions>> {
+  pub fn parse<'a>(parser: &'a mut Parser) -> Result<Box<Expressions>, Error> {
     let mut number: Number = Expression::from_token(parser.current_token.clone());
 
     match parser.current_token.value.clone().parse::<f64>() {
       Ok(value) => {
         number.value = value;
-        Some(Box::new(Expressions::NUMBER(number)))
+        Ok(Box::new(Expressions::NUMBER(number)))
       },
-      Err(_) => {
-        let line = parser.get_error_line_current_token();
-        parser.errors.push(format!("{} could not parse `{}` as integer.", line, parser.current_token.value));
-        None
-      },
+      Err(_) => Err(Error::from_token(
+        format!("could not parse `{}` as integer.", parser.current_token.value.clone()),
+        parser.current_token.clone(),
+      )),
     }
   }
 }

@@ -11,6 +11,8 @@
 
 Compiler for the **Sflyn** programming language.
 
+## [Discord Server](https://discord.gg/zkTMFSr)
+
 ## [Documentation](https://github.com/sflynlang/docs)
 
 ## Sflyn path

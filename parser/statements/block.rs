@@ -1,7 +1,14 @@
-use crate::{Environment, Parser};
-use crate::tokens::*;
+use crate::{
+  Error,
+  Parser,
+  tokens::*,
+};
 
-use super::{Statements, Statement};
+use super::{
+  parse_statement,
+  Statement,
+  Statements,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Block {
@@ -46,10 +53,10 @@ impl Block {
 
   pub fn parse<'a>(
     parser: &'a mut Parser,
-    data_type: Token,
-    environment: &mut Environment,
     standard_library: bool,
-  ) -> Option<Box<Statements>> {
+    from_class: bool,
+    with_this: bool,
+  ) -> Result<Box<Statements>, Error> {
     let mut block: Block = Statement::from_token(parser.current_token.clone());
 
     // Get the next token.
@@ -59,34 +66,13 @@ impl Block {
     while !parser.current_token_is(Signs::new(Signs::RIGHTBRACE)) &&
       !parser.current_token_is(Box::new(Tokens::EOF)) {
       // Parse statement
-      match parser.parse_statement(environment, standard_library) {
-        Some(statement) => {
-          // Parse return data type.
-          match statement.clone().get_return() {
-            Some(return_s) => {
-              match data_type.token.clone().get_type() {
-                Some(data_type_token) => {
-                  if !return_s.data_type.token.expect_type(data_type_token) {
-                    let line = parser.get_error_line(
-                      return_s.token.line - 1,
-                      return_s.token.position - 1,
-                      return_s.token.value.len(),
-                    );
-
-                    parser.errors.push(format!("{} the return value not satisfied the {} type.", line, data_type.value));
-
-                    return None;
-                  }
-                },
-                None => {},
-              }
-            },
-            None => {},
-          }
-
+      match parse_statement(parser, standard_library, from_class, with_this) {
+        Ok(statement) => {
           block.statements.push(statement);
         },
-        None => {},
+        Err(error) => {
+          return Err(error);
+        }
       }
 
       // Get the next token.
@@ -94,6 +80,6 @@ impl Block {
     }
 
     // Return the block statement.
-    Some(Box::new(Statements::BLOCK(block)))
+    Ok(Box::new(Statements::BLOCK(block)))
   }
 }

@@ -8,4 +8,5 @@ repository = "https://github.com/sflynlang/compiler"
 edition = "2018"
 
 [lib]
+name = "sflyn_parser"
 path = "lib.rs"

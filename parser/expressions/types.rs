@@ -1,23 +1,48 @@
 use crate::Parser;
 use crate::tokens::*;
 
-pub fn parse<'a>(parser: &'a mut Parser) -> Option<Token> {
-  let current_token = parser.current_token.clone();
+pub fn parse_type<'a>(parser: &'a mut Parser, from_group: bool) -> Result<Token, ()> {
+  let token: Token = if parser.current_token.token.clone().is_type() {
+    parser.current_token.clone()
+  } else {
+    match Group::parse(parser) {
+      Ok(token) => token,
+      Err(code) => if code == 0 {
+        match Function::parse(parser) {
+          Ok(token) => token,
+          Err(code) => if code == 0 {
+            match HashMap::parse(parser) {
+              Ok(token) => token,
+              Err(_) => Token::new_empty(),
+            }
+          } else {
+            Token::new_empty()
+          },
+        }
+      } else {
+        Token::new_empty()
+      },
+    }
+  };
 
-  // Check if the next token is an assign or a right brace.
-  if current_token.token.clone().is_type() && (
-    parser.next_token_is(Signs::new(Signs::ASSIGN)) ||
-    parser.next_token_is(Signs::new(Signs::RIGHTBRACE))
-  ) {
-    return Some(parser.current_token.clone());
+  // Parse arrays.
+  if token.token.clone().is_type() {
+    match Array::parse(parser, token.clone()) {
+      Ok(token) => Ok(token),
+      Err(_) => if from_group {
+        Ok(token)
+      } else {
+        match Group::parse_without_parentheses(parser, token.clone()) {
+          Ok(token) => Ok(token),
+          Err(code) => if code == 0 {
+            Ok(token)
+          } else {
+            Err(())
+          }
+        }
+      },
+    }
+  } else {
+    Err(())
   }
-
-  // Parse `<data_type>[]`
-  if current_token.token.clone().is_type() &&
-    parser.expect_token(Signs::new(Signs::LEFTBRACKET)) &&
-    parser.expect_token(Signs::new(Signs::RIGHTBRACKET)) {
-    return Some(Token::from_value(format!("{}[]", current_token.value), current_token.line, current_token.position));
-  }
-
-  None
 }

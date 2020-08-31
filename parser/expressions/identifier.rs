@@ -1,9 +1,13 @@
 use crate::tokens::Token;
 
-use super::{Expression, Expressions};
+use super::{
+  Expression,
+  Expressions,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Identifier {
+  pub this: Option<Token>,
   pub token: Token,
   pub value: String,
 }
@@ -11,6 +15,7 @@ pub struct Identifier {
 impl Expression for Identifier {
   fn new() -> Identifier {
     Identifier {
+      this: None,
       token: Token::new_empty(),
       value: String::new(),
     }
@@ -18,13 +23,21 @@ impl Expression for Identifier {
 
   fn from_token(token: Token) -> Identifier {
     Identifier {
+      this: None,
       token: token.clone(),
       value: token.value.clone(),
     }
   }
 
   fn string(self) -> String {
-    self.value
+    format!(
+      "{}{}",
+      match self.this {
+        Some(this) => format!("{}.", this.value),
+        None => String::new(),
+      },
+      self.value,
+    )
   }
 }
 
@@ -35,12 +48,5 @@ impl Identifier {
 
   pub fn new_box_from_token(token: Token) -> Box<Expressions> {
     Box::new(Expressions::IDENTIFIER(Expression::from_token(token)))
-  }
-
-  pub fn get(expression: Option<Box<Expressions>>) -> Option<Identifier> {
-    match expression {
-      Some(exp) => exp.get_identifier(),
-      None => None,
-    }
   }
 }

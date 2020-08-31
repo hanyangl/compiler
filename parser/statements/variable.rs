@@ -1,17 +1,18 @@
-use crate::Environment;
-
-use crate::expressions::{
+use crate::{
+  Error,
   Expressions,
   Identifier,
-  parse as parse_expression,
-  types::parse as parse_type,
+  parse_expression,
+  parse_type,
+  Parser,
+  Precedence,
+  tokens::*,
 };
 
-use crate::{Parser, Precedence};
-use crate::tokens::*;
-use crate::types::expression_is_type;
-
-use super::{Statement, Statements};
+use super::{
+  Statement,
+  Statements,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Variable {
@@ -26,7 +27,7 @@ impl Statement for Variable {
     Variable {
       token: Token::new_empty(),
       name: Identifier::new_box(),
-      data_type: Token::new_empty(),
+      data_type: Token::from_value("any", 0, 0),
       value: None,
     }
   }
@@ -40,15 +41,24 @@ impl Statement for Variable {
   }
 
   fn string(self) -> String {
+    let mut value = String::new();
+
+    if let Some(default_value) = self.value {
+      let default_value = default_value.string();
+
+      if default_value.ends_with(";") {
+        value = default_value[..default_value.len() - 1].to_string();
+      } else {
+        value = default_value;
+      }
+    }
+
     format!(
       "{} {}: {} = {};",
       self.token.value,
       self.name.string(),
       self.data_type.value,
-      match self.value {
-        Some(value) => value.string(),
-        None => String::new(),
-      },
+      value,
     )
   }
 }
@@ -60,35 +70,27 @@ impl Variable {
 
   pub fn parse<'a>(
     parser: &'a mut Parser,
-    environment: &mut Environment,
     standard_library: bool,
-  ) -> Option<Box<Statements>> {
+    with_this: bool,
+  ) -> Result<Box<Statements>, Error> {
     let mut variable: Variable = Statement::from_token(parser.current_token.clone());
 
     // Check if the next token is a valid identifier.
     if !parser.expect_token(Box::new(Tokens::IDENTIFIER)) {
-      let line = parser.get_error_line_next_token();
-      let mut message = format!("{} `{}` is not a valid variable name.", line, parser.next_token.value.clone());
+      let mut message = format!("`{}` is not a valid variable name.", parser.next_token.value.clone());
 
       if parser.next_token_is(Signs::new(Signs::COLON)) {
-        message = format!("{} you must enter the variable name.", line);
+        message = String::from("you must enter the variable name.");
       }
 
-      parser.errors.push(message);
-
-      return None;
+      return Err(Error::from_token(
+        message,
+        parser.next_token.clone(),
+      ));
     }
 
     // Set the variable name.
     variable.name = Identifier::new_box_from_token(parser.current_token.clone());
-
-    // Check if the name is used.
-    if environment.has_expression(variable.name.clone().string()) ||
-      environment.has_statement(variable.name.clone().string()) {
-      let line = parser.get_error_line_current_token();
-      parser.errors.push(format!("{} `{}` is already in use.", line, variable.name.clone().string()));
-      return None;
-    }
 
     // Check if the next token is an assign sign.
     if parser.next_token_is(Signs::new(Signs::ASSIGN)) {
@@ -99,104 +101,58 @@ impl Variable {
       parser.next_token();
 
       // Parse current token (Variable value).
-      match parse_expression(parser, None, Precedence::LOWEST, environment, standard_library) {
-        Some(exp) => {
-          variable.data_type = Types::from_expression(exp.clone(), environment);
-
-          if variable.data_type.token.clone().is_illegal() {
-            let mut line = parser.get_error_line_current_token();
-
-            // Parse infix.
-            match exp.clone().get_infix() {
-              Some(infix) => match infix.left.clone() {
-                Some(left) => {
-                  line = parser.get_error_line(
-                    left.clone().token().line - 1,
-                    left.token().position - 1,
-                    exp.clone().string().len()
-                  );
-                },
-                None => {},
-              },
-              None => {},
-            }
-
-            // Parse prefix.
-            match exp.clone().get_prefix() {
-              Some(prefix) => {
-                line = parser.get_error_line(
-                  prefix.token.line - 1,
-                  prefix.token.position - 1,
-                  exp.clone().string().len()
-                );
-              },
-              None => {},
-            }
-
-            // Add error to parser.
-            parser.errors.push(format!("{} is not a valid expression.", line));
-
-            return None;
-          }
-
+      match parse_expression(parser, Precedence::LOWEST, standard_library, with_this) {
+        Ok(exp) => {
           variable.value = Some(exp);
         },
-        None => {},
+        Err(error) => {
+          return Err(error);
+        },
       }
     } else {
       // Check if the next token is a colon.
       if !parser.expect_token(Signs::new(Signs::COLON)) {
-        let line = parser.get_error_line_next_token();
-        parser.errors.push(format!("{} expect `:`, got `{}` instead.", line, parser.next_token.value.clone()));
-        return None;
+        return Err(Error::from_token(
+          format!("expect `:`, got `{}` instead.", parser.next_token.value.clone()),
+          parser.next_token.clone(),
+        ));
       }
 
       // Get the next token.
       parser.next_token();
 
       // Parse type.
-      match parse_type(parser) {
-        Some(data_type) => {
+      match parse_type(parser, false) {
+        Ok(data_type) => {
           // Set the variable type.
           variable.data_type = data_type.clone();
 
           // Check if the next token is an assign sign.
           if !parser.expect_token(Signs::new(Signs::ASSIGN)) {
-            let line = parser.get_error_line_next_token();
-            parser.errors.push(format!("{} expect `=`, got `{}` instead.", line, parser.next_token.value.clone()));
-            return None;
+            return Err(Error::from_token(
+              format!("expect `=`, got `{}` instead.", parser.next_token.value.clone()),
+              parser.next_token.clone(),
+            ));
           }
 
           // Get the next token.
           parser.next_token();
 
           // Parse current token (Variable value).
-          match parse_expression(
-            parser,
-            Some(data_type.clone()),
-            Precedence::LOWEST,
-            environment,
-            standard_library,
-          ) {
-            Some(exp) => {
-              if !expression_is_type(
-                data_type.token.clone().get_type().unwrap(),
-                exp.clone(),
-                environment,
-              ) {
-                let line = parser.get_error_line_current_token();
-                parser.errors.push(format!("{} not satisfied the `{}` type.", line, data_type.value));
-                return None;
-              }
-
+          match parse_expression(parser, Precedence::LOWEST, standard_library, with_this) {
+            Ok(exp) => {
               variable.value = Some(exp);
             },
-            None => {},
+            Err(error) => {
+              return Err(error);
+            },
           }
         },
-        None => {
-          println!("TODO(variable): Parse type");
-          return None;
+        Err(_) => {
+          return Err(Error::from_token(
+            String::from("is not a valid type."),
+            parser.current_token.clone(),
+          ));
         },
       }
     }
@@ -207,12 +163,7 @@ impl Variable {
       parser.next_token();
     }
 
-    let statement_box = Box::new(Statements::VARIABLE(variable.clone()));
-
-    // Set the statement to the environment.
-    environment.set_statement(variable.name.clone().string(), statement_box.clone());
-
     // Return the statement.
-    Some(statement_box)
+    Ok(Box::new(Statements::VARIABLE(variable.clone())))
   }
 }

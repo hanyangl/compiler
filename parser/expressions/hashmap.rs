@@ -1,32 +1,33 @@
-use crate::{Environment, Parser, Precedence};
-use crate::tokens::{Token, Signs, TokenType, Tokens, Types};
+use crate::{
+  Error,
+  Parser,
+  Precedence,
+  tokens::{
+    Signs,
+    Token,
+    Tokens,
+  },
+};
 
-use super::{Expressions, Expression, parse as parse_expression};
+use std::collections::HashMap as HashMapSTD;
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct HashMapItem {
-  pub key: String,
-  pub data_type: Token,
-  pub value: Box<Expressions>,
-}
-
-impl HashMapItem {
-  pub fn string(self) -> String {
-    format!("{}: {}", self.key, self.value.string())
-  }
-}
+use super::{
+  Expression,
+  Expressions,
+  parse_expression,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct HashMap {
   pub token: Token,
-  pub data: Vec<HashMapItem>,
+  pub items: HashMapSTD<String, Box<Expressions>>,
 }
 
 impl Expression for HashMap {
   fn new() -> HashMap {
     HashMap {
       token: Token::new_empty(),
-      data: Vec::new(),
+      items: HashMapSTD::new(),
     }
   }
 
@@ -41,8 +42,8 @@ impl Expression for HashMap {
   fn string(self) -> String {
     let mut values: Vec<String> = Vec::new();
 
-    for data in self.data {
-      values.push(data.string());
+    for (key, value) in self.items {
+      values.push(format!("{}: {}", key, value.string()));
     }
 
     format!("{{\n{}\n}}", values.join(",\n"))
@@ -50,37 +51,11 @@ impl Expression for HashMap {
 }
 
 impl HashMap {
-  pub fn has_key(self, name: String) -> bool {
-    let mut has = false;
-
-    for data in self.data {
-      if data.key == name {
-        has = true;
-        break;
-      }
-    }
-
-    has
-  }
-
-  pub fn get_by_key(self, name: String) -> Option<HashMapItem> {
-    let mut item: Option<HashMapItem> = None;
-
-    for data in self.data {
-      if data.key == name {
-        item = Some(data);
-        break;
-      }
-    }
-
-    item
-  }
-
   pub fn parse<'a>(
     parser: &'a mut Parser,
-    environment: &mut Environment,
-    standard_library: bool, 
-  ) -> Option<Box<Expressions>> {
+    standard_library: bool,
+    with_this: bool,
+  ) -> Result<Box<Expressions>, Error> {
     let mut hashmap: HashMap = Expression::from_token(parser.current_token.clone());
 
     // Check if the next token is a right brace.
@@ -92,9 +67,10 @@ impl HashMap {
     while !parser.current_token_is(Signs::new(Signs::RIGHTBRACE)) {
       // Check if the next token is an identifier or a string.
       if !parser.expect_token(Box::new(Tokens::IDENTIFIER)) {
-        let line = parser.get_error_line_next_token();
-        parser.errors.push(format!("{} is not a valid hashmap key.", line));
-        return None;
+        return Err(Error::from_token(
+          String::from("is not a valid hashmap key."),
+          parser.next_token.clone(),
+        ));
       }
 
       let mut key = parser.current_token.value.clone();
@@ -105,32 +81,32 @@ impl HashMap {
       }
 
       // Check if the key already exists in the HashMap.
-      if hashmap.clone().has_key(key.clone()) {
-        let line = parser.get_error_line_current_token();
-        parser.errors.push(format!("{} the hashmap key is already in use.", line));
-        return None;
+      if hashmap.items.clone().contains_key(&key.clone()) {
+        return Err(Error::from_token(
+          String::from("the hashmap key is already in use."),
+          parser.current_token.clone(),
+        ));
       }
 
       // Check if the next token is a colon.
       if !parser.expect_token(Signs::new(Signs::COLON)) {
-        let line = parser.get_error_line_next_token();
-        parser.errors.push(format!("{} expect `:`, got `{}` instead.", line, parser.next_token.value));
-        return None;
+        return Err(Error::from_token(
+          format!("expect `:`, got `{}` instead.", parser.next_token.value),
+          parser.next_token.clone(),
+        ));
       }
 
       // Get the next token.
       parser.next_token();
 
       // Parse expression.
-      match parse_expression(parser, None, Precedence::LOWEST, environment, standard_library) {
-        Some(expression) => {
-          hashmap.data.push(HashMapItem {
-            key,
-            data_type: Types::from_expression(expression.clone(), environment),
-            value: expression.clone(),
-          });
+      match parse_expression(parser, Precedence::LOWEST, standard_library, with_this) {
+        Ok(expression) => {
+          hashmap.items.insert(key, expression);
         },
-        None => {},
+        Err(error) => {
+          return Err(error);
+        },
       }
 
       // Check if the next token is a comma.
@@ -147,19 +123,6 @@ impl HashMap {
     }
 
     // Return the hashmap expression.
-    Some(Box::new(Expressions::HASHMAP(hashmap)))
-  }
-
-  pub fn get_from_environment(name: String, environment: &mut Environment) -> Option<HashMap> {
-    match environment.get_statement(name) {
-      Some(statement) => match statement.get_variable() {
-        Some(variable) => match variable.value {
-          Some(value) => value.get_hashmap(),
-          None => None,
-        },
-        None => None,
-      },
-      None => None,
-    }
+    Ok(Box::new(Expressions::HASHMAP(hashmap)))
   }
 }

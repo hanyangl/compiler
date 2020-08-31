@@ -1,14 +1,23 @@
-use crate::Environment;
-use crate::expressions::{Expressions, parse as parse_expression};
-use crate::{Parser, Precedence};
-use crate::tokens::{Token, Signs, TokenType, Types};
+use crate::{
+  Error,
+  Expressions,
+  parse_expression,
+  Parser,
+  Precedence,
+  tokens::{
+    Signs,
+    Token,
+  },
+};
 
-use super::{Statement, Statements};
+use super::{
+  Statement,
+  Statements,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Return {
   pub token: Token,
-  pub data_type: Token,
   pub value: Option<Box<Expressions>>,
 }
 
@@ -16,7 +25,6 @@ impl Statement for Return {
   fn new() -> Return {
     Return {
       token: Token::new_empty(),
-      data_type: Token::from_value(String::from("void"), 0, 0),
       value: None,
     }
   }
@@ -44,23 +52,22 @@ impl Statement for Return {
 impl Return {
   pub fn parse<'a>(
     parser: &'a mut Parser,
-    environment: &mut Environment,
     standard_library: bool,
-  ) -> Option<Box<Statements>> {
+    with_this: bool,
+  ) -> Result<Box<Statements>, Error> {
     let mut return_s: Return = Statement::from_token(parser.current_token.clone());
 
     // Get the next token.
     parser.next_token();
 
     // Parse the value.
-    return_s.value = parse_expression(parser, None, Precedence::LOWEST, environment, standard_library);
-
-    // Parse value data type.
-    match return_s.value.clone() {
-      Some(value) => {
-        return_s.data_type = Types::from_expression(value, environment);
+    match parse_expression(parser, Precedence::LOWEST, standard_library, with_this) {
+      Ok(value) => {
+        return_s.value = Some(value);
       },
-      None => {},
+      Err(error) => {
+        return Err(error);
+      },
     }
 
     // Check if the next token is a semicolon.
@@ -69,6 +76,6 @@ impl Return {
       parser.next_token();
     }
 
-    Some(Box::new(Statements::RETURN(return_s)))
+    Ok(Box::new(Statements::RETURN(return_s)))
   }
 }

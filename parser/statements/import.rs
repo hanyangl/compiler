@@ -1,14 +1,27 @@
-use crate::Environment;
-use crate::expressions::{Expressions, StringE, Identifier};
-use crate::{modules, Parser};
-use crate::tokens::*;
+use crate::{
+  Error,
+  Expressions,
+  parse_expression,
+  Parser,
+  Precedence,
+  StringE,
+  tokens::{
+    Keywords,
+    Signs,
+    Token,
+    Tokens,
+  },
+};
 
-use super::{Statement, Statements};
+use super::{
+  Statement,
+  Statements,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Import {
   pub token: Token,
-  pub requires: Vec<Box<Expressions>>,
+  pub modules: Vec<Box<Expressions>>,
   pub path: Box<Expressions>,
 }
 
@@ -16,7 +29,7 @@ impl Statement for Import {
   fn new() -> Import {
     Import {
       token: Token::new_empty(),
-      requires: Vec::new(),
+      modules: Vec::new(),
       path: StringE::new_box(),
     }
   }
@@ -30,32 +43,44 @@ impl Statement for Import {
   }
 
   fn string(self) -> String {
-    let mut requires: Vec<String> = Vec::new();
+    let mut modules: Vec<String> = Vec::new();
 
-    for require in self.requires {
-      requires.push(require.string());
+    for module in self.modules {
+      modules.push(module.string());
     }
 
-    format!(
-      "{} {} from {};",
-      self.token.value,
-      if requires.len() == 1 {
-        requires[0].clone()
-      } else {
-        format!("{{ {} }}", requires.join(", "))
-      },
-      self.path.string(),
-    )
+    if modules.len() == 0 {
+      format!(
+        "{} {};",
+        self.token.value,
+        self.path.string(),
+      )
+    } else if modules.len() == 1 {
+      format!(
+        "{} {} from {};",
+        self.token.value,
+        modules[0].clone(),
+        self.path.string(),
+      )
+    } else {
+      format!(
+        "{} {{\n\t{}\n}} from {};",
+        self.token.value,
+        modules.join(", "),
+        self.path.string(),
+      )
+    }
   }
 }
 
 impl Import {
   pub fn parse<'a>(
     parser: &'a mut Parser,
-    environment: &mut Environment,
     standard_library: bool,
-  ) -> Option<Box<Statements>> {
+    with_this: bool,
+  ) -> Result<Box<Statements>, Error> {
     let mut import: Import = Statement::from_token(parser.current_token.clone());
+    let mut required_from = false;
 
     // Check if the next token is a left brace.
     if parser.expect_token(Signs::new(Signs::LEFTBRACE)) {
@@ -63,14 +88,15 @@ impl Import {
       parser.next_token();
 
       while !parser.current_token_is(Signs::new(Signs::RIGHTBRACE)) {
-        // Check if the current token is an identifier.
-        if !parser.current_token_is(Box::new(Tokens::IDENTIFIER)) {
-          let line = parser.get_error_line_current_token();
-          parser.errors.push(format!("{} is not a valid identifier.", line));
-          return None;
+        // Parse expression.
+        match parse_expression(parser, Precedence::LOWEST, standard_library, with_this) {
+          Ok(expression) => {
+            import.modules.push(expression);
+          },
+          Err(error) => {
+            return Err(error);
+          }
         }
-
-        import.requires.push(Identifier::new_box_from_token(parser.current_token.clone()));
 
         // Check if the next token is a comma.
         if parser.next_token_is(Signs::new(Signs::COMMA)) {
@@ -81,30 +107,43 @@ impl Import {
         // Get the next token.
         parser.next_token();
       }
-    } else {
+
+      required_from = true;
+    }
+    // Check if the next token is not a string.
+    else if !parser.next_token_is(Box::new(Tokens::STRING)) {
       // Get the next token.
       parser.next_token();
+
+      match parse_expression(parser, Precedence::LOWEST, standard_library, with_this) {
+        Ok(expression) => {
+          import.modules.push(expression);
+        },
+        Err(error) => {
+          return Err(error);
+        },
+      }
+
+      required_from = true;
     }
 
-    // Check if the next token is `from`.
-    if !parser.expect_token(Keywords::new(Keywords::FROM)) {
-      let line = parser.get_error_line_next_token();
-      parser.errors.push(format!("{} expect `from`, got `{}` instead,", line, parser.next_token.value));
-      return None;
+    // Check if the next token is `from` when it's required.
+    if required_from && !parser.expect_token(Keywords::new(Keywords::FROM)) {
+      return Err(Error::from_token(
+        format!("expect `from`, got `{}` instead.", parser.next_token.value.clone()),
+        parser.next_token.clone(),
+      ));
     }
 
     // Check if the next token is a string.
     if !parser.expect_token(Box::new(Tokens::STRING)) {
-      let line = parser.get_error_line_next_token();
-      parser.errors.push(format!("{} is not a valid string.", line));
-      return None;
+      return Err(Error::from_token(
+        format!("`{}` is not a valid string.", parser.next_token.value.clone()),
+        parser.next_token.clone(),
+      ));
     }
 
     import.path = StringE::new_box_from_token(parser.current_token.clone());
-
-    if !modules::resolve_path_expression(parser, import.clone(), environment, standard_library) {
-      return None;
-    }
 
     // Check if the next token is a semicolon.
     if parser.next_token_is(Signs::new(Signs::SEMICOLON)) {
@@ -112,6 +151,6 @@ impl Import {
       parser.next_token();
     }
 
-    Some(Box::new(Statements::IMPORT(import)))
+    Ok(Box::new(Statements::IMPORT(import)))
   }
 }

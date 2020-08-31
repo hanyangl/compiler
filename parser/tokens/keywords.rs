@@ -1,10 +1,11 @@
-use super::{TokenType, Tokens};
+use super::Tokens;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Keywords {
   // Variables
   LET,
   CONST,
+  AS,
 
   // Function
   FUNCTION,
@@ -14,44 +15,105 @@ pub enum Keywords {
   TRUE,
   FALSE,
 
-  // Alias
-  AS,
+  // Cycles
+  FOR,
+  IN,
+  OF,
+  WHILE,
+  DO,
+
+  // Conditions
+  IF,
+  ELSE,
+  SWITCH,
+  IS,
+
+  // Classes
+  PUBLIC,
+  PRIVATE,
+  PROTECTED,
+  STATIC,
+  INTERNAL,
+  ABSTRACT,
+  READONLY,
+  CLASS,
+  CONSTRUCTOR,
+  EXTENDS,
+  IMPLEMENTS,
+  THIS,
+  NEW,
 
   // Modules
   IMPORT,
-  EXPORT,
   FROM,
+  EXPORT,
+
+  // Others
+  DEFAULT,
+  INTERFACE,
+  ENUM,
 }
 
-impl TokenType for Keywords {
-  fn new(keyword: Keywords) -> Box<Tokens> {
+impl Keywords {
+  pub fn new(keyword: Keywords) -> Box<Tokens> {
     Box::new(Tokens::KEYWORD(keyword))
   }
 
-  fn from_value(value: String) -> Option<Box<Tokens>> {
-    match value.as_str() {
+  pub fn from_value(value: &str) -> Result<Keywords, ()> {
+    match value {
       // Variables
-      "let" => Some(TokenType::new(Keywords::LET)),
-      "const" => Some(TokenType::new(Keywords::CONST)),
+      "let" => Ok(Keywords::LET),
+      "const" => Ok(Keywords::CONST),
+      "as" => Ok(Keywords::AS),
 
       // Function
-      "function" => Some(TokenType::new(Keywords::FUNCTION)),
-      "return" => Some(TokenType::new(Keywords::RETURN)),
+      "function" => Ok(Keywords::FUNCTION),
+      "return" => Ok(Keywords::RETURN),
 
-      // Bolean
-      "true" => Some(TokenType::new(Keywords::TRUE)),
-      "false" => Some(TokenType::new(Keywords::FALSE)),
+      // Boolean
+      "true" => Ok(Keywords::TRUE),
+      "false" => Ok(Keywords::FALSE),
 
-      // Alias
-      "as" => Some(TokenType::new(Keywords::AS)),
+      // Cycles
+      "for" => Ok(Keywords::FOR),
+      "in" => Ok(Keywords::IN),
+      "of" => Ok(Keywords::OF),
+      "while" => Ok(Keywords::WHILE),
+      "do" => Ok(Keywords::DO),
+
+      // Conditions
+      "if" => Ok(Keywords::IF),
+      "else" => Ok(Keywords::ELSE),
+      "switch" => Ok(Keywords::SWITCH),
+      "is" => Ok(Keywords::IS),
+
+      // Classes
+      "public" => Ok(Keywords::PUBLIC),
+      "private" => Ok(Keywords::PRIVATE),
+      "protected" => Ok(Keywords::PROTECTED),
+      "static" => Ok(Keywords::STATIC),
+      "internal" => Ok(Keywords::INTERNAL),
+      "abstract" => Ok(Keywords::ABSTRACT),
+      "readonly" => Ok(Keywords::READONLY),
+      "class" => Ok(Keywords::CLASS),
+      "constructor" => Ok(Keywords::CONSTRUCTOR),
+      "extends" => Ok(Keywords::EXTENDS),
+      "implements" => Ok(Keywords::IMPLEMENTS),
+      "this" => Ok(Keywords::THIS),
+      "new" => Ok(Keywords::NEW),
 
       // Modules
-      "import" => Some(TokenType::new(Keywords::IMPORT)),
-      "export" => Some(TokenType::new(Keywords::EXPORT)),
-      "from" => Some(TokenType::new(Keywords::FROM)),
+      "import" => Ok(Keywords::IMPORT),
+      "from" => Ok(Keywords::FROM),
+      "export" => Ok(Keywords::EXPORT),
+
+      // Others
+      "default" => Ok(Keywords::DEFAULT),
+      "interface" => Ok(Keywords::INTERFACE),
+      "enum" => Ok(Keywords::ENUM),
 
       // Default
-      _ => None,
+      _ => Err(()),
     }
   }
 }
