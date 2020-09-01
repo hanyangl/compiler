@@ -60,14 +60,17 @@ impl Return {
     // Get the next token.
     parser.next_token();
 
-    // Parse the value.
-    match parse_expression(parser, Precedence::LOWEST, standard_library, with_this) {
-      Ok(value) => {
-        return_s.value = Some(value);
-      },
-      Err(error) => {
-        return Err(error);
-      },
+    // Check if the current token is not a semicolon.
+    if !parser.current_token_is(Signs::new(Signs::SEMICOLON)) {
+      // Parse the value.
+      match parse_expression(parser, Precedence::LOWEST, standard_library, with_this) {
+        Ok(value) => {
+          return_s.value = Some(value);
+        },
+        Err(error) => {
+          return Err(error);
+        },
+      }
     }
 
     // Check if the next token is a semicolon.

@@ -1,0 +1,11 @@
+function say_hi(name: string) {
+  if (name === 'Sflyn' || name === 'Daniel') {
+    log->write('Hello ' + name + '!');
+  } else {
+    log->write('Unknown');
+  }
+}
+
+say_hi('Sflyn');
+say_hi('Daniel');
+say_hi('Sflyn 2');

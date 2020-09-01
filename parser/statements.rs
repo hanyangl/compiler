@@ -5,6 +5,7 @@ mod class_method;
 mod export;
 mod expression;
 mod function;
+mod if_else;
 mod import;
 mod return_s;
 mod statement;
@@ -18,6 +19,7 @@ pub use class_method::*;
 pub use export::*;
 pub use expression::*;
 pub use function::*;
+pub use if_else::*;
 pub use import::*;
 pub use return_s::*;
 pub use statement::*;
@@ -82,6 +84,11 @@ pub fn parse_statement<'a>(
   // Function
   if parser.current_token_is(Keywords::new(Keywords::FUNCTION)) {
     return Function::parse(parser, standard_library, with_this);
+  }
+
+  // If else
+  if parser.current_token_is(Keywords::new(Keywords::IF)) {
+    return IfElse::parse(parser, standard_library, with_this);
   }
 
   // Import

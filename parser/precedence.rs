@@ -15,7 +15,9 @@ pub enum Precedence {
   CALL = 7,
   INDEX = 8,
   METHOD = 9,
-  ALIAS = 10,
+  OR = 10,
+  AND = 11,
+  ALIAS = 12,
 }
 
 impl Precedence {
@@ -64,6 +66,12 @@ impl Precedence {
 
       // METHOD
       Signs::ARROW => Precedence::METHOD,
+
+      // OR
+      Signs::OR => Precedence::OR,
+
+      // And
+      Signs::AND => Precedence::AND,
 
       // LOWEST
       _ => Precedence::LOWEST,

@@ -181,7 +181,9 @@ pub fn parse_expression<'a>(
       parser.next_token_is(Signs::new(Signs::GREATERTHAN)) ||
       parser.next_token_is(Signs::new(Signs::GREATEROREQUALTHAN)) ||
       parser.next_token_is(Keywords::new(Keywords::AS)) ||
-      parser.next_token_is(Signs::new(Signs::ARROW)) {
+      parser.next_token_is(Signs::new(Signs::ARROW)) ||
+      parser.next_token_is(Signs::new(Signs::OR)) ||
+      parser.next_token_is(Signs::new(Signs::AND)) {
       // Get the next token.
       parser.next_token();
 

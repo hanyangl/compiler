@@ -12,12 +12,13 @@ class Sflyn {
     return this.lang;
   }
 
-  public getYear(): number {
+  getYear(): number {
     return this.year;
   }
 
 }
 
-let sflyn = new Sflyn();
+let sflyn = new Sflyn(2020);
 
 log->write(sflyn->getLang());
+log->write(sflyn->getYear());

@@ -22,6 +22,7 @@ pub enum Statements {
   EXPORT(Export),
   EXPRESSION(ExpressionStatement),
   FUNCTION(Function),
+  IFELSE(IfElse),
   IMPORT(Import),
   RETURN(Return),
   VARIABLESET(VariableSet),
@@ -78,6 +79,13 @@ impl Statements {
     }
   }
 
+  pub fn get_if_else(self) -> Option<IfElse> {
+    match self {
+      Statements::IFELSE(if_else) => Some(if_else),
+      _ => None,
+    }
+  }
+
   pub fn get_import(self) -> Option<Import> {
     match self {
       Statements::IMPORT(import) => Some(import),
@@ -115,6 +123,7 @@ impl Statements {
       Statements::EXPORT(export) => export.token,
       Statements::EXPRESSION(expression) => expression.token,
       Statements::FUNCTION(function) => function.token,
+      Statements::IFELSE(if_else) => if_else.token,
       Statements::IMPORT(import) => import.token,
       Statements::RETURN(return_s) => return_s.token,
       Statements::VARIABLE(variable) => variable.token,
@@ -131,6 +140,7 @@ impl Statements {
       Statements::EXPORT(export) => export.string(),
       Statements::EXPRESSION(exp) => exp.string(),
       Statements::FUNCTION(function) => function.string(),
+      Statements::IFELSE(if_else) => if_else.string(),
       Statements::IMPORT(import) => import.string(),
       Statements::RETURN(return_s) => return_s.string(),
       Statements::VARIABLE(variable) => variable.string(),
