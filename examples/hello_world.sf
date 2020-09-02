@@ -1,1 +1,1 @@
-log->write("Hello world!");
+print("Hello world!");

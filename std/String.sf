@@ -1,6 +1,0 @@
-
-internal class String {
-
-  internal readonly length: number;
-
-}

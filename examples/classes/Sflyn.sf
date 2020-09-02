@@ -10,5 +10,5 @@ class Sflyn(
 
 let sflyn = Sflyn(2020);
 
-log->write(sflyn->getName());
-log->write(sflyn->year);
+print(sflyn->getName());
+print(sflyn->year);

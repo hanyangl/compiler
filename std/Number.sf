@@ -1,6 +1,0 @@
-
-internal class Number {
-
-  internal toString(): string;
-
-}

@@ -4,6 +4,6 @@ import {
   numb,
 } from './core';
 
-log->write(say_hi('Sflyn 2.0'));
+print(say_hi('Sflyn 2.0'));
 
-log->error(pi + " - " + numb);
+print(pi + " - " + numb);

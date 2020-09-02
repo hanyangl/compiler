@@ -26,5 +26,5 @@ cargo run (file path)
 
 # Examples
 cargo run ./examples/hello_world.sf
-cargo run ./examples/variables/let.sf
+cargo run ./examples/variables/let_types.sf
 ```

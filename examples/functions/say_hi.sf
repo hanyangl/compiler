@@ -1,8 +1,8 @@
 func say_hi(name: string) {
   if (name === 'Sflyn' || name === 'Daniel') {
-    log->write('Hello ' + name + '!');
+    print('Hello ' + name + '!');
   } else {
-    log->write('Unknown');
+    print('Unknown');
   }
 }
 
