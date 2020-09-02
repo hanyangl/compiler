@@ -23,7 +23,7 @@ pub struct InterfaceMethod {
 impl InterfaceMethod {
   pub fn string(self) -> String {
     format!(
-      "{}: {};",
+      "{}: {}",
       self.token.value,
       self.data_type.value,
     )
@@ -67,7 +67,7 @@ impl Statement for Interface {
       "{} {} {{\n {} \n}}",
       self.token.value,
       self.name.value,
-      methods.join("\n"),
+      methods.join(";\n"),
     )
   }
 }

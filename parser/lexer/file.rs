@@ -3,7 +3,7 @@ use crate::{
   Statements,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct File {
   pub name: String,
   pub content: String,

@@ -2,7 +2,6 @@ use crate::{
   Argument,
   Error,
   Expressions,
-  Identifier,
   Parser,
   tokens::*,
 };
@@ -16,7 +15,7 @@ use super::{
 #[derive(Debug, Clone, PartialEq)]
 pub struct Function {
   pub token: Token,
-  pub name: Box<Expressions>,
+  pub name: Token,
   pub arguments: Vec<Box<Expressions>>,
   pub data_type: Token,
   pub body: Box<Statements>,
@@ -26,9 +25,9 @@ impl Statement for Function {
   fn new() -> Function {
     Function {
       token: Token::new_empty(),
-      name: Identifier::new_box(),
+      name: Token::new_empty(),
       arguments: Vec::new(),
-      data_type: Token::from_value("any", 0, 0),
+      data_type: Token::from_value("void", 0, 0),
       body: Block::new_box(),
     }
   }
@@ -50,7 +49,7 @@ impl Statement for Function {
 
     format!(
       "function {}({}): {} {}",
-      self.name.string(),
+      self.name.value,
       arguments.join(", "),
       self.data_type.value,
       self.body.string(),
@@ -81,7 +80,7 @@ impl Function {
     }
 
     // Set the function name.
-    function.name = Identifier::new_box_from_token(parser.current_token.clone());
+    function.name = parser.current_token.clone();
 
     // Check if the next token is a left parentheses.
     if !parser.expect_token(Signs::new(Signs::LEFTPARENTHESES)) {

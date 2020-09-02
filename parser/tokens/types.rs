@@ -12,7 +12,6 @@ pub use hashmap::HashMap;
 pub enum Types {
   ANY,
   NULL,
-  UNDEFINED,
   STRING,
   NUMBER,
   BOOLEAN,
@@ -32,13 +31,6 @@ impl Types {
     }
   }
 
-  pub fn is_array(self) -> bool {
-    match self {
-      Types::ARRAY(_) => true,
-      _ => false,
-    }
-  }
-
   pub fn get_function(self) -> Option<Function> {
     match self {
       Types::FUNCTION(function) => Some(function),
@@ -46,10 +38,17 @@ impl Types {
     }
   }
 
-  pub fn is_function(self) -> bool {
+  pub fn get_group(self) -> Option<Group> {
     match self {
-      Types::FUNCTION(_) => true,
-      _ => false,
+      Types::GROUP(group) => Some(group),
+      _ => None,
+    }
+  }
+
+  pub fn get_hashmap(self) -> Option<HashMap> {
+    match self {
+      Types::HASHMAP(hashmap) => Some(hashmap),
+      _ => None,
     }
   }
 
@@ -77,7 +76,6 @@ impl Types {
     match value {
       "any" => Ok(Types::ANY),
       "null" => Ok(Types::NULL),
-      "undefined" => Ok(Types::UNDEFINED),
       "string" => Ok(Types::STRING),
       "number" => Ok(Types::NUMBER),
       "boolean" => Ok(Types::BOOLEAN),

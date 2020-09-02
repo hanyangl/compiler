@@ -96,14 +96,6 @@ impl Tokens {
     }
   }
 
-  /// Check if the token is a type token.
-  pub fn is_type(self) -> bool {
-    match self {
-      Tokens::TYPE(_) => true,
-      _ => false,
-    }
-  }
-
   /// Check if the token is a specific type token.
   pub fn expect_type(self, expect: Types) -> bool {
     match self {

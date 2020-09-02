@@ -1,4 +1,9 @@
-use super::{Environment, utils::repeat_character};
+use super::{
+  compiler,
+  Environment,
+  error::show_error,
+  typechecker,
+};
 
 pub fn start() -> i32 {
   let mut environment = Environment::new();
@@ -8,30 +13,24 @@ pub fn start() -> i32 {
     return 0;
   }
 
-  match sflyn_parser::run(environment.arguments.file) {
+  match sflyn_parser::run(environment.arguments.file.clone()) {
     Ok(file) => {
-      environment.files.push(file.clone());
+      let mut file = file.clone();
 
-      println!("File parsed!");
+      if file.statements.len() > 0 {
+        if let Err(_) = typechecker::run(&mut file, &mut environment) {
+          return 1;
+        }
+
+        compiler::run(file.clone(), &mut environment);
+      }
+
+      environment.files.push(file.clone());
     },
 
     Err((error, file)) => {
-      if error.line == 0 {
-        println!("{}", error.message);
-      } else if let Some(file) = file {
-        let line = file.get_lines()[error.line - 1].clone();
-
-        println!(
-          "{} | {}\n{} | {}{} {}",
-          error.line,
-          line,
-          repeat_character(error.line.to_string().len(), " "),
-          repeat_character(error.start_position - 1, " "),
-          repeat_character(error.end_position - error.start_position, "^"),
-          error.message,
-        );
-      } else {
-        println!("{}", error.message);
+      if let Some(file) = file {
+        show_error(file, error);
       }
 
       return 1;

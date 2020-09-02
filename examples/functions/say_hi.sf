@@ -1,4 +1,4 @@
-function say_hi(name: string) {
+func say_hi(name: string) {
   if (name === 'Sflyn' || name === 'Daniel') {
     log->write('Hello ' + name + '!');
   } else {

@@ -61,7 +61,7 @@ impl Keywords {
       "as" => Ok(Keywords::AS),
 
       // Function
-      "function" => Ok(Keywords::FUNCTION),
+      "func" => Ok(Keywords::FUNCTION),
       "return" => Ok(Keywords::RETURN),
 
       // Boolean

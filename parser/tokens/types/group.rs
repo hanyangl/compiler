@@ -41,6 +41,20 @@ impl Group {
     Ok(group)
   }
 
+  pub fn get_types_strings(self) -> Vec<String> {
+    let mut types: Vec<String> = Vec::new();
+
+    for data_type in self.types {
+      types.push(data_type.value);
+    }
+
+    types
+  }
+
+  pub fn has_type(self, data_type: String) -> bool {
+    self.get_types_strings().contains(&data_type)
+  }
+
   pub fn parse<'a>(parser: &'a mut Parser) -> Result<Token, i32> {
     if !parser.current_token_is(Signs::new(Signs::LEFTPARENTHESES)) ||
       parser.next_token_is(Box::new(Tokens::IDENTIFIER)) ||

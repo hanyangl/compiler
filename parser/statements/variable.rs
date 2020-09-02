@@ -1,7 +1,6 @@
 use crate::{
   Error,
   Expressions,
-  Identifier,
   parse_expression,
   parse_type,
   Parser,
@@ -17,7 +16,7 @@ use super::{
 #[derive(Debug, Clone, PartialEq)]
 pub struct Variable {
   pub token: Token,
-  pub name: Box<Expressions>,
+  pub name: Token,
   pub data_type: Token,
   pub value: Option<Box<Expressions>>,
 }
@@ -26,7 +25,7 @@ impl Statement for Variable {
   fn new() -> Variable {
     Variable {
       token: Token::new_empty(),
-      name: Identifier::new_box(),
+      name: Token::new_empty(),
       data_type: Token::from_value("any", 0, 0),
       value: None,
     }
@@ -56,7 +55,7 @@ impl Statement for Variable {
     format!(
       "{} {}: {} = {};",
       self.token.value,
-      self.name.string(),
+      self.name.value,
       self.data_type.value,
       value,
     )
@@ -90,7 +89,7 @@ impl Variable {
     }
 
     // Set the variable name.
-    variable.name = Identifier::new_box_from_token(parser.current_token.clone());
+    variable.name = parser.current_token.clone();
 
     // Check if the next token is an assign sign.
     if parser.next_token_is(Signs::new(Signs::ASSIGN)) {

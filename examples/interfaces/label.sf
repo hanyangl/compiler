@@ -4,12 +4,10 @@ interface LabeledValue {
   label: string;
 }
 
-function printLabel(
+func printLabel(
   labeledObj: LabeledValue,
 ) {
-  log->write(
-    labeledObj->label
-  );
+  print(labeledObj->label);
 }
 
 let myObj = {
