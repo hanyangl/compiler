@@ -75,8 +75,7 @@ pub fn parse_expression<'a>(
 
   // Parse prefixes.
   if current_token.token.clone().expect_sign(Signs::NOT) ||
-    current_token.token.clone().expect_sign(Signs::MINUS) ||
-    current_token.token.clone().expect_keyword(Keywords::NEW) {
+    current_token.token.clone().expect_sign(Signs::MINUS) {
     expression = Prefix::parse(parser, standard_library, with_this);
   }
 

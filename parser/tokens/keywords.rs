@@ -32,16 +32,10 @@ pub enum Keywords {
   PUBLIC,
   PRIVATE,
   PROTECTED,
-  STATIC,
   INTERNAL,
-  ABSTRACT,
   READONLY,
   CLASS,
-  CONSTRUCTOR,
-  EXTENDS,
-  IMPLEMENTS,
   THIS,
-  NEW,
 
   // Modules
   IMPORT,
@@ -91,16 +85,10 @@ impl Keywords {
       "public" => Ok(Keywords::PUBLIC),
       "private" => Ok(Keywords::PRIVATE),
       "protected" => Ok(Keywords::PROTECTED),
-      "static" => Ok(Keywords::STATIC),
       "internal" => Ok(Keywords::INTERNAL),
-      "abstract" => Ok(Keywords::ABSTRACT),
       "readonly" => Ok(Keywords::READONLY),
       "class" => Ok(Keywords::CLASS),
-      "constructor" => Ok(Keywords::CONSTRUCTOR),
-      "extends" => Ok(Keywords::EXTENDS),
-      "implements" => Ok(Keywords::IMPLEMENTS),
       "this" => Ok(Keywords::THIS),
-      "new" => Ok(Keywords::NEW),
 
       // Modules
       "import" => Ok(Keywords::IMPORT),

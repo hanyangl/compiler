@@ -2,10 +2,7 @@ use crate::{
   Error,
   Parser,
   Precedence,
-  tokens::{
-    Keywords,
-    Token,
-  },
+  tokens::Token,
 };
 
 use super::{
@@ -42,11 +39,7 @@ impl Expression for Prefix {
   fn string(self) -> String {
     format!(
       "{}{}",
-      if self.token.token.expect_keyword(Keywords::NEW) {
-        format!("{} ", self.operator)
-      } else {
-        self.operator
-      },
+      self.operator,
       self.right.string(),
     )
   }

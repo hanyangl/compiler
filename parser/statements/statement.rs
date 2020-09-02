@@ -16,14 +16,12 @@ pub trait Statement {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statements {
   BLOCK(Block),
-  CLASS(Class),
-  CLASSCONSTRUCTOR(ClassConstructor),
-  CLASSMETHOD(ClassMethod),
   EXPORT(Export),
   EXPRESSION(ExpressionStatement),
   FUNCTION(Function),
   IFELSE(IfElse),
   IMPORT(Import),
+  INTERFACE(Interface),
   RETURN(Return),
   VARIABLESET(VariableSet),
   VARIABLE(Variable),
@@ -33,27 +31,6 @@ impl Statements {
   pub fn get_block(self) -> Option<Block> {
     match self {
       Statements::BLOCK(block) => Some(block),
-      _ => None,
-    }
-  }
-
-  pub fn get_class(self) -> Option<Class> {
-    match self {
-      Statements::CLASS(class) => Some(class),
-      _ => None,
-    }
-  }
-
-  pub fn get_class_constructor(self) -> Option<ClassConstructor> {
-    match self {
-      Statements::CLASSCONSTRUCTOR(class_constructor) => Some(class_constructor),
-      _ => None,
-    }
-  }
-
-  pub fn get_class_method(self) -> Option<ClassMethod> {
-    match self {
-      Statements::CLASSMETHOD(class_method) => Some(class_method),
       _ => None,
     }
   }
@@ -93,6 +70,13 @@ impl Statements {
     }
   }
 
+  pub fn get_interface(self) -> Option<Interface> {
+    match self {
+      Statements::INTERFACE(interface) => Some(interface),
+      _ => None,
+    }
+  }
+
   pub fn get_return(self) -> Option<Return> {
     match self {
       Statements::RETURN(return_s) => Some(return_s),
@@ -117,14 +101,12 @@ impl Statements {
   pub fn token(self) -> Token {
     match self {
       Statements::BLOCK(block) => block.token,
-      Statements::CLASS(class) => class.token,
-      Statements::CLASSCONSTRUCTOR(class_constructor) => class_constructor.token,
-      Statements::CLASSMETHOD(class_method) => class_method.token,
       Statements::EXPORT(export) => export.token,
       Statements::EXPRESSION(expression) => expression.token,
       Statements::FUNCTION(function) => function.token,
       Statements::IFELSE(if_else) => if_else.token,
       Statements::IMPORT(import) => import.token,
+      Statements::INTERFACE(interface) => interface.token,
       Statements::RETURN(return_s) => return_s.token,
       Statements::VARIABLE(variable) => variable.token,
       Statements::VARIABLESET(variable_set) => variable_set.token,
@@ -134,14 +116,12 @@ impl Statements {
   pub fn string(self) -> String {
     match self {
       Statements::BLOCK(block) => block.string(),
-      Statements::CLASS(class) => class.string(),
-      Statements::CLASSCONSTRUCTOR(class_constructor) => class_constructor.string(),
-      Statements::CLASSMETHOD(class_method) => class_method.string(),
       Statements::EXPORT(export) => export.string(),
       Statements::EXPRESSION(exp) => exp.string(),
       Statements::FUNCTION(function) => function.string(),
       Statements::IFELSE(if_else) => if_else.string(),
       Statements::IMPORT(import) => import.string(),
+      Statements::INTERFACE(interface) => interface.string(),
       Statements::RETURN(return_s) => return_s.string(),
       Statements::VARIABLE(variable) => variable.string(),
       Statements::VARIABLESET(variable_set) => variable_set.string(),

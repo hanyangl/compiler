@@ -1,24 +1,14 @@
-class Sflyn {
+class Sflyn(
+  year: number,
+) {
 
-  private readonly lang: string;
-
-  constructor(
-    private year: number,
-  ) {
-    this.lang = 'Sflyn';
-  }
-
-  public getLang(): string {
-    return this.lang;
-  }
-
-  getYear(): number {
-    return this.year;
+  getName(): string {
+    return "Sflyn";
   }
 
 }
 
-let sflyn = new Sflyn(2020);
+let sflyn = Sflyn(2020);
 
-log->write(sflyn->getLang());
-log->write(sflyn->getYear());
+log->write(sflyn->getName());
+log->write(sflyn->year);

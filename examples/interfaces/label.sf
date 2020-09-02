@@ -1,0 +1,20 @@
+// This example is thanks to TypeScript Handbook
+
+interface LabeledValue {
+  label: string;
+}
+
+function printLabel(
+  labeledObj: LabeledValue,
+) {
+  log->write(
+    labeledObj->label
+  );
+}
+
+let myObj = {
+  size: 10,
+  label: 'Size 10 Object',
+};
+
+printLabel(myObj);

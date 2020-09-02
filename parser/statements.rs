@@ -1,26 +1,22 @@
 mod block;
-mod class;
-mod class_constructor;
-mod class_method;
 mod export;
 mod expression;
 mod function;
 mod if_else;
 mod import;
+mod interface;
 mod return_s;
 mod statement;
 mod variable;
 mod variable_set;
 
 pub use block::*;
-pub use class::*;
-pub use class_constructor::*;
-pub use class_method::*;
 pub use export::*;
 pub use expression::*;
 pub use function::*;
 pub use if_else::*;
 pub use import::*;
+pub use interface::*;
 pub use return_s::*;
 pub use statement::*;
 pub use variable::*;
@@ -32,7 +28,6 @@ use super::{
   tokens::{
     Keywords,
     Signs,
-    Token,
     Tokens,
   },
 };
@@ -40,40 +35,9 @@ use super::{
 pub fn parse_statement<'a>(
   parser: &'a mut Parser,
   standard_library: bool,
-  from_class: bool,
+  _from_class: bool,
   with_this: bool,
 ) -> Result<Box<Statements>, Error> {
-  // Abstract
-  if parser.current_token_is(Keywords::new(Keywords::ABSTRACT)) {
-    // Class
-    if parser.next_token_is(Keywords::new(Keywords::CLASS)) {
-      return Class::parse(parser, standard_library, with_this);
-    }
-
-    // Class method.
-    if parser.next_token_is(Box::new(Tokens::IDENTIFIER)) {
-      return ClassMethod::parse(parser, standard_library, None, with_this);
-    }
-  }
-
-  // Class
-  if parser.current_token_is(Keywords::new(Keywords::CLASS)) {
-    return Class::parse(parser, standard_library, with_this);
-  }
-
-  // Constructor
-  if parser.current_token_is(Keywords::new(Keywords::CONSTRUCTOR)) {
-    // Check if the constructor is in a class.
-    if !from_class {
-      return Err(Error::from_token(
-        String::from("can not build a constructor here."),
-        parser.current_token.clone(),
-      ));
-    }
-
-    return ClassConstructor::parse(parser, standard_library, with_this);
-  }
-
   // Enum
 
   // Export
@@ -97,98 +61,8 @@ pub fn parse_statement<'a>(
   }
 
   // Interface
-
-  // Internal
-  if parser.current_token_is(Keywords::new(Keywords::INTERNAL)) {
-    // Check if is on the standard library.
-    if !standard_library {
-      return Err(Error::from_token(
-        String::from("the internal property only can be used by the standard library."),
-        parser.current_token.clone(),
-      ));
-    }
-
-    // Class
-    if parser.next_token_is(Keywords::new(Keywords::CLASS)) {
-      return Class::parse(parser, standard_library, with_this);
-    }
-  }
-
-  // Private
-  if parser.current_token_is(Keywords::new(Keywords::PRIVATE)) {
-    let mut primary_token: Option<Token> = None;
-
-    // Readonly or abstract
-    if parser.next_token_is(Keywords::new(Keywords::READONLY)) ||
-      parser.next_token_is(Keywords::new(Keywords::ABSTRACT)) {
-      // Set the primary token.
-      primary_token = Some(parser.current_token.clone());
-
-      // Get the next token.
-      parser.next_token();
-    }
-
-    // Class
-    if parser.next_token_is(Keywords::new(Keywords::CLASS)) {
-      return Class::parse(parser, standard_library, with_this);
-    }
-
-    // Class method.
-    if parser.next_token_is(Box::new(Tokens::IDENTIFIER)) {
-      return ClassMethod::parse(parser, standard_library, primary_token, with_this);
-    }
-  }
-
-  // Protected
-  if parser.current_token_is(Keywords::new(Keywords::PROTECTED)) {
-    if !from_class {
-      return Err(Error::from_token(
-        String::from("can not use `protected` here."),
-        parser.current_token.clone(),
-      ));
-    }
-
-    let mut primary_token: Option<Token> = None;
-
-    // Readonly or abstract
-    if parser.next_token_is(Keywords::new(Keywords::READONLY)) ||
-      parser.next_token_is(Keywords::new(Keywords::ABSTRACT)) {
-      // Set the primary token.
-      primary_token = Some(parser.current_token.clone());
-
-      // Get the next token.
-      parser.next_token();
-    }
-
-    // Class method.
-    if parser.next_token_is(Box::new(Tokens::IDENTIFIER)) {
-      return ClassMethod::parse(parser, standard_library, primary_token, with_this);
-    }
-  }
-
-  // Public
-  if parser.current_token_is(Keywords::new(Keywords::PUBLIC)) {
-    let mut primary_token: Option<Token> = None;
-
-    // Readonly or abstract
-    if parser.next_token_is(Keywords::new(Keywords::READONLY)) ||
-      parser.next_token_is(Keywords::new(Keywords::ABSTRACT)) {
-      // Set the primary token.
-      primary_token = Some(parser.current_token.clone());
-
-      // Get the next token.
-      parser.next_token();
-    }
-
-    // Class
-    if parser.next_token_is(Keywords::new(Keywords::CLASS)) {
-      return Class::parse(parser, standard_library, with_this);
-    }
-
-    // Class method.
-    if parser.next_token_is(Box::new(Tokens::IDENTIFIER)) {
-      return ClassMethod::parse(parser, standard_library, primary_token, with_this);
-    }
+  if parser.current_token_is(Keywords::new(Keywords::INTERFACE)) {
+    return Interface::parse(parser, standard_library, with_this);
   }
 
   // Return

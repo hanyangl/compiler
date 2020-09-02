@@ -2,7 +2,7 @@ use crate::Parser;
 use crate::tokens::*;
 
 pub fn parse_type<'a>(parser: &'a mut Parser, from_group: bool) -> Result<Token, ()> {
-  let token: Token = if parser.current_token.token.clone().is_type() {
+  let mut token: Token = if parser.current_token.token.clone().is_type() {
     parser.current_token.clone()
   } else {
     match Group::parse(parser) {
@@ -24,6 +24,16 @@ pub fn parse_type<'a>(parser: &'a mut Parser, from_group: bool) -> Result<Token,
       },
     }
   };
+
+  // Parse identifiers as any.
+  if token.token.clone().is_illegal() &&
+    parser.current_token_is(Box::new(Tokens::IDENTIFIER)) {
+    token = Token::from_value(
+      "any",
+      parser.current_token.line,
+      parser.current_token.position,
+    );
+  }
 
   // Parse arrays.
   if token.token.clone().is_type() {
