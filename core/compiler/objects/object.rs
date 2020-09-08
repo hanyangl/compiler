@@ -25,7 +25,6 @@ pub enum Objects {
   NUMBER(Number),
   RETURN(ReturnO),
   STRING(StringO),
-  UNDEFINED(Undefined),
 }
 
 impl Objects {
@@ -106,13 +105,6 @@ impl Objects {
     }
   }
 
-  pub fn get_undefined(self) -> Option<Undefined> {
-    match self {
-      Objects::UNDEFINED(undefined) => Some(undefined),
-      _ => None,
-    }
-  }
-
   pub fn get_hashkey(self) -> Option<HashKey> {
     match self {
       Objects::BOOLEAN(boolean) => Some(boolean.get_hashkey()),
@@ -133,7 +125,6 @@ impl Objects {
       Objects::NUMBER(number) => number.string(),
       Objects::RETURN(return_o) => return_o.string(),
       Objects::STRING(string) => string.string(),
-      Objects::UNDEFINED(undefined) => undefined.string(),
       _ => String::new(),
     }
   }

@@ -9,7 +9,6 @@ mod number;
 mod object;
 mod return_o;
 mod string_o;
-mod undefined;
 
 pub use anonymous_function::*;
 pub use array::*;
@@ -22,4 +21,3 @@ pub use number::*;
 pub use object::*;
 pub use return_o::*;
 pub use string_o::*;
-pub use undefined::*;

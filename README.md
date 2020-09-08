@@ -1,4 +1,6 @@
 # Sflyn Compiler
+![Build State](https://img.shields.io/github/workflow/status/sflynlang/compiler/Rust%20CI)
+![Last Release](https://img.shields.io/github/v/release/sflynlang/compiler)
 
 [![Twitter](https://img.shields.io/twitter/follow/sflynlang?style=social)](https://twitter.com/sflynlang)
 ![Stars](https://img.shields.io/github/stars/sflynlang/compiler?style=social)
@@ -12,8 +14,6 @@
 Compiler for the **Sflyn** programming language.
 
 ## [Discord Server](https://discord.gg/zkTMFSr)
-
-## [Documentation](https://github.com/sflynlang/docs)
 
 ## Sflyn path
 You need set the root directory in the `SFLYN_PATH` environment variable. In this directory you need put the standard library in a directory called `std`. For example, if you `SFLYN_PATH` is `/home/sflyn/.sflyn/`, the standard library must be in `/home/sflyn/.sflyn/std/`.

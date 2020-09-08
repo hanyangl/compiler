@@ -21,7 +21,13 @@ pub fn print(token: Token, arguments: Vec<Box<Objects>>) -> Box<Objects> {
   let stdout = io::stdout();
   let mut handle = stdout.lock();
 
-  handle.write(arguments[0].clone().string().as_bytes()).unwrap();
+  let string =
+    arguments[0].clone().string()
+      .replace("\\r", "\r")
+      .replace("\\n", "\n")
+      .replace("\\t", "\t");
+
+  handle.write(string.as_bytes()).unwrap();
   handle.write(b"\n").unwrap();
 
   arguments[0].clone()

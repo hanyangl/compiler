@@ -10,6 +10,7 @@ use crate::{
     builtins::get_builtin_for_identifier,
     Boolean,
     Error,
+    Null,
     Number,
     Objects,
     StringO,
@@ -107,6 +108,11 @@ pub fn evaluate_expression(
   // Infix
   if let Some(infix_exp) = expression.clone().get_infix() {
     return infix::evaluate(infix_exp, environment);
+  }
+
+  // Null
+  if expression.clone().get_null().is_some() {
+    return Null::new();
   }
 
   // Number

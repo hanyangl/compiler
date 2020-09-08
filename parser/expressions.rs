@@ -7,6 +7,7 @@ mod expression;
 mod hashmap;
 mod identifier;
 mod infix;
+mod null;
 mod number;
 mod prefix;
 mod string;
@@ -21,6 +22,7 @@ pub use expression::*;
 pub use hashmap::*;
 pub use identifier::*;
 pub use infix::*;
+pub use null::*;
 pub use number::*;
 pub use prefix::*;
 pub use string::*;
@@ -35,6 +37,7 @@ use super::{
     Signs,
     Token,
     Tokens,
+    Types,
   },
 };
 
@@ -55,6 +58,11 @@ pub fn parse_expression<'a>(
     !parser.next_token.token.clone().expect_sign(Signs::LEFTBRACKET) &&
     !parser.next_token.token.clone().expect_sign(Signs::LEFTPARENTHESES) {
     expression = Ok(Identifier::new_box_from_token(current_token.clone()));
+  }
+
+  // Parse nulls.
+  if current_token.token.clone().expect_type(Types::NULL) {
+    expression = Ok(Null::new_box_from_token(current_token.clone()));
   }
 
   // Parse strings.
@@ -170,6 +178,7 @@ pub fn parse_expression<'a>(
       parser.next_token_is(Signs::new(Signs::DIVIDE)) ||
       parser.next_token_is(Signs::new(Signs::MULTIPLY)) ||
       parser.next_token_is(Signs::new(Signs::EMPOWERMENT)) ||
+      parser.next_token_is(Signs::new(Signs::CARER)) ||
       parser.next_token_is(Signs::new(Signs::MODULE)) ||
       parser.next_token_is(Signs::new(Signs::EQUAL)) ||
       parser.next_token_is(Signs::new(Signs::EQUALTYPE)) ||

@@ -13,6 +13,7 @@ use crate::{
 use sflyn_parser::{
   Expression,
   Infix,
+  tokens::Signs,
 };
 
 use super::evaluate_expression;
@@ -76,7 +77,7 @@ pub fn evaluate(
         "-" => Number::new(left_value - right_value),
         "*" => Number::new(left_value * right_value),
         "/" => Number::new(left_value / right_value),
-        "**" => Number::new(left_value.powf(right_value)),
+        "**" | "^" => Number::new(left_value.powf(right_value)),
         "%" => Number::new(left_value % right_value),
         "<" => Boolean::new(left_value < right_value),
         "<=" => Boolean::new(left_value <= right_value),
@@ -106,9 +107,32 @@ pub fn evaluate(
     else if infix.operator.clone() == "!=" {
       return Boolean::new(left_object.get_hashkey() != right_object.get_hashkey());
     }
-    // Check if the operatir is a not equal type sign.
+    // Check if the operator is a not equal type sign.
     else if infix.operator.clone() == "!==" {
       return Boolean::new(left_object != right_object);
+    }
+    // Check if the operator is an or sign.
+    else if infix.token.token.clone().expect_sign(Signs::OR) {
+      // TODO: The rest of the expressions.
+      // Null objects.
+      let mut return_right = left_object.clone().get_null().is_some();
+
+      // Empty strings
+      if let Some(string) = left_object.clone().get_string() {
+        return_right = string.value.len() == 0;
+      }
+
+      // Return the object.
+      return if return_right { right_object } else { left_object };
+    }
+    // Check if the operator is an and sign.
+    else if infix.token.token.clone().expect_sign(Signs::AND) &&
+      left_object.clone().get_boolean().is_some() &&
+      right_object.clone().get_boolean().is_some() {
+      return Boolean::new(
+        left_object.get_boolean().unwrap().value &&
+        right_object.get_boolean().unwrap().value
+      );
     }
   }
 

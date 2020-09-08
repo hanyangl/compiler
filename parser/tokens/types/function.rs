@@ -37,7 +37,7 @@ impl Function {
     let mut current_character: &str = "(";
     let mut index: usize = 1;
 
-    while current_character != ")" {
+    while current_character != "=" {
       if value.len() - 1 == index {
         return Err(());
       }
@@ -59,13 +59,19 @@ impl Function {
         return Err(());
       }
 
+      let mut data_type = argument[1].trim();
+
+      if !data_type.starts_with("(") && data_type.ends_with(")") {
+        data_type = &data_type[..data_type.len() - 1];
+      }
+
       function.arguments.insert(
         argument[0].trim().to_string(),
-        Token::from_value(argument[1].trim(), 0, 0),
+        Token::from_value(data_type, 0, 0),
       );
     }
 
-    let new_value: &str = &value[index..].trim();
+    let new_value: &str = &value[index - 1..].trim();
 
     if !new_value.starts_with("=>") {
       return Err(());

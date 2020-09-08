@@ -35,24 +35,14 @@ impl Group {
     let mut group = Group::new(value.to_string());
 
     for data_type in new_value.split("|") {
-      group.types.push(Token::from_value(data_type.trim(), 0, 0));
+      let token = Token::from_value(data_type.trim(), 0, 0);
+
+      if !group.types.contains(&token) {
+        group.types.push(token);
+      }
     }
 
     Ok(group)
-  }
-
-  pub fn get_types_strings(self) -> Vec<String> {
-    let mut types: Vec<String> = Vec::new();
-
-    for data_type in self.types {
-      types.push(data_type.value);
-    }
-
-    types
-  }
-
-  pub fn has_type(self, data_type: String) -> bool {
-    self.get_types_strings().contains(&data_type)
   }
 
   pub fn parse<'a>(parser: &'a mut Parser) -> Result<Token, i32> {
@@ -168,13 +158,27 @@ fn group_from_value() {
 
 #[test]
 fn group_from_value_2() {
-  let mut group = Group::new(String::from("number | string | undefined"));
+  let mut group = Group::new(String::from("number | string | null"));
 
   group.types.push(Token::from_value("number", 0, 0));
   group.types.push(Token::from_value("string", 0, 0));
-  group.types.push(Token::from_value("undefined", 0, 0));
+  group.types.push(Token::from_value("null", 0, 0));
 
-  let group_2 = Group::from_value("number | string | undefined");
+  let group_2 = Group::from_value("number | string | null");
+
+  assert_eq!(group_2.is_ok(), true);
+  assert_eq!(group_2.unwrap(), group);
+}
+
+#[test]
+fn group_from_value_3() {
+  let mut group = Group::new(String::from("number | string | number[]"));
+
+  group.types.push(Token::from_value("number", 0, 0));
+  group.types.push(Token::from_value("string", 0, 0));
+  group.types.push(Token::from_value("number[]", 0, 0));
+
+  let group_2 = Group::from_value("number | string | number[]");
 
   assert_eq!(group_2.is_ok(), true);
   assert_eq!(group_2.unwrap(), group);

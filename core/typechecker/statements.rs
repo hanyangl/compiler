@@ -10,23 +10,25 @@ use sflyn_parser::{
   tokens::Token,
 };
 
-use super::check_expression;
+use super::{
+  check_expression,
+  check_types,
+};
 
 pub fn check_statement(
-  statement: &mut Box<Statements>,
+  statement: Box<Statements>,
   environment: &mut Environment,
 ) -> Result<Token, Error> {
   // Block
-  if let Some(block) = statement.clone().get_block().as_mut() {
+  if let Some(block) = statement.clone().get_block() {
     let mut values = String::new();
 
-    for stmt in block.statements.iter_mut() {
+    for stmt in block.statements.iter() {
       // Get the data type token for the current statement.
-      match check_statement(stmt, environment) {
+      match check_statement(stmt.clone(), environment) {
         Ok(data_type) => {
           // Check if the current statement is a `return` or an `if else`.
-          if stmt.clone().get_return().is_some() ||
-          stmt.clone().get_if_else().is_some() {
+          if stmt.clone().get_return().is_some() || stmt.clone().get_if_else().is_some() {
             // Check if the values len is greater than 0.
             if values.len() > 0 {
               // Add a bit or to the values.
@@ -36,10 +38,10 @@ pub fn check_statement(
             // Add the new value data type to the values.
             values.push_str(data_type.value.as_str());
           }
-        },
+        }
         Err(error) => {
           return Err(error);
-        },
+        }
       }
     }
 
@@ -50,12 +52,12 @@ pub fn check_statement(
   // Export
 
   // Expression
-  if let Some(expression) = statement.clone().get_expression().as_mut() {
-    return check_expression(&mut expression.expression, environment);
+  if let Some(expression) = statement.clone().get_expression() {
+    return check_expression(expression.expression, environment);
   }
 
   // Function
-  if let Some(function) = statement.clone().get_function().as_mut() {
+  if let Some(function) = statement.clone().get_function() {
     // Check if the function name is already in use.
     if environment.store.get_type(function.name.value.clone()).is_some() {
       return Err(Error::from_token(
@@ -95,19 +97,25 @@ pub fn check_statement(
         match environment.store.get_interface(argument_type.value.clone()) {
           Some(data_type) => {
             argument_type = data_type;
-          },
+          }
           None => {
             return Err(Error::from_token(
-              format!("`{}` is not a valid interface.", argument_type.value.clone()),
+              format!(
+                "`{}` is not a valid interface.",
+                argument_type.value.clone()
+              ),
               argument_type.clone(),
             ));
-          },
+          }
         }
       }
       // Check if the argument data type is a type.
       else if argument_type.token.clone().get_type().is_none() {
         return Err(Error::from_token(
-          format!("`{}` is not a valid data type.", argument_type.value.clone()),
+          format!(
+            "`{}` is not a valid data type.",
+            argument_type.value.clone()
+          ),
           argument_type.clone(),
         ));
       }
@@ -123,28 +131,23 @@ pub fn check_statement(
     let mut data_type = function.data_type.clone();
 
     // Get the data type token from the function body.
-    match check_statement(&mut function.body, &mut function_environment) {
+    match check_statement(function.body, &mut function_environment) {
       Ok(token) => {
         // Check if the token is a valid data type.
         if token.token.clone().get_type().is_some() {
           // Set the new data type.
           if data_type.line == 0 {
             data_type = token.clone();
-            function.data_type = token;
           }
         }
-      },
+      }
       Err(error) => {
         return Err(error);
-      },
+      }
     }
 
     // Get the function string value.
-    let value = format!(
-      "({}) => {}",
-      arguments.join(", "),
-      data_type.value,
-    );
+    let value = format!("({}) => {}", arguments.join(", "), data_type.value,);
 
     let token = Token::from_value(value.as_str(), 0, 0);
 
@@ -209,7 +212,7 @@ pub fn check_statement(
   // Return
 
   // Variable
-  if let Some(variable) = statement.clone().get_variable().as_mut() {
+  if let Some(variable) = statement.clone().get_variable() {
     // Check if the variable name is already in use.
     if environment.store.get_type(variable.name.value.clone()).is_some() {
       return Err(Error::from_token(
@@ -222,7 +225,7 @@ pub fn check_statement(
     let mut data_type = variable.data_type.clone();
 
     // Get the variable value.
-    if let Some(value) = variable.value.clone().as_mut() {
+    if let Some(value) = variable.value.clone() {
       match check_expression(value, environment) {
         Ok(token) => {
           // Check if the token is a valid data type.
@@ -230,13 +233,22 @@ pub fn check_statement(
             // Set the new data type.
             if data_type.line == 0 {
               data_type = token.clone();
-              variable.data_type = token;
+            }
+            // Compare both data types.
+            else if !check_types(data_type.clone(), token, false) {
+              return Err(Error::from_token(
+                format!(
+                  "the value does not satisfied the `{}` data type.",
+                  data_type.value
+                ),
+                variable.token.clone(),
+              ));
             }
           }
-        },
+        }
         Err(error) => {
           return Err(error);
-        },
+        }
       }
     }
 
@@ -249,7 +261,7 @@ pub fn check_statement(
 
   // Default
   Err(Error::from_token(
-    String::from("unknown statement."),
+    String::from("unknown type statement."),
     statement.clone().token(),
   ))
 }

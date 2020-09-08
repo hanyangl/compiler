@@ -24,6 +24,7 @@ pub enum Expressions {
   HASHMAP(HashMap),
   IDENTIFIER(Identifier),
   INFIX(Infix),
+  NULL(Null),
   NUMBER(Number),
   PREFIX(Prefix),
   STRING(StringE),
@@ -92,6 +93,13 @@ impl Expressions {
     }
   }
 
+  pub fn get_null(self) -> Option<Null> {
+    match self {
+      Expressions::NULL(null) => Some(null),
+      _ => None,
+    }
+  }
+
   pub fn get_number(self) -> Option<Number> {
     match self {
       Expressions::NUMBER(number) => Some(number),
@@ -124,6 +132,7 @@ impl Expressions {
       Expressions::HASHMAP(hashmap) => hashmap.token,
       Expressions::IDENTIFIER(identifier) => identifier.token,
       Expressions::INFIX(infix) => infix.token,
+      Expressions::NULL(null) => null.token,
       Expressions::NUMBER(number) => number.token,
       Expressions::PREFIX(prefix) => prefix.token,
       Expressions::STRING(string) => string.token,
@@ -141,6 +150,7 @@ impl Expressions {
       Expressions::HASHMAP(hashmap) => hashmap.string(),
       Expressions::IDENTIFIER(identifier) => identifier.string(),
       Expressions::INFIX(infix) => infix.string(),
+      Expressions::NULL(null) => null.string(),
       Expressions::NUMBER(number) => number.string(),
       Expressions::PREFIX(prefix) => prefix.string(),
       Expressions::STRING(string) => string.string(),
