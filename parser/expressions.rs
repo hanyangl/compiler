@@ -181,9 +181,7 @@ pub fn parse_expression<'a>(
       parser.next_token_is(Signs::new(Signs::CARER)) ||
       parser.next_token_is(Signs::new(Signs::MODULE)) ||
       parser.next_token_is(Signs::new(Signs::EQUAL)) ||
-      parser.next_token_is(Signs::new(Signs::EQUALTYPE)) ||
       parser.next_token_is(Signs::new(Signs::NOTEQUAL)) ||
-      parser.next_token_is(Signs::new(Signs::NOTEQUALTYPE)) ||
       parser.next_token_is(Signs::new(Signs::LESSTHAN)) ||
       parser.next_token_is(Signs::new(Signs::LESSOREQUALTHAN)) ||
       parser.next_token_is(Signs::new(Signs::GREATERTHAN)) ||

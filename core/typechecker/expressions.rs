@@ -389,11 +389,9 @@ pub fn check_expression(
           infix.token.clone(),
         ));
       }
-      // Parse `==`, `!=`, `===` and `!==`.
+      // Parse `==` and `!=`.
       else if infix.token.token.clone().expect_sign(Signs::EQUAL) ||
-        infix.token.token.clone().expect_sign(Signs::NOTEQUAL) ||
-        infix.token.token.clone().expect_sign(Signs::EQUALTYPE) ||
-        infix.token.token.clone().expect_sign(Signs::NOTEQUALTYPE) {
+        infix.token.token.clone().expect_sign(Signs::NOTEQUAL) {
         return Ok(Token::from_value("boolean", 0, 0));
       }
       // Parse `||`.

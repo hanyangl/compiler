@@ -27,7 +27,7 @@ let is_true: boolean = true;
 let is_false: boolean = false;
 let is_false1: boolean = !true;
 let is_true1: boolean = !!true;
-let true_is_equal_to_true: boolean = true === true;
+let true_is_equal_to_true: boolean = true == true;
 let zero_is_equal_to_false: boolean = 0 == false;
 let one_is_equal_to_true: boolean = 1 == true;
 let ten_is_less_than_ten: boolean = 10 < 10;

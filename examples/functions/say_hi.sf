@@ -1,5 +1,5 @@
 func say_hi(name: string) {
-  if (name === 'Sflyn' || name === 'Daniel') {
+  if (name == 'Sflyn' || name == 'Daniel') {
     print('Hello ' + name + '!');
   } else {
     print('Unknown');

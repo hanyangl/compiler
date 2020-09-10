@@ -33,11 +33,15 @@ impl Precedence {
 
   pub fn from_sign(sign: Signs) -> Precedence {
     match sign {
+      // OR
+      Signs::OR => Precedence::OR,
+
+      // And
+      Signs::AND => Precedence::AND,
+
       // EQUALS
       Signs::EQUAL |
-      Signs::EQUALTYPE |
       Signs::NOTEQUAL |
-      Signs::NOTEQUALTYPE |
       Signs::LESSOREQUALTHAN |
       Signs::GREATEROREQUALTHAN => Precedence::EQUALS,
 
@@ -66,12 +70,6 @@ impl Precedence {
 
       // METHOD
       Signs::ARROW => Precedence::METHOD,
-
-      // OR
-      Signs::OR => Precedence::OR,
-
-      // And
-      Signs::AND => Precedence::AND,
 
       // LOWEST
       _ => Precedence::LOWEST,

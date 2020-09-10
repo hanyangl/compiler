@@ -31,9 +31,7 @@ pub enum Signs {
 
   // Conditions
   EQUAL,
-  EQUALTYPE,
   NOTEQUAL,
-  NOTEQUALTYPE,
 
   LESSTHAN,
   LESSOREQUALTHAN,
@@ -96,9 +94,7 @@ impl Signs {
 
       // Conditions
       "==" => Ok(Signs::EQUAL),
-      "===" => Ok(Signs::EQUALTYPE),
       "!=" => Ok(Signs::NOTEQUAL),
-      "!==" => Ok(Signs::NOTEQUALTYPE),
 
       "<" => Ok(Signs::LESSTHAN),
       "<=" => Ok(Signs::LESSOREQUALTHAN),

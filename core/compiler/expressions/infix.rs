@@ -97,18 +97,10 @@ pub fn evaluate(
     }
     // Check if the operator is an equal sign.
     else if infix.token.token.clone().expect_sign(Signs::EQUAL) {
-      return Boolean::new(left_object.get_hashkey() == right_object.get_hashkey());
-    }
-    // Check if the operator is an equal type sign.
-    else if infix.token.token.clone().expect_sign(Signs::EQUALTYPE) {
       return Boolean::new(left_object == right_object);
     }
     // Check if the operator is a not equal sign.
     else if infix.token.token.clone().expect_sign(Signs::NOTEQUAL) {
-      return Boolean::new(left_object.get_hashkey() != right_object.get_hashkey());
-    }
-    // Check if the operator is a not equal type sign.
-    else if infix.token.token.clone().expect_sign(Signs::NOTEQUALTYPE) {
       return Boolean::new(left_object != right_object);
     }
     // Check if the operator is an or sign.
