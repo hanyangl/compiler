@@ -5,14 +5,17 @@ use crate::{
 
 use sflyn_parser::{
   Error,
-  Expression,
   Statements,
-  tokens::Token,
+  tokens::{
+    Token,
+    Types,
+  },
 };
 
 use super::{
   check_expression,
   check_types,
+  function_arguments_to_string,
 };
 
 pub fn check_statement(
@@ -71,60 +74,15 @@ pub fn check_statement(
 
     function_environment.store = Store::from_store(environment.store.clone());
 
-    let mut arguments_names: Vec<String> = Vec::new();
-    let mut arguments: Vec<String> = Vec::new();
+    let arguments: Vec<String>;
 
-    for argument in function.arguments.clone() {
-      let argument = argument.clone().get_argument().unwrap();
-      let argument_name = argument.token.clone();
-
-      // Check if the argument name is already in use.
-      if arguments_names.contains(&argument_name.value.clone()) {
-        return Err(Error::from_token(
-          format!("`{}` is already in use.", argument_name.value.clone()),
-          argument_name,
-        ));
-      }
-
-      // Add the argument name to the arguments names list.
-      arguments_names.push(argument_name.value.clone());
-
-      let mut argument_type = argument.data_type.clone();
-
-      // Check if the argument data type is an identifier.
-      if argument_type.token.clone().is_identifier() {
-        // Get the interface type from the environment store.
-        match environment.store.get_interface(argument_type.value.clone()) {
-          Some(data_type) => {
-            argument_type = data_type;
-          }
-          None => {
-            return Err(Error::from_token(
-              format!(
-                "`{}` is not a valid interface.",
-                argument_type.value.clone()
-              ),
-              argument_type.clone(),
-            ));
-          }
-        }
-      }
-      // Check if the argument data type is a type.
-      else if argument_type.token.clone().get_type().is_none() {
-        return Err(Error::from_token(
-          format!(
-            "`{}` is not a valid data type.",
-            argument_type.value.clone()
-          ),
-          argument_type.clone(),
-        ));
-      }
-
-      // Add the argument to the closed environment.
-      function_environment.store.set_type(argument_name.value, argument_type);
-
-      // Add the argument to the argumens list.
-      arguments.push(argument.clone().string());
+    match function_arguments_to_string(function.arguments.clone(), environment, &mut function_environment) {
+      Ok(args) => {
+        arguments = args;
+      },
+      Err(error) => {
+        return Err(error);
+      },
     }
 
     // Get the function data type.
@@ -147,7 +105,11 @@ pub fn check_statement(
     }
 
     // Get the function string value.
-    let value = format!("({}) => {}", arguments.join(", "), data_type.value,);
+    let value = format!(
+      "({}) => {}",
+      arguments.join(", "),
+      data_type.value,
+    );
 
     let token = Token::from_value(value.as_str(), 0, 0);
 
@@ -162,6 +124,58 @@ pub fn check_statement(
   }
 
   // If else
+  if let Some(if_else) = statement.clone().get_if_else() {
+    let mut tokens: Vec<Token> = Vec::new();
+
+    for condition in if_else.conditions.iter() {
+      match check_expression(condition.condition.clone(), environment) {
+        Ok(data_type) => {
+          if let Some(data_type) = data_type.token.get_type() {
+            if data_type != Types::BOOLEAN {
+              return Err(Error::from_token(
+                String::from("the condition is not a `boolean`."),
+                condition.token.clone(),
+              ));
+            }
+          } else {
+            return Err(Error::from_token(
+              String::from("the condition is not a valid data type."),
+              condition.token.clone(),
+            ));
+          }
+        },
+        Err(error) => {
+          return Err(error);
+        },
+      }
+
+      match check_statement(condition.consequence.clone(), environment) {
+        Ok(data_type) => {
+          if data_type.token.clone().get_type().is_some() {
+            tokens.push(data_type);
+          }
+        },
+        Err(error) => {
+          return Err(error);
+        },
+      }
+    }
+
+    if let Some(alternative) = if_else.alternative {
+      match check_statement(alternative, environment) {
+        Ok(data_type) => {
+          if data_type.token.clone().get_type().is_some() {
+            tokens.push(data_type);
+          }
+        },
+        Err(error) => {
+          return Err(error);
+        },
+      }
+    }
+
+    return Ok(Token::from_value(tokens.iter().map(|x| x.value.clone()).collect::<Vec<String>>().join(" | ").as_str(), 0, 0));
+  }
 
   // Import
 
@@ -210,6 +224,13 @@ pub fn check_statement(
   }
 
   // Return
+  if let Some(return_s) = statement.clone().get_return() {
+    if let Some(value) = return_s.value {
+      return check_expression(value, environment);
+    }
+
+    return Ok(Token::from_value("void", 0, 0));
+  }
 
   // Variable
   if let Some(variable) = statement.clone().get_variable() {

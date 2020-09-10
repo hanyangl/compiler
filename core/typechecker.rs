@@ -1,7 +1,9 @@
+mod arguments;
 mod expressions;
 mod statements;
 mod types;
 
+pub use arguments::function_arguments_to_string;
 pub use expressions::check_expression;
 pub use statements::check_statement;
 pub use types::*;

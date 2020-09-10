@@ -30,4 +30,14 @@ impl Boolean {
       value,
     }))
   }
+
+  pub fn is_truthy(object: Box<Objects>) -> bool {
+    // When is a null object or false boolean object
+    if object.clone().get_null().is_some() || object == Boolean::new(false) {
+      return false;
+    }
+
+    // Default
+    true
+  }
 }

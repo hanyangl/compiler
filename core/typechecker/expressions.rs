@@ -15,7 +15,9 @@ use sflyn_parser::{
 
 use super::{
   check_types,
+  check_statement,
   equal_type_and_interface,
+  function_arguments_to_string,
 };
 
 pub fn check_expression(
@@ -23,6 +25,53 @@ pub fn check_expression(
   environment: &mut Environment,
 ) -> Result<Token, Error> {
   // Anonymous function
+  if let Some(anonymous_function) = expression.clone().get_anonymous_function() {
+    // Create a new closed environment.
+    let mut function_environment = environment.clone();
+
+    function_environment.store = Store::from_store(environment.store.clone());
+
+    let arguments: Vec<String>;
+
+    match function_arguments_to_string(anonymous_function.arguments.clone(), environment, &mut function_environment) {
+      Ok(args) => {
+        arguments = args;
+      },
+      Err(error) => {
+        return Err(error);
+      },
+    }
+
+    // Get the function data type.
+    let mut data_type = anonymous_function.data_type.clone();
+
+    // Get the data type token from the function body.
+    match check_statement(anonymous_function.body, &mut function_environment) {
+      Ok(token) => {
+        // Check if the token is a valid data type.
+        if token.token.clone().get_type().is_some() {
+          // Set the new data type.
+          if data_type.line == 0 {
+            data_type = token.clone();
+          }
+        }
+      }
+      Err(error) => {
+        return Err(error);
+      }
+    }
+
+    // Get the function string value.
+    let value = format!(
+      "({}) => {}",
+      arguments.join(", "),
+      data_type.value,
+    );
+
+    // TODO: Set function arguments to the environment.
+
+    return Ok(Token::from_value(value.as_str(), 0, 0));
+  }
 
   // Argument
 
@@ -421,8 +470,6 @@ pub fn check_expression(
   if expression.clone().get_string().is_some() {
     return Ok(Token::from_value("string", 0, 0));
   }
-
-  println!("Exp: {:?}\n", expression);
 
   // Default
   Err(Error::from_token(

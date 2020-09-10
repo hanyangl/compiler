@@ -6,17 +6,17 @@ use super::tokens::{
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum Precedence {
   LOWEST = 0,
-  EQUALS = 1,
-  LESSGREATER = 2,
-  SUM = 3,
-  PRODUCT = 4,
-  EMPOWERMENT = 5,
-  PREFIX = 6,
-  CALL = 7,
-  INDEX = 8,
-  METHOD = 9,
-  OR = 10,
-  AND = 11,
+  OR = 1,
+  AND = 2,
+  EQUALS = 3,
+  LESSGREATER = 4,
+  SUM = 5,
+  PRODUCT = 6,
+  EMPOWERMENT = 7,
+  PREFIX = 8,
+  CALL = 9,
+  INDEX = 10,
+  METHOD = 11,
   ALIAS = 12,
 }
 

@@ -89,26 +89,26 @@ pub fn evaluate(
       };
     }
     // Check if left or right object is a string.
-    else if infix.operator.clone() == "+" && (
+    else if infix.token.token.clone().expect_sign(Signs::PLUS) && (
       left_object.clone().get_string().is_some() ||
       right_object.clone().get_string().is_some()
     ) {
       return StringO::new(left_object.string() + &right_object.string());
     }
     // Check if the operator is an equal sign.
-    else if infix.operator.clone() == "==" {
+    else if infix.token.token.clone().expect_sign(Signs::EQUAL) {
       return Boolean::new(left_object.get_hashkey() == right_object.get_hashkey());
     }
     // Check if the operator is an equal type sign.
-    else if infix.operator.clone() == "===" {
+    else if infix.token.token.clone().expect_sign(Signs::EQUALTYPE) {
       return Boolean::new(left_object == right_object);
     }
     // Check if the operator is a not equal sign.
-    else if infix.operator.clone() == "!=" {
+    else if infix.token.token.clone().expect_sign(Signs::NOTEQUAL) {
       return Boolean::new(left_object.get_hashkey() != right_object.get_hashkey());
     }
     // Check if the operator is a not equal type sign.
-    else if infix.operator.clone() == "!==" {
+    else if infix.token.token.clone().expect_sign(Signs::NOTEQUALTYPE) {
       return Boolean::new(left_object != right_object);
     }
     // Check if the operator is an or sign.
@@ -120,6 +120,11 @@ pub fn evaluate(
       // Empty strings
       if let Some(string) = left_object.clone().get_string() {
         return_right = string.value.len() == 0;
+      }
+
+      // false boolean
+      if let Some(boolean) = left_object.clone().get_boolean() {
+        return_right = boolean.value == false;
       }
 
       // Return the object.

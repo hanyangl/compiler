@@ -4,6 +4,7 @@ use crate::{
     evaluate_expression,
     Objects,
     ReturnO,
+    Boolean,
   },
   Environment,
 };
@@ -60,6 +61,19 @@ pub fn evaluate_statement(
   }
 
   // If else
+  if let Some(if_else) = statement.clone().get_if_else() {
+    for condition in if_else.conditions.iter() {
+      let object = evaluate_expression(condition.condition.clone(), environment);
+
+      if Boolean::is_truthy(object) {
+        return evaluate_statement(condition.consequence.clone(), environment);
+      }
+    }
+
+    if let Some(alternative) = if_else.alternative {
+      return evaluate_statement(alternative, environment);
+    }
+  }
 
   // Import
 
