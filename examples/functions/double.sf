@@ -1,0 +1,8 @@
+func double(x: number): number {
+  return x * 2;
+}
+
+print(double(2)->toString());
+print(double(4)->toString());
+print(double(6)->toString());
+print(double(double(2))->toString());

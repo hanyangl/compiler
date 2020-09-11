@@ -1,0 +1,11 @@
+let lang: string = "Sflyn";
+print(lang);
+
+let lang1 = 'Sflyn';
+print(lang1);
+
+let lang3: string = "Sflyn" + "lang";
+print(lang3);
+
+let lang4 = lang + "lang";
+print(lang4);

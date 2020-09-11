@@ -1,18 +1,11 @@
-// This example is thanks to TypeScript Handbook
-
-interface LabeledValue {
-  label: string;
+interface Label {
+  message: string;
 }
 
-func printLabel(
-  labeledObj: LabeledValue,
-) {
-  print(labeledObj->label);
+func printLabel(obj: LabeledValue) {
+  print(obj->message);
 }
 
-let myObj = {
-  size: 10,
-  label: 'Size 10 Object',
-};
-
-printLabel(myObj);
+printLabel({
+  message: 'Size 10 Object',
+});

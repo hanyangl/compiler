@@ -1,9 +1,0 @@
-export func say_hi(name: string): string {
-  return 'Hello, ' + name;
-}
-
-export const pi = 3.14;
-
-let numb = 1;
-
-export numb;

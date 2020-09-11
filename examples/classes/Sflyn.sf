@@ -1,14 +1,10 @@
-class Sflyn(
-  year: number,
-) {
-
+class Sflyn(year: number) {
   getName(): string {
     return "Sflyn";
   }
-
 }
 
 let sflyn = Sflyn(2020);
 
 print(sflyn->getName());
-print(sflyn->year);
+print(sflyn->year->toString());

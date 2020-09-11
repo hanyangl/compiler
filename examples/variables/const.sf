@@ -1,0 +1,17 @@
+// String
+const lang: string = "Sflyn";
+print(lang);
+
+// Number
+const ten: number = 10;
+print(ten->toString());
+
+// Boolean
+const is_example: boolean = true;
+print(is_example->toString());
+
+// Array
+const numbers: number[] = [0, 1, 2, 3, 4];
+print(numbers->toString());
+print(numbers[0]->toString());
+print(numbers[-1]->toString());

@@ -1,0 +1,5 @@
+export func say_hi(name: string) {
+  print('Hello, ' + name + '!');
+}
+
+print("In import");

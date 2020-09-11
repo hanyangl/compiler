@@ -1,0 +1,17 @@
+let ten: number = 10;
+print(ten->toString());
+
+let eleven: number = 11;
+print(eleven->toString());
+
+let twelve: number = -12;
+print(twelve->toString());
+
+let pi: number = 3.14;
+print(pi->toString());
+
+let eleven_plus_twelve: number = eleven + twelve;
+print(eleven_plus_twelve->toString());
+
+let test_operators: number = eleven * ten - pi ^ 2;
+print(test_operators->toString());

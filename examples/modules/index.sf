@@ -1,9 +1,0 @@
-import {
-  say_hi,
-  pi,
-  numb,
-} from './core';
-
-print(say_hi('Sflyn 2.0'));
-
-print(pi + " - " + numb);

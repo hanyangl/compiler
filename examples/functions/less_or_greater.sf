@@ -1,0 +1,13 @@
+func less_or_greater(num: number): string {
+  if (num == 0) {
+    return 'The number is zero';
+  } else if (num < 0) {
+    return 'The number is less than zero';
+  } else {
+    return 'The number is greater than zero';
+  }
+}
+
+print(less_or_greater(-1));
+print(less_or_greater(0));
+print(less_or_greater(1));

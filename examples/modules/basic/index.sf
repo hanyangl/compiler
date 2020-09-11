@@ -1,0 +1,4 @@
+import './utils';
+
+say_hi('Sflyn');
+say_hi('Daniel');

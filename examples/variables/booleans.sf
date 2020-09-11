@@ -1,0 +1,23 @@
+let is_true: boolean = true;
+print(is_true);
+
+let is_false: boolean = false;
+print(is_false);
+
+let is_false1: boolean = !true;
+print(is_false1);
+
+let is_true1: boolean = !!true;
+print(is_true1);
+
+let true_is_equal_to_true: boolean = true == true;
+print(true_is_equal_to_true);
+
+let zero_is_equal_to_false: boolean = 0 == false;
+print(zero_is_equal_to_false);
+
+let one_is_equal_to_true: boolean = 1 == true;
+print(one_is_equal_to_true);
+
+let ten_is_less_than_ten: boolean = 10 < 10;
+print(ten_is_less_than_ten);
