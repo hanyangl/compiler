@@ -1,0 +1,6 @@
+
+const Number = {
+  toString: (): string => {
+    return '0';
+  },
+};

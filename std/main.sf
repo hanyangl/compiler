@@ -1,2 +1,0 @@
-
-func print(message: string | number | boolean | (string | number | boolean)[]): void {}

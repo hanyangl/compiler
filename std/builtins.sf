@@ -1,0 +1,2 @@
+
+func print(message: string): void {}

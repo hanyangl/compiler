@@ -1,0 +1,6 @@
+
+const Array = {
+  toString: (): string => {
+    return '[]';
+  },
+};
