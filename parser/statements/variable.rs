@@ -121,7 +121,7 @@ impl Variable {
       parser.next_token();
 
       // Parse type.
-      match parse_type(parser, false) {
+      match parse_type(parser) {
         Ok(data_type) => {
           // Set the variable type.
           variable.data_type = data_type.clone();

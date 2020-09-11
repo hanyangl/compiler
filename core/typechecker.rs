@@ -1,18 +1,7 @@
-mod arguments;
-mod expressions;
-mod statements;
-mod types;
-
-pub use arguments::function_arguments_to_string;
-pub use expressions::check_expression;
-pub use statements::check_statement;
-pub use types::*;
-
 use sflyn_parser::File;
 
 use super::{
   Environment,
-  error::show_error,
 };
 
 pub fn run(
@@ -27,21 +16,21 @@ pub fn run(
         return Err(());
       }
 
-      for statement in file.statements.iter() {
-        if let Err(error) = check_statement(statement.clone(), environment) {
+      for _statement in file.statements.iter() {
+        /*if let Err(error) = check_statement(statement.clone(), environment) {
           show_error(file.clone(), error);
           return Err(());
-        }
+        }*/
       }
     }
   }
 
   // Parse file statements.
-  for statement in file.statements.iter() {
-    if let Err(error) = check_statement(statement.clone(), environment) {
+  for _statement in file.statements.iter() {
+    /*if let Err(error) = check_statement(statement.clone(), environment) {
       show_error(file.clone(), error);
       return Err(());
-    }
+    }*/
   }
 
   Ok(())

@@ -1,7 +1,4 @@
-use crate::{
-  Export,
-  Statements,
-};
+use crate::Statements;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct File {
@@ -9,7 +6,7 @@ pub struct File {
   pub content: String,
 
   pub statements: Vec<Box<Statements>>,
-  pub exports: Vec<Export>,
+  pub exports: Vec<String>,
 }
 
 impl File {

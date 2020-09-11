@@ -122,7 +122,7 @@ impl Function {
       parser.next_token();
 
       // Parse type.
-      match parse_type(parser, false) {
+      match parse_type(parser) {
         Ok(data_type) => {
           function.arguments.insert(key, data_type.clone());
           function.value.push_str(data_type.value.as_str());
@@ -159,7 +159,7 @@ impl Function {
     // Get the next token.
     parser.next_token();
 
-    match parse_type(parser, false) {
+    match parse_type(parser) {
       Ok(data_type) => {
         function.data_type = data_type.clone();
         function.value.push_str(data_type.value.as_str());

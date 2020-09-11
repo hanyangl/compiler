@@ -83,7 +83,7 @@ impl HashMap {
       parser.next_token();
 
       // Parse type.
-      match parse_type(parser, false) {
+      match parse_type(parser) {
         Ok(data_type) => {
           hashmap.items.insert(key, data_type.clone());
           hashmap.value.push_str(data_type.value.as_str());

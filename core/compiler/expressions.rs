@@ -7,18 +7,22 @@ use crate::{
   compiler::{
     AnonymousFunction,
     Array,
-    builtins::get_builtin_for_identifier,
     Boolean,
+    builtins::get_builtin_for_identifier,
     Error,
     Null,
     Number,
+    Object,
     Objects,
     StringO,
   },
   Environment,
 };
 
-use sflyn_parser::Expressions;
+use sflyn_parser::{
+  Expressions,
+  Identifier,
+};
 
 pub fn evaluate_expressions(
   expressions: Vec<Box<Expressions>>,
@@ -81,6 +85,40 @@ pub fn evaluate_expression(
   }
 
   // Array index
+  if let Some(array_index) = expression.clone().get_array_index() {
+    let identifier_obj = evaluate_expression(Identifier::new_box_from_token(array_index.token.clone()), environment);
+
+    // Check if the identifier object is an error.
+    if identifier_obj.clone().get_error().is_some() {
+      return identifier_obj;
+    }
+
+    let index_obj = evaluate_expression(array_index.index, environment);
+
+    // Check if the index object is an error.
+    if index_obj.clone().get_error().is_some() {
+      return index_obj;
+    }
+
+    // Get array value.
+    if identifier_obj.clone().get_array().is_some() && index_obj.clone().get_number().is_some() {
+      let index: usize;
+      let elements = identifier_obj.get_array().unwrap().elements;
+      let value = index_obj.get_number().unwrap().string();
+
+      if value == "-1" {
+        index = elements.len() - 1;
+      } else {
+        index = value.parse().unwrap();
+      }
+
+      if index > elements.len() - 1 {
+        return Null::new();
+      }
+
+      return elements[index].clone();
+    }
+  }
 
   // Boolean
   if let Some(boolean) = expression.clone().get_boolean() {

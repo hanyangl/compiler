@@ -100,7 +100,7 @@ impl AnonymousFunction {
       parser.next_token();
 
       // Get the return data type.
-      match parse_type(parser, false) {
+      match parse_type(parser) {
         Ok(data_type) => {
           // Set the function return data type.
           function.data_type = data_type;

@@ -13,7 +13,10 @@ use sflyn_parser::Call;
 
 use super::evaluate_expressions;
 
-pub fn evaluate(call: Call, environment: &mut Environment) -> Box<Objects> {
+pub fn evaluate(
+  call: Call,
+  environment: &mut Environment,
+) -> Box<Objects> {
   // Get the function object.
   let function_object = match environment.store.get_object(call.token.value.clone()) {
     Some(object) => object.clone(),

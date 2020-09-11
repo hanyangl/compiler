@@ -15,6 +15,7 @@ use super::error::show_error;
 pub struct Environment {
   pub arguments: arguments::Arguments,
 
+  pub current_file: Option<File>,
   pub files: Vec<File>,
   pub packages: HashMap<String, Package>, // Package name + Package data
 
@@ -28,6 +29,7 @@ impl Environment {
     Self {
       arguments: arguments::Arguments::from_console(),
 
+      current_file: None,
       files: Vec::new(),
       packages: HashMap::new(),
 
@@ -35,6 +37,16 @@ impl Environment {
 
       store: Store::new(),
     }
+  }
+
+  pub fn get_file(&self, file_name: String) -> Option<File> {
+    for file in self.files.iter() {
+      if file.name == file_name {
+        return Some(file.clone());
+      }
+    }
+
+    None
   }
 
   fn load_stdlib(&mut self, path: String, name: &str) -> i32 {
@@ -67,6 +79,21 @@ impl Environment {
       sflyn_path = format!("{}/", sflyn_path);
     }
 
-    self.load_stdlib(format!("{}std/main.sf", sflyn_path), "main")
+    let main_lib = self.load_stdlib(format!("{}std/builtins.sf", sflyn_path), "builtins");
+    if main_lib != 0 {
+      return main_lib;
+    }
+
+    let number_lib = self.load_stdlib(format!("{}std/Number.sf", sflyn_path), "Number");
+    if number_lib != 0 {
+      return number_lib;
+    }
+
+    let boolean_lib = self.load_stdlib(format!("{}std/Boolean.sf", sflyn_path), "Boolean");
+    if boolean_lib != 0 {
+      return boolean_lib;
+    }
+
+    self.load_stdlib(format!("{}std/Array.sf", sflyn_path), "Array")
   }
 }

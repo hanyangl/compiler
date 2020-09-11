@@ -28,11 +28,16 @@ pub fn evaluate(
   );
 
   // Evaluate left expression.
-  let left_object = evaluate_expression(infix.left.clone(), environment);
+  let mut left_object = evaluate_expression(infix.left.clone(), environment);
 
   // Check if the left object is an error.
   if left_object.clone().get_error().is_some() {
     return left_object;
+  }
+
+  // Check if the left object is a return.
+  if let Some(return_o) = left_object.clone().get_return() {
+    left_object = return_o.value;
   }
 
   // Create a new environment.
@@ -43,25 +48,60 @@ pub fn evaluate(
 
   // Check if the infix is a method.
   if infix.clone().is_method() {
+    let mut name = "";
+
     // Check if the left object is a hashmap.
     if let Some(hashmap) = left_object.clone().get_hashmap() {
       // Set the data keys to the new environment.
       for item in hashmap.data {
         right_environment.store.set_object(item.key, item.value);
       }
+    } else if left_object.clone().get_number().is_some() {
+      name = "Number";
+    } else if left_object.clone().get_boolean().is_some() {
+      name = "Boolean";
+    } else if left_object.clone().get_array().is_some() {
+      name = "Array";
+    }
+
+    if !name.is_empty() {
+      // Get the object from the environment.
+      if let Some(obj) = environment.store.get_object(name.to_string()) {
+        if let Some(hashmap) = obj.get_hashmap() {
+          // Set the data keys to the new environment.
+          for item in hashmap.data {
+            right_environment.store.set_object(item.key, item.value);
+          }
+        }
+      }
     }
   }
 
   // Evaluate right expression.
-  let right_object = evaluate_expression(infix.right.clone(), &mut right_environment);
+  let mut right_object = evaluate_expression(infix.right.clone(), &mut right_environment);
 
   // Check if the right object is an error.
   if right_object.clone().get_error().is_some() {
     return right_object;
   }
 
+  // Check if the right object is a return.
+  if let Some(return_o) = right_object.clone().get_return() {
+    right_object = return_o.value;
+  }
+
   // Parse method.
   if infix.clone().is_method() {
+    let right_token = infix.right.clone().token();
+
+    if (
+      left_object.clone().get_number().is_some() ||
+      left_object.clone().get_boolean().is_some() ||
+      left_object.clone().get_array().is_some()
+    ) && right_token.value == "toString" {
+      return crate::compiler::builtins::to_string(infix.token, [left_object].to_vec());
+    }
+
     return right_object;
   }
   // Parse infix.

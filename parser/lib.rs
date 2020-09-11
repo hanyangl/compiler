@@ -45,9 +45,27 @@ pub fn run(file_name: String) -> Result<File, (Error, Option<File>)> {
         // Add the statement to the file statements.
         file.statements.push(statement.clone());
 
-        // Check if the statement is an export.
+        // Check if the current statement is an export.
         if let Some(export) = statement.clone().get_export() {
-          file.exports.push(export);
+          // Check if the export value is a variabe.
+          if let Some(variable) = export.value.clone().get_variable() {
+            file.exports.push(variable.name.value);
+          }
+          // Check if the export value is a function.
+          else if let Some(function) = export.value.clone().get_function() {
+            file.exports.push(function.name.value);
+          }
+          // Check if the export value is an interface.
+          else if let Some(interface) = export.value.clone().get_interface() {
+            file.exports.push(interface.name.value);
+          }
+          // Check if the export value is an expression.
+          else if let Some(expression) = export.value.clone().get_expression() {
+            // Check if the expression is an identifier.
+            if let Some(identifier) = expression.expression.clone().get_identifier() {
+              file.exports.push(identifier.value);
+            }
+          }
         }
       },
       Err(error) => {

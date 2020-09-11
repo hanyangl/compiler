@@ -122,7 +122,7 @@ impl Interface {
       parser.next_token();
 
       // Parse type.
-      match parse_type(parser, false) {
+      match parse_type(parser) {
         Ok(data_type) => {
           // Add  the method to the interface.
           interface.methods.push(InterfaceMethod {

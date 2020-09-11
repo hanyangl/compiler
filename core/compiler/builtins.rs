@@ -1,4 +1,7 @@
 mod print;
+mod to_string;
+
+pub use to_string::to_string;
 
 use sflyn_parser::tokens::Token;
 

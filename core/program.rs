@@ -6,6 +6,41 @@ use super::{
   utils::get_sflyn_path,
 };
 
+pub fn run_file(
+  file_name: String,
+  environment: &mut Environment,
+) -> i32 {
+  match sflyn_parser::run(file_name) {
+    Ok(file) => {
+      environment.current_file = Some(file.clone());
+
+      let mut file = file.clone();
+
+      if file.statements.len() > 0 {
+        if let Err(_) = typechecker::run(&mut file, environment) {
+          return 1;
+        }
+
+        compiler::run(file.clone(), environment);
+      }
+
+      environment.files.push(file.clone());
+    },
+
+    Err((error, file)) => {
+      if let Some(file) = file {
+        show_error(file, error);
+      } else {
+        println!("{}", error.message);
+      }
+
+      return 1;
+    },
+  }
+
+  0
+}
+
 pub fn start() -> i32 {
   let mut environment = Environment::new();
 
@@ -25,31 +60,5 @@ pub fn start() -> i32 {
     return 1;
   }
 
-  match sflyn_parser::run(environment.arguments.file.clone()) {
-    Ok(file) => {
-      let mut file = file.clone();
-
-      if file.statements.len() > 0 {
-        if let Err(_) = typechecker::run(&mut file, &mut environment) {
-          return 1;
-        }
-
-        compiler::run(file.clone(), &mut environment);
-      }
-
-      environment.files.push(file.clone());
-    },
-
-    Err((error, file)) => {
-      if let Some(file) = file {
-        show_error(file, error);
-      } else {
-        println!("{}", error.message);
-      }
-
-      return 1;
-    },
-  }
-
-  0
+  run_file(environment.arguments.file.clone(), &mut environment)
 }

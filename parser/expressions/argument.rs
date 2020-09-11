@@ -107,7 +107,7 @@ impl Argument {
       parser.next_token();
 
       // Parse argument data type.
-      match parse_type(parser, false) {
+      match parse_type(parser) {
         Ok(data_type) => {
           // Set the argument data type.
           argument.data_type = data_type;

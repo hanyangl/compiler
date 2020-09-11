@@ -1,16 +1,13 @@
 mod array;
 mod function;
-mod group;
 mod hashmap;
 
 pub use array::Array;
 pub use function::Function;
-pub use group::Group;
 pub use hashmap::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Types {
-  ANY,
   NULL,
   STRING,
   NUMBER,
@@ -19,7 +16,6 @@ pub enum Types {
 
   ARRAY(Array),
   FUNCTION(Function),
-  GROUP(Group),
   HASHMAP(HashMap),
 }
 
@@ -34,13 +30,6 @@ impl Types {
   pub fn get_function(self) -> Option<Function> {
     match self {
       Types::FUNCTION(function) => Some(function),
-      _ => None,
-    }
-  }
-
-  pub fn get_group(self) -> Option<Group> {
-    match self {
-      Types::GROUP(group) => Some(group),
       _ => None,
     }
   }
@@ -68,13 +57,7 @@ impl Types {
       return Ok(Types::FUNCTION(function));
     }
 
-    // Parse groups.
-    if let Ok(group) = Group::from_value(value) {
-      return Ok(Types::GROUP(group));
-    }
-
     match value {
-      "any" => Ok(Types::ANY),
       "null" => Ok(Types::NULL),
       "string" => Ok(Types::STRING),
       "number" => Ok(Types::NUMBER),

@@ -1,3 +1,5 @@
+mod import;
+
 use crate::{
   compiler::{
     AnonymousFunction,
@@ -5,6 +7,7 @@ use crate::{
     Objects,
     ReturnO,
     Boolean,
+    Null,
   },
   Environment,
 };
@@ -35,6 +38,9 @@ pub fn evaluate_statement(
   }
 
   // Export
+  if let Some(export) = statement.clone().get_export() {
+    return evaluate_statement(export.value, environment);
+  }
 
   // Expression
   if let Some(expression) = statement.clone().get_expression() {
@@ -76,6 +82,9 @@ pub fn evaluate_statement(
   }
 
   // Import
+  if let Some(import_s) = statement.clone().get_import() {
+    return import::evaluate(import_s, environment);
+  }
 
   // Interface
 
@@ -93,6 +102,8 @@ pub fn evaluate_statement(
 
       return Some(ReturnO::new(object));
     }
+
+    return Some(ReturnO::new(Null::new()));
   }
 
   // Variable
