@@ -13,9 +13,9 @@ use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Function {
-  pub arguments: HashMap<String, Token>,
-  pub data_type: Token,
-  pub value: String,
+  arguments: HashMap<String, Token>,
+  data_type: Token,
+  value: String,
 }
 
 impl Function {
@@ -66,6 +66,18 @@ impl Function {
     }
 
     Ok(function)
+  }
+
+  pub fn get_arguments(&self) -> HashMap<String, Token> {
+    self.arguments.clone()
+  }
+
+  pub fn get_type(&self) -> Token {
+    self.data_type.clone()
+  }
+
+  pub fn get_value(&self) -> String {
+    self.value.clone()
   }
 
   pub fn parse<'a>(parser: &'a mut Parser) -> Result<Token, i32> {

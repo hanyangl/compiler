@@ -2,6 +2,7 @@ use crate::{
   Environment,
   typechecker::{
     check_expression,
+    equal_types,
     TTypes,
   },
 };
@@ -98,8 +99,14 @@ pub fn check(
     if function_argument.token.is_identifier() {
       if let Some(interface_type) = environment.store.get_type(&function_argument.value) {
         if interface_type.is_interface() {
-          println!("Interface");
-          continue;
+          if equal_types(interface_type.get_type(), argument.get_type()) {
+            continue;
+          }
+
+          return Err(Error::from_token(
+            format!("`{}` not satisfied the `{}` interface.", argument.get_value(), function_argument.value),
+            call_token,
+          ));
         }
 
         return Err(Error::from_token(
@@ -113,7 +120,7 @@ pub fn check(
         call_token,
       ));
     } else if function_argument.token.get_type().is_some() {
-      if function_argument.token.get_type().unwrap() == argument.get_type() {
+      if equal_types(function_argument.token.get_type().unwrap(), argument.get_type()) {
         continue;
       }
 
@@ -128,8 +135,8 @@ pub fn check(
 
   if let Some(function) = function_type.get_type().get_function() {
     return Ok(TTypes::new_type(
-      function.data_type.token.get_type().unwrap(),
-      function.data_type.value,
+      function.get_type().token.get_type().unwrap(),
+      function.get_type().value,
       call.get_token(),
     ));
   }

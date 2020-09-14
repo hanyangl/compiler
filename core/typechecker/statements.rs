@@ -1,5 +1,6 @@
 mod block;
 mod function;
+mod interface;
 mod variable;
 
 use crate::{
@@ -43,14 +44,17 @@ pub fn check_statement(
   // Import
 
   // Interface
+  if let Some(interface_stmt) = statement.get_interface() {
+    return interface::check(&interface_stmt, environment);
+  }
 
   // Return
-  if let Some(return_s) = statement.get_return() {
-    if let Some(value) = return_s.get_value() {
+  if let Some(return_stmt) = statement.get_return() {
+    if let Some(value) = return_stmt.get_value() {
       return check_expression(&value, environment);
     }
 
-    return Ok(TTypes::new_type(Types::VOID, String::from("void"), return_s.get_token()));
+    return Ok(TTypes::new_type(Types::VOID, String::from("void"), return_stmt.get_token()));
   }
 
   // Variable

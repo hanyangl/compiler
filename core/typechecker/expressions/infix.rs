@@ -54,8 +54,8 @@ pub fn check(
     else if left_type.get_type().get_array().is_some() {
       from_std = "Array";
     }
-    // Check if the left type is a hashmap.
-    else if left_type.is_hashmap() {
+    // Check if the left type is a hashmap or an interface.
+    else if left_type.is_hashmap() || left_type.is_interface() {
       for (key, value) in left_type.get_methods() {
         right_environment.store.set_type(key, value);
       }

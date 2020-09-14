@@ -13,8 +13,8 @@ use std::collections::HashMap as HashMapSTD;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct HashMap {
-  pub items: HashMapSTD<String, Token>,
-  pub value: String,
+  items: HashMapSTD<String, Token>,
+  value: String,
 }
 
 impl HashMap {
@@ -47,6 +47,14 @@ impl HashMap {
     }
 
     Ok(hashmap)
+  }
+
+  pub fn get_items(&self) -> HashMapSTD<String, Token> {
+    self.items.clone()
+  }
+
+  pub fn get_value(&self) -> String {
+    self.value.clone()
   }
 
   pub fn parse<'a>(parser: &'a mut Parser) -> Result<Token, i32> {

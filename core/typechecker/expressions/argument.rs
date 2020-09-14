@@ -73,7 +73,7 @@ pub fn function_arguments_to_string(
       if let Some(function) = data_type.get_function() {
         let mut arguments: Vec<Box<Expressions>> = Vec::new();
 
-        for (key, value) in function.arguments.iter() {
+        for (key, value) in function.get_arguments().iter() {
           arguments.push(Argument::new_box_full(
             Token::new(Box::new(Tokens::IDENTIFIER), key.clone(), 0, 0),
             value.clone(),

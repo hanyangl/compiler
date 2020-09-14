@@ -16,16 +16,24 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct InterfaceMethod {
-  pub token: Token,
-  pub data_type: Token,
+  token: Token,
+  data_type: Token,
 }
 
 impl InterfaceMethod {
+  pub fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
+  pub fn get_type(&self) -> Token {
+    self.data_type.clone()
+  }
+
   pub fn string(&self) -> String {
     format!(
       "{}: {}",
-      self.token.value,
-      self.data_type.value,
+      self.get_token().value,
+      self.get_type().value,
     )
   }
 }
@@ -62,7 +70,7 @@ impl Statement for Interface {
   fn string(&self) -> String {
     let mut methods: Vec<String> = Vec::new();
 
-    for method in self.methods.iter() {
+    for method in self.get_methods().iter() {
       methods.push(method.string());
     }
 
@@ -78,6 +86,10 @@ impl Statement for Interface {
 impl Interface {
   pub fn get_name(&self) -> Token {
     self.name.clone()
+  }
+
+  pub fn get_methods(&self) -> Vec<InterfaceMethod> {
+    self.methods.clone()
   }
 
   pub fn parse<'a>(

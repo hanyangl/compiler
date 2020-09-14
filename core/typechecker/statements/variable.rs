@@ -2,6 +2,7 @@ use crate::{
   Environment,
   typechecker::{
     check_expression,
+    equal_types,
     TTypes,
   },
 };
@@ -32,11 +33,16 @@ pub fn check(
         if data_type.value == "any" {
           environment.store.set_type(variable.get_name().value, token.clone());
           return Ok(token);
-        } else if let Some(data_type) = data_type.token.get_type() {
-          if data_type == token.get_type() {
+        } else if let Some(ttype) = data_type.token.get_type() {
+          if equal_types(ttype, token.get_type()) {
             environment.store.set_type(variable.get_name().value, token.clone());
             return Ok(token);
           }
+
+          return Err(Error::from_token(
+            format!("`{}` not satisfied the `{}` data type.", token.get_value(), data_type.value),
+            value.token(),
+          ));
         }
       },
       Err(error) => {

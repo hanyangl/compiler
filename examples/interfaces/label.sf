@@ -2,7 +2,7 @@ interface Label {
   message: string;
 }
 
-func printLabel(obj: LabeledValue) {
+func printLabel(obj: Label) {
   print(obj->message);
 }
 
