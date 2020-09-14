@@ -14,38 +14,43 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Prefix {
-  pub token: Token,
-  pub operator: String,
-  pub right: Box<Expressions>,
+  token: Token,
+  right: Box<Expressions>,
 }
 
 impl Expression for Prefix {
-  fn new() -> Prefix {
-    Prefix {
+  fn new() -> Self {
+    Self {
       token: Token::new_empty(),
-      operator: String::new(),
       right: Identifier::new_box(),
     }
   }
 
-  fn from_token(token: Token) -> Prefix {
-    Prefix {
-      token: token.clone(),
-      operator: token.value,
+  fn from_token(token: Token) -> Self {
+    Self {
+      token,
       right: Identifier::new_box(),
     }
+  }
+
+  fn get_token(&self) -> Token {
+    self.token.clone()
   }
 
   fn string(&self) -> String {
     format!(
       "{}{}",
-      self.operator,
-      self.right.string(),
+      self.get_token().value,
+      self.get_right().string(),
     )
   }
 }
 
 impl Prefix {
+  pub fn get_right(&self) -> Box<Expressions> {
+    self.right.clone()
+  }
+
   pub fn parse<'a>(
     parser: &'a mut Parser,
     standard_library: bool,

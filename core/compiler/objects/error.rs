@@ -9,11 +9,15 @@ use super::Objects;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Error {
-  pub message: String,
-  pub token: Token,
+  message: String,
+  token: Token,
 }
 
 impl Error {
+  pub fn new(message: String, token: Token) -> Box<Objects> {
+    Box::new(Objects::ERROR(Error { message, token }))
+  }
+
   pub fn string(&self, file: File) -> String {
     if self.token.line < 1 {
       return self.message.clone();
@@ -30,17 +34,5 @@ impl Error {
       repeat_character(self.token.value.len(), "^"),
       self.message,
     )
-  }
-}
-
-impl Error {
-  pub fn new(
-    message: String,
-    token: Token,
-  ) -> Box<Objects> {
-    Box::new(Objects::ERROR(Error {
-      message,
-      token,
-    }))
   }
 }

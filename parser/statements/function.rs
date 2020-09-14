@@ -14,16 +14,16 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Function {
-  pub token: Token,
-  pub name: Token,
-  pub arguments: Vec<Box<Expressions>>,
-  pub data_type: Token,
-  pub body: Box<Statements>,
+  token: Token,
+  name: Token,
+  arguments: Vec<Box<Expressions>>,
+  data_type: Token,
+  body: Box<Statements>,
 }
 
 impl Statement for Function {
-  fn new() -> Function {
-    Function {
+  fn new() -> Self {
+    Self {
       token: Token::new_empty(),
       name: Token::new_empty(),
       arguments: Vec::new(),
@@ -32,32 +32,52 @@ impl Statement for Function {
     }
   }
 
-  fn from_token(token: Token) -> Function {
-    let mut function: Function = Statement::new();
+  fn from_token(token: Token) -> Self {
+    let mut function: Self = Statement::new();
 
     function.token = token;
 
     function
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
     let mut arguments: Vec<String> = Vec::new();
 
-    for argument in self.arguments.iter() {
-      arguments.push(argument.clone().string());
+    for argument in self.get_arguments().iter() {
+      arguments.push(argument.string());
     }
 
     format!(
       "function {}({}): {} {}",
-      self.name.value,
+      self.get_name().value,
       arguments.join(", "),
-      self.data_type.value,
-      self.body.clone().string(),
+      self.get_type().value,
+      self.get_body().string(),
     )
   }
 }
 
 impl Function {
+  pub fn get_name(&self) -> Token {
+    self.name.clone()
+  }
+
+  pub fn get_type(&self) -> Token {
+    self.data_type.clone()
+  }
+
+  pub fn get_arguments(&self) -> Vec<Box<Expressions>> {
+    self.arguments.clone()
+  }
+
+  pub fn get_body(&self) -> Box<Statements> {
+    self.body.clone()
+  }
+
   pub fn parse<'a>(
     parser: &'a mut Parser,
     standard_library: bool,

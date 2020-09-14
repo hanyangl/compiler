@@ -20,6 +20,7 @@ use crate::{
 };
 
 use sflyn_parser::{
+  Expression,
   Expressions,
   Identifier,
 };
@@ -54,15 +55,15 @@ pub fn evaluate_expression(
   // Anonymous function
   if let Some(anonymous_function) = expression.get_anonymous_function() {
     AnonymousFunction::add_arguments_to_environment(
-      anonymous_function.arguments.clone(),
+      anonymous_function.get_arguments(),
       environment,
     );
 
     let object = AnonymousFunction::new(
       true,
-      anonymous_function.arguments.clone(),
-      anonymous_function.data_type,
-      anonymous_function.body,
+      anonymous_function.get_arguments(),
+      anonymous_function.get_type(),
+      anonymous_function.get_body(),
       environment.store.clone(),
     );
 
@@ -74,7 +75,7 @@ pub fn evaluate_expression(
   // Array
   if let Some(array) = expression.get_array() {
     // Evaluate array elements.
-    let elements = evaluate_expressions(array.data, environment);
+    let elements = evaluate_expressions(array.get_data(), environment);
 
     // Check if the first element is an error.
     if elements.len() == 0 && elements[0].get_error().is_some() {
@@ -86,14 +87,14 @@ pub fn evaluate_expression(
 
   // Array index
   if let Some(array_index) = expression.get_array_index() {
-    let identifier_obj = evaluate_expression(&Identifier::new_box_from_token(array_index.token.clone()), environment);
+    let identifier_obj = evaluate_expression(&Identifier::new_box_from_token(array_index.get_token()), environment);
 
     // Check if the identifier object is an error.
     if identifier_obj.get_error().is_some() {
       return identifier_obj;
     }
 
-    let index_obj = evaluate_expression(&array_index.index, environment);
+    let index_obj = evaluate_expression(&array_index.get_index(), environment);
 
     // Check if the index object is an error.
     if index_obj.get_error().is_some() {
@@ -103,7 +104,7 @@ pub fn evaluate_expression(
     // Get array value.
     if identifier_obj.get_array().is_some() && index_obj.get_number().is_some() {
       let index: usize;
-      let elements = identifier_obj.get_array().unwrap().elements;
+      let elements = identifier_obj.get_array().unwrap().get_elements();
       let value = index_obj.get_number().unwrap().string();
 
       if value == "-1" {
@@ -122,7 +123,7 @@ pub fn evaluate_expression(
 
   // Boolean
   if let Some(boolean) = expression.get_boolean() {
-    return Boolean::new(boolean.value);
+    return Boolean::new(boolean.get_value());
   }
 
   // Call
@@ -137,9 +138,9 @@ pub fn evaluate_expression(
 
   // Identifier
   if let Some(identifier) = expression.get_identifier() {
-    return match environment.store.get_object(identifier.value) {
+    return match environment.store.get_object(&identifier.get_value()) {
       Some(object) => object.clone(),
-      None => get_builtin_for_identifier(identifier.token),
+      None => get_builtin_for_identifier(identifier.get_token()),
     };
   }
 
@@ -155,7 +156,7 @@ pub fn evaluate_expression(
 
   // Number
   if let Some(number) = expression.get_number() {
-    return Number::new(number.value);
+    return Number::new(number.get_value());
   }
 
   // Prefix
@@ -165,7 +166,7 @@ pub fn evaluate_expression(
 
   // String
   if let Some(string) = expression.get_string() {
-    return StringO::new(string.value[1..string.value.len() - 1].to_string());
+    return StringO::new(string.get_value()[1..string.get_value().len() - 1].to_string());
   }
 
   // Default

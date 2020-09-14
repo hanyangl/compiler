@@ -32,10 +32,9 @@ impl InterfaceMethod {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Interface {
-  pub token: Token,
-  pub name: Token,
-
-  pub methods: Vec<InterfaceMethod>,
+  token: Token,
+  name: Token,
+  methods: Vec<InterfaceMethod>,
 }
 
 impl Statement for Interface {
@@ -56,6 +55,10 @@ impl Statement for Interface {
     interface
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
     let mut methods: Vec<String> = Vec::new();
 
@@ -65,14 +68,18 @@ impl Statement for Interface {
 
     format!(
       "{} {} {{\n {} \n}}",
-      self.token.value,
-      self.name.value,
+      self.get_token().value,
+      self.get_name().value,
       methods.join(";\n"),
     )
   }
 }
 
 impl Interface {
+  pub fn get_name(&self) -> Token {
+    self.name.clone()
+  }
+
   pub fn parse<'a>(
     parser: &'a mut Parser,
     _standard_library: bool,

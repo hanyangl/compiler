@@ -11,27 +11,31 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Number {
-  pub token: Token,
-  pub value: f64,
+  token: Token,
+  value: f64,
 }
 
 impl Expression for Number {
-  fn new() -> Number {
-    Number {
+  fn new() -> Self {
+    Self {
       token: Token::new_empty(),
       value: 0.0,
     }
   }
 
-  fn from_token(token: Token) -> Number {
-    Number {
+  fn from_token(token: Token) -> Self {
+    Self {
       token,
       value: 0.0,
     }
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
-    self.token.value.clone()
+    self.get_token().value
   }
 }
 
@@ -48,6 +52,10 @@ impl Number {
     }
 
     Box::new(Expressions::NUMBER(number))
+  }
+
+  pub fn get_value(&self) -> f64 {
+    self.value.clone()
   }
 
   pub fn parse<'a>(parser: &'a mut Parser) -> Result<Box<Expressions>, Error> {

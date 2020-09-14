@@ -8,7 +8,6 @@ mod interface;
 mod return_s;
 mod statement;
 mod variable;
-mod variable_set;
 
 pub use block::*;
 pub use export::*;
@@ -20,16 +19,11 @@ pub use interface::*;
 pub use return_s::*;
 pub use statement::*;
 pub use variable::*;
-pub use variable_set::*;
 
 use super::{
   Error,
   Parser,
-  tokens::{
-    Keywords,
-    Signs,
-    Tokens,
-  },
+  tokens::Keywords,
 };
 
 pub fn parse_statement<'a>(
@@ -74,43 +68,6 @@ pub fn parse_statement<'a>(
   if parser.current_token_is(Keywords::new(Keywords::LET)) ||
     parser.current_token_is(Keywords::new(Keywords::CONST)) {
     return Variable::parse(parser, standard_library, with_this);
-  }
-
-  // This
-  if parser.current_token_is(Keywords::new(Keywords::THIS)) {
-    if !with_this {
-      return Err(Error::from_token(
-        String::from("can not use this here."),
-        parser.get_current_token(),
-      ));
-    }
-
-    // Check if the next token is a dot.
-    if parser.next_token_is(Signs::new(Signs::DOT)) {
-      let this = parser.get_current_token();
-
-      // Get the next token.
-      parser.next_token();
-
-      // Get the next token.
-      parser.next_token();
-
-      // Check if the next token is an identifier for set.
-      if parser.current_token_is(Box::new(Tokens::IDENTIFIER)) &&
-        !parser.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) &&
-        !parser.next_token_is(Signs::new(Signs::ARROW)) &&
-        !parser.next_token_is(Signs::new(Signs::SEMICOLON)) {
-        return VariableSet::parse(parser, standard_library, Some(this), with_this);
-      }
-    }
-  }
-
-  // Variable set
-  if parser.current_token_is(Box::new(Tokens::IDENTIFIER)) &&
-    !parser.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) &&
-    !parser.next_token_is(Signs::new(Signs::ARROW)) &&
-    !parser.next_token_is(Signs::new(Signs::SEMICOLON)) {
-    return VariableSet::parse(parser, standard_library, None, with_this);
   }
 
   // Default

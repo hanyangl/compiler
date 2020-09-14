@@ -16,38 +16,42 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Call {
-  pub token: Token,
-  pub arguments: Vec<Box<Expressions>>,
-  pub semicolon: Option<Token>,
+  token: Token,
+  arguments: Vec<Box<Expressions>>,
+  semicolon: Option<Token>,
 }
 
 impl Expression for Call {
-  fn new() -> Call {
-    Call {
+  fn new() -> Self {
+    Self {
       token: Token::new_empty(),
       arguments: Vec::new(),
       semicolon: None,
     }
   }
 
-  fn from_token(token: Token) -> Call {
-    let mut call: Call = Expression::new();
+  fn from_token(token: Token) -> Self {
+    let mut call: Self = Expression::new();
 
     call.token = token;
 
     call
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
     let mut arguments: Vec<String> = Vec::new();
 
-    for argument in self.arguments.iter() {
-      arguments.push(argument.clone().string());
+    for argument in self.get_arguments().iter() {
+      arguments.push(argument.string());
     }
 
     format!(
       "{}({}){}",
-      self.token.value,
+      self.get_token().value,
       arguments.join(", "),
       match self.semicolon.clone() {
         Some(semicolon) => semicolon.value,
@@ -58,6 +62,10 @@ impl Expression for Call {
 }
 
 impl Call {
+  pub fn get_arguments(&self) -> Vec<Box<Expressions>> {
+    self.arguments.clone()
+  }
+
   pub fn parse<'a>(
     parser: &'a mut Parser,
     standard_library: bool,

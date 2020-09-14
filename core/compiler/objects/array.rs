@@ -5,7 +5,7 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Array {
-  pub elements: Vec<Box<Objects>>,
+  elements: Vec<Box<Objects>>,
 }
 
 impl Object for Array {
@@ -13,22 +13,19 @@ impl Object for Array {
     let mut elements: Vec<String> = Vec::new();
 
     for element in self.elements.iter() {
-      elements.push(element.clone().string());
+      elements.push(element.string());
     }
 
-    format!(
-      "[{}]",
-      elements.join(", "),
-    )
+    format!("[{}]", elements.join(", "))
   }
 }
 
 impl Array {
-  pub fn new(
-    elements: Vec<Box<Objects>>,
-  ) -> Box<Objects> {
-    Box::new(Objects::ARRAY(Array {
-      elements,
-    }))
+  pub fn new(elements: Vec<Box<Objects>>) -> Box<Objects> {
+    Box::new(Objects::ARRAY(Array { elements }))
+  }
+
+  pub fn get_elements(&self) -> Vec<Box<Objects>> {
+    self.elements.clone()
   }
 }

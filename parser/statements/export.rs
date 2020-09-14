@@ -16,8 +16,8 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Export {
-  pub token: Token,
-  pub value: Box<Statements>,
+  token: Token,
+  value: Box<Statements>,
 }
 
 impl Statement for Export {
@@ -36,16 +36,24 @@ impl Statement for Export {
     export
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
     format!(
       "{} {};",
-      self.token.value,
-      self.value.clone().string(),
+      self.get_token().value,
+      self.get_value().string(),
     )
   }
 }
 
 impl Export {
+  pub fn get_value(&self) -> Box<Statements> {
+    self.value.clone()
+  }
+
   pub fn parse<'a>(
     parser: &'a mut Parser,
     standard_library: bool,

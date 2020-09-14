@@ -14,8 +14,7 @@ pub fn parse_type<'a>(parser: &'a mut Parser) -> Result<Token, ()> {
     };
 
   // Parse arrays.
-  if token.token.clone().get_type().is_some() ||
-    token.token.clone().is_identifier() {
+  if token.token.get_type().is_some() || token.token.is_identifier() {
     match Array::parse(parser, token.clone()) {
       Ok(token) => Ok(token),
       Err(_) => Ok(token),

@@ -36,7 +36,6 @@ use super::{
     Keywords,
     Signs,
     Token,
-    Tokens,
     Types,
   },
 };
@@ -122,46 +121,6 @@ pub fn parse_expression<'a>(
   // Parse * as identifier.
   if parser.current_token_is(Signs::new(Signs::MULTIPLY)) {
     expression = Ok(Identifier::new_box_from_token(parser.get_current_token()));
-  }
-
-  // Parse this.
-  if parser.current_token_is(Keywords::new(Keywords::THIS)) {
-    if !with_this {
-      return Err(Error::from_token(
-        String::from("can not use this here."),
-        parser.get_current_token(),
-      ));
-    }
-
-    let this = parser.get_current_token();
-
-    // Check if the next token is a dot.
-    if !parser.expect_token(Signs::new(Signs::DOT)) {
-      return Err(Error::from_token(
-        format!("expect `.`, get `{}` instead,", parser.get_next_token().value),
-        parser.get_next_token(),
-      ));
-    }
-
-    // Check if the next token is an identifier.
-    if !parser.expect_token(Box::new(Tokens::IDENTIFIER)) {
-      return Err(Error::from_token(
-        format!("`{}` is not a valid identifier.", parser.get_next_token().value),
-        parser.get_next_token(),
-      ));
-    }
-
-    let mut identifier = Identifier::from_token(parser.get_current_token());
-
-    identifier.this = Some(this);
-
-    // Check if the next token is a semicolon.
-    if parser.next_token_is(Signs::new(Signs::SEMICOLON)) {
-      // Get the next token.
-      parser.next_token();
-    }
-
-    expression = Ok(Box::new(Expressions::IDENTIFIER(identifier)));
   }
 
   if let Err(error) = expression {

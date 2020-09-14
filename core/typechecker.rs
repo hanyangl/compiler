@@ -1,7 +1,16 @@
+mod expressions;
+mod statements;
+mod types;
+
+pub use expressions::*;
+pub use statements::*;
+pub use types::*;
+
 use sflyn_parser::File;
 
 use super::{
   Environment,
+  error::show_error,
 };
 
 pub fn run(
@@ -16,21 +25,21 @@ pub fn run(
         return Err(());
       }
 
-      for _statement in file.statements.iter() {
-        /*if let Err(error) = check_statement(statement.clone(), environment) {
+      for statement in file.statements.iter() {
+        if let Err(error) = check_statement(statement, environment) {
           show_error(file.clone(), error);
           return Err(());
-        }*/
+        }
       }
     }
   }
 
   // Parse file statements.
-  for _statement in file.statements.iter() {
-    /*if let Err(error) = check_statement(statement.clone(), environment) {
+  for statement in file.statements.iter() {
+    if let Err(error) = check_statement(statement, environment) {
       show_error(file.clone(), error);
       return Err(());
-    }*/
+    }
   }
 
   Ok(())

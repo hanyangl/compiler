@@ -19,15 +19,15 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AnonymousFunction {
-  pub token: Token,
-  pub arguments: Vec<Box<Expressions>>,
-  pub data_type: Token,
-  pub body: Box<Statements>,
+  token: Token,
+  arguments: Vec<Box<Expressions>>,
+  data_type: Token,
+  body: Box<Statements>,
 }
 
 impl Expression for AnonymousFunction {
-  fn new() -> AnonymousFunction {
-    AnonymousFunction {
+  fn new() -> Self {
+    Self {
       token: Token::new_empty(),
       arguments: Vec::new(),
       data_type: Token::from_value("any", 0, 0),
@@ -35,31 +35,35 @@ impl Expression for AnonymousFunction {
     }
   }
 
-  fn from_token(token: Token) -> AnonymousFunction {
-    let mut function: AnonymousFunction = Expression::new();
+  fn from_token(token: Token) -> Self {
+    let mut function: Self = Expression::new();
 
     function.token = token;
 
     function
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
     let mut arguments: Vec<String> = Vec::new();
 
-    for argument in self.arguments.iter() {
-      arguments.push(argument.clone().string());
+    for argument in self.get_arguments().iter() {
+      arguments.push(argument.string());
     }
 
     let function = format!(
       "({}): {}",
       arguments.join(", "),
-      self.data_type.value,
+      self.get_type().value,
     );
 
-    let body = self.body.clone().string();
+    let body = self.get_body().string();
 
-    if self.token.token.expect_keyword(&Keywords::FUNCTION) {
-      return format!("{} {} {}", self.token.value, function, body);
+    if self.get_token().token.expect_keyword(&Keywords::FUNCTION) {
+      return format!("{} {} {}", self.get_token().value, function, body);
     }
 
     format!("{} => {}", function, body)
@@ -67,6 +71,18 @@ impl Expression for AnonymousFunction {
 }
 
 impl AnonymousFunction {
+  pub fn get_arguments(&self) -> Vec<Box<Expressions>> {
+    self.arguments.clone()
+  }
+
+  pub fn get_type(&self) -> Token {
+    self.data_type.clone()
+  }
+
+  pub fn get_body(&self) -> Box<Statements> {
+    self.body.clone()
+  }
+
   pub fn parse<'a>(
     parser: &'a mut Parser,
     standard_library: bool,

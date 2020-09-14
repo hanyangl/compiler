@@ -5,6 +5,8 @@ use crate::{
 };
 
 use sflyn_parser::{
+  Argument,
+  Expression,
   Expressions,
   Statements,
   tokens::Token,
@@ -54,16 +56,16 @@ impl AnonymousFunction {
     environment: &mut Environment,
   ) {
     for argument in arguments.iter() {
-      let function_argument = argument.get_argument().unwrap();
+      let function_argument: Argument = argument.get_argument().unwrap();
 
-      if !function_argument.has_default_value() {
+      if function_argument.get_value().is_none() {
         continue;
       }
 
-      if let Some(expression) = function_argument.value {
+      if let Some(expression) = function_argument.get_value() {
         let object = evaluate_expression(&expression, environment);
 
-        environment.store.set_object(function_argument.token.value.clone(), object);
+        environment.store.set_object(function_argument.get_token().value, object);
       }
     }
   }

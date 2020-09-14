@@ -17,30 +17,34 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Return {
-  pub token: Token,
-  pub value: Option<Box<Expressions>>,
+  token: Token,
+  value: Option<Box<Expressions>>,
 }
 
 impl Statement for Return {
-  fn new() -> Return {
-    Return {
+  fn new() -> Self {
+    Self {
       token: Token::new_empty(),
       value: None,
     }
   }
 
-  fn from_token(token: Token) -> Return {
-    let mut return_s: Return = Statement::new();
+  fn from_token(token: Token) -> Self {
+    let mut return_s: Self = Statement::new();
 
     return_s.token = token;
 
     return_s
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
     format!(
       "{}{};",
-      self.token.value,
+      self.get_token().value,
       match &self.value {
         Some(value) => format!(" {}", value.string()),
         None => String::new(),
@@ -50,6 +54,10 @@ impl Statement for Return {
 }
 
 impl Return {
+  pub fn get_value(&self) -> Option<Box<Expressions>> {
+    self.value.clone()
+  }
+
   pub fn parse<'a>(
     parser: &'a mut Parser,
     standard_library: bool,

@@ -14,10 +14,7 @@ use super::{
 pub fn get_builtin_for_identifier(identifier: Token) -> Box<Objects> {
   // Print
   if identifier.value == "print" {
-    return Box::new(Objects::BUILTIN(BuiltIn {
-      obj: None,
-      fun: Some(print::print),
-    }));
+    return BuiltIn::new_box(None, Some(print::print));
   }
 
   // Default

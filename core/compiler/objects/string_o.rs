@@ -7,12 +7,12 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct StringO {
-  pub value: String,
+  value: String,
 }
 
 impl Object for StringO {
   fn string(&self) -> String {
-    self.value.clone()
+    self.get_value()
   }
 }
 
@@ -32,8 +32,10 @@ impl Hashable for StringO {
 
 impl StringO {
   pub fn new(value: String) -> Box<Objects> {
-    Box::new(Objects::STRING(StringO {
-      value,
-    }))
+    Box::new(Objects::STRING(StringO { value }))
+  }
+
+  pub fn get_value(&self) -> String {
+    self.value.clone()
   }
 }

@@ -9,7 +9,11 @@ use crate::{
   Store,
 };
 
-use sflyn_parser::Call;
+use sflyn_parser::{
+  Argument,
+  Call,
+  Expression,
+};
 
 use super::evaluate_expressions;
 
@@ -18,9 +22,9 @@ pub fn evaluate(
   environment: &mut Environment,
 ) -> Box<Objects> {
   // Get the function object.
-  let function_object = match environment.store.get_object(call.token.value.clone()) {
+  let function_object = match environment.store.get_object(&call.get_token().value) {
     Some(object) => object.clone(),
-    None => get_builtin_for_identifier(call.token.clone()),
+    None => get_builtin_for_identifier(call.get_token()),
   };
 
   // Check if the function object is an error.
@@ -29,7 +33,7 @@ pub fn evaluate(
   }
 
   // Compile arguments.
-  let arguments = evaluate_expressions(call.arguments.clone(), environment);
+  let arguments = evaluate_expressions(call.get_arguments(), environment);
 
   // Check if the first argument is an error.
   if arguments.len() == 1 && arguments[0].get_error().is_some() {
@@ -46,9 +50,9 @@ pub fn evaluate(
 
     // Add call arguments to the function environment.
     for argument in arguments {
-      let function_argument = anonymous_function.arguments[index].get_argument().unwrap();
+      let function_argument: Argument = anonymous_function.arguments[index].get_argument().unwrap();
 
-      function_environment.store.set_object(function_argument.token.value.clone(), argument);
+      function_environment.store.set_object(function_argument.get_token().value, argument);
 
       index += 1;
     }
@@ -63,13 +67,13 @@ pub fn evaluate(
   }
   // Check if the function object is a builtin.
   else if let Some(builtin) = function_object.get_builtin() {
-    if let Some(fun) = builtin.fun {
-      return (fun)(call.token, arguments);
+    if let Some(fun) = builtin.get_function() {
+      return (fun)(call.get_token(), arguments);
     }
   }
 
   Error::new(
-    format!("Unknown function: {}", call.token.value),
-    call.token,
+    format!("Unknown function: {}", call.get_token().value),
+    call.get_token(),
   )
 }

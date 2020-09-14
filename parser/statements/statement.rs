@@ -9,6 +9,9 @@ pub trait Statement {
   /// Create a statement with a token.
   fn from_token(token: Token) -> Self;
 
+  /// Get the token.
+  fn get_token(&self) -> Token;
+
   /// Parse the statement to a string.
   fn string(&self) -> String;
 }
@@ -23,7 +26,6 @@ pub enum Statements {
   IMPORT(Import),
   INTERFACE(Interface),
   RETURN(Return),
-  VARIABLESET(VariableSet),
   VARIABLE(Variable),
 }
 
@@ -84,13 +86,6 @@ impl Statements {
     }
   }
 
-  pub fn get_variable_set(&self) -> Option<VariableSet> {
-    match self {
-      Statements::VARIABLESET(variable_set) => Some(variable_set.clone()),
-      _ => None,
-    }
-  }
-
   pub fn get_variable(&self) -> Option<Variable> {
     match self {
       Statements::VARIABLE(variable) => Some(variable.clone()),
@@ -99,17 +94,16 @@ impl Statements {
   }
 
   pub fn token(&self) -> Token {
-    match self.clone() {
-      Statements::BLOCK(block) => block.token,
-      Statements::EXPORT(export) => export.token,
-      Statements::EXPRESSION(expression) => expression.token,
-      Statements::FUNCTION(function) => function.token,
-      Statements::IFELSE(if_else) => if_else.token,
-      Statements::IMPORT(import) => import.token,
-      Statements::INTERFACE(interface) => interface.token,
-      Statements::RETURN(return_s) => return_s.token,
-      Statements::VARIABLE(variable) => variable.token,
-      Statements::VARIABLESET(variable_set) => variable_set.token,
+    match self {
+      Statements::BLOCK(block) => block.get_token(),
+      Statements::EXPORT(export) => export.get_token(),
+      Statements::EXPRESSION(expression) => expression.get_token(),
+      Statements::FUNCTION(function) => function.get_token(),
+      Statements::IFELSE(if_else) => if_else.get_token(),
+      Statements::IMPORT(import) => import.get_token(),
+      Statements::INTERFACE(interface) => interface.get_token(),
+      Statements::RETURN(return_s) => return_s.get_token(),
+      Statements::VARIABLE(variable) => variable.get_token(),
     }
   }
 
@@ -124,7 +118,6 @@ impl Statements {
       Statements::INTERFACE(interface) => interface.string(),
       Statements::RETURN(return_s) => return_s.string(),
       Statements::VARIABLE(variable) => variable.string(),
-      Statements::VARIABLESET(variable_set) => variable_set.string(),
     }
   }
 }

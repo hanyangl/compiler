@@ -20,23 +20,23 @@ pub enum Types {
 }
 
 impl Types {
-  pub fn get_array(self) -> Option<Array> {
+  pub fn get_array(&self) -> Option<Array> {
     match self {
-      Types::ARRAY(array) => Some(array),
+      Types::ARRAY(array) => Some(array.clone()),
       _ => None,
     }
   }
 
-  pub fn get_function(self) -> Option<Function> {
+  pub fn get_function(&self) -> Option<Function> {
     match self {
-      Types::FUNCTION(function) => Some(function),
+      Types::FUNCTION(function) => Some(function.clone()),
       _ => None,
     }
   }
 
-  pub fn get_hashmap(self) -> Option<HashMap> {
+  pub fn get_hashmap(&self) -> Option<HashMap> {
     match self {
-      Types::HASHMAP(hashmap) => Some(hashmap),
+      Types::HASHMAP(hashmap) => Some(hashmap.clone()),
       _ => None,
     }
   }

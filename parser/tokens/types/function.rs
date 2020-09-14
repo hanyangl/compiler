@@ -28,56 +28,34 @@ impl Function {
   }
 
   pub fn from_value(value: &str) -> Result<Function, ()> {
-    if !value.starts_with("(") && !value.contains("=>") {
+    let parts: Vec<String> = value.split("=>").map(|x| x.to_string()).collect();
+
+    if !value.starts_with("(") && parts.len() < 2 {
       return Err(());
     }
 
-    let mut function = Function::new(Token::from_value("any", 0, 0), value.to_string());
-    let mut arguments: String = String::new();
-    let mut current_character: &str = "(";
-    let mut index: usize = 1;
+    let mut function = Function::new(
+      Token::from_value(parts.last().unwrap().trim(), 0, 0),
+      value.to_string(),
+    );
 
-    while current_character != "=" {
-      if value.len() - 1 == index {
-        return Err(());
+    let arguments = parts[0..parts.len() - 1].join("=>");
+
+    if arguments.trim().len() > 2 {
+      // Parse function arguments.
+      for argument in arguments[1..].split(",") {
+        let argument: Vec<&str> = argument.split(":").collect();
+
+        if argument.len() < 2 {
+          return Err(());
+        }
+
+        function.arguments.insert(
+          argument[0].trim().to_string(),
+          Token::from_value(argument[1..].join(":").trim(), 0, 0),
+        );
       }
-
-      arguments.push_str(current_character);
-
-      // Set the current character.
-      current_character = &value[index..index + 1];
-
-      // Get the next index.
-      index += 1;
     }
-
-    // Parse function arguments.
-    for argument in arguments[1..].split(",") {
-      let argument: Vec<&str> = argument.split(":").collect();
-
-      if argument.len() != 2 {
-        return Err(());
-      }
-
-      let mut data_type = argument[1].trim();
-
-      if !data_type.starts_with("(") && data_type.ends_with(")") {
-        data_type = &data_type[..data_type.len() - 1];
-      }
-
-      function.arguments.insert(
-        argument[0].trim().to_string(),
-        Token::from_value(data_type, 0, 0),
-      );
-    }
-
-    let new_value: &str = &value[index - 1..].trim();
-
-    if !new_value.starts_with("=>") {
-      return Err(());
-    }
-
-    function.data_type = Token::from_value(&new_value[2..].trim(), 0, 0);
 
     Ok(function)
   }

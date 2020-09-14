@@ -9,6 +9,9 @@ pub trait Expression {
   /// Create a new expression from a token.
   fn from_token(token: Token) -> Self;
 
+  /// Get the token.
+  fn get_token(&self) -> Token;
+
   /// Get the expression value.
   fn string(&self) -> String;
 }
@@ -122,20 +125,20 @@ impl Expressions {
   }
 
   pub fn token(&self) -> Token {
-    match self.clone() {
-      Expressions::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.token,
-      Expressions::ARGUMENT(argument) => argument.token,
-      Expressions::ARRAY(array) => array.token,
-      Expressions::ARRAYINDEX(array_index) => array_index.token,
-      Expressions::BOOLEAN(boolean) => boolean.token,
-      Expressions::CALL(call) => call.token,
-      Expressions::HASHMAP(hashmap) => hashmap.token,
-      Expressions::IDENTIFIER(identifier) => identifier.token,
-      Expressions::INFIX(infix) => infix.token,
-      Expressions::NULL(null) => null.token,
-      Expressions::NUMBER(number) => number.token,
-      Expressions::PREFIX(prefix) => prefix.token,
-      Expressions::STRING(string) => string.token,
+    match self {
+      Expressions::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.get_token(),
+      Expressions::ARGUMENT(argument) => argument.get_token(),
+      Expressions::ARRAY(array) => array.get_token(),
+      Expressions::ARRAYINDEX(array_index) => array_index.get_token(),
+      Expressions::BOOLEAN(boolean) => boolean.get_token(),
+      Expressions::CALL(call) => call.get_token(),
+      Expressions::HASHMAP(hashmap) => hashmap.get_token(),
+      Expressions::IDENTIFIER(identifier) => identifier.get_token(),
+      Expressions::INFIX(infix) => infix.get_token(),
+      Expressions::NULL(null) => null.get_token(),
+      Expressions::NUMBER(number) => number.get_token(),
+      Expressions::PREFIX(prefix) => prefix.get_token(),
+      Expressions::STRING(string) => string.get_token(),
     }
   }
 

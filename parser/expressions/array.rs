@@ -17,31 +17,35 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Array {
-  pub token: Token,
-  pub data: Vec<Box<Expressions>>,
+  token: Token,
+  data: Vec<Box<Expressions>>,
 }
 
 impl Expression for Array {
-  fn new() -> Array {
-    Array {
+  fn new() -> Self {
+    Self {
       token: Token::new_empty(),
       data: Vec::new(),
     }
   }
 
-  fn from_token(token: Token) -> Array {
-    let mut array: Array = Expression::new();
+  fn from_token(token: Token) -> Self {
+    let mut array: Self = Expression::new();
 
     array.token = token;
 
     array
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
     let mut data: Vec<String> = Vec::new();
 
-    for expression in self.data.iter() {
-      data.push(expression.clone().string());
+    for expression in self.get_data().iter() {
+      data.push(expression.string());
     }
 
     format!("[{}]", data.join(", "))
@@ -49,6 +53,10 @@ impl Expression for Array {
 }
 
 impl Array {
+  pub fn get_data(&self) -> Vec<Box<Expressions>> {
+    self.data.clone()
+  }
+
   pub fn parse<'a>(
     parser: &'a mut Parser,
     standard_library: bool,
@@ -93,8 +101,8 @@ impl Array {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ArrayIndex {
-  pub token: Token,
-  pub index: Box<Expressions>,
+  token: Token,
+  index: Box<Expressions>,
 }
 
 impl Expression for ArrayIndex {
@@ -113,16 +121,24 @@ impl Expression for ArrayIndex {
     array_index
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
     format!(
       "{}[{}]",
-      self.token.value,
-      self.index.clone().string(),
+      self.get_token().value,
+      self.get_index().string(),
     )
   }
 }
 
 impl ArrayIndex {
+  pub fn get_index(&self) -> Box<Expressions> {
+    self.index.clone()
+  }
+
   pub fn parse_index<'a>(
     index: Box<Expressions>,
   ) -> Result<(), Error> {
@@ -136,7 +152,7 @@ impl ArrayIndex {
 
     // Get the prefix expression.
     if let Some(prefix) = index.clone().get_prefix() {
-      if prefix.right.get_number().unwrap().value != 1.0 {
+      if prefix.get_right().get_number().unwrap().get_value() != 1.0 {
         return Err(Error::from_token(
           String::from("the index can not be other than '-1' or a positive number."),
           index.clone().token(),

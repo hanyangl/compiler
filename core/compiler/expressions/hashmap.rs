@@ -17,7 +17,7 @@ pub fn evaluate(
 ) -> Box<Objects> {
   let mut data: Vec<HashItem> = Vec::new();
 
-  for (key, value) in hashmap.items {
+  for (key, value) in hashmap.get_items() {
     // Compile item value.
     let value_object = evaluate_expression(&value, environment);
 

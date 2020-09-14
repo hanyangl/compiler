@@ -20,9 +20,9 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Import {
-  pub token: Token,
-  pub modules: Vec<Box<Expressions>>,
-  pub path: Box<Expressions>,
+  token: Token,
+  modules: Vec<Box<Expressions>>,
+  path: Box<Expressions>,
 }
 
 impl Statement for Import {
@@ -42,6 +42,10 @@ impl Statement for Import {
     import
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
     let mut modules: Vec<String> = Vec::new();
 
@@ -52,20 +56,20 @@ impl Statement for Import {
     if modules.len() == 0 {
       format!(
         "{} {};",
-        self.token.value,
+        self.get_token().value,
         self.path.string(),
       )
     } else if modules.len() == 1 {
       format!(
         "{} {} from {};",
-        self.token.value,
+        self.get_token().value,
         modules[0].clone(),
         self.path.string(),
       )
     } else {
       format!(
         "{} {{\n\t{}\n}} from {};",
-        self.token.value,
+        self.get_token().value,
         modules.join(", "),
         self.path.string(),
       )
@@ -74,6 +78,14 @@ impl Statement for Import {
 }
 
 impl Import {
+  pub fn get_modules(&self) -> Vec<Box<Expressions>> {
+    self.modules.clone()
+  }
+
+  pub fn get_path(&self) -> Box<Expressions> {
+    self.path.clone()
+  }
+
   pub fn parse<'a>(
     parser: &'a mut Parser,
     standard_library: bool,

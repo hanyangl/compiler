@@ -15,8 +15,8 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExpressionStatement {
-  pub token: Token,
-  pub expression: Box<Expressions>,
+  token: Token,
+  expression: Box<Expressions>,
 }
 
 impl Statement for ExpressionStatement {
@@ -34,14 +34,22 @@ impl Statement for ExpressionStatement {
     }
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
-    self.expression.clone().string()
+    self.get_expression().string()
   }
 }
 
 impl ExpressionStatement {
   pub fn new_box() -> Box<Statements> {
     Box::new(Statements::EXPRESSION(Statement::new()))
+  }
+
+  pub fn get_expression(&self) -> Box<Expressions> {
+    self.expression.clone()
   }
 
   pub fn parse<'a>(

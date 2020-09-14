@@ -11,7 +11,12 @@ use crate::{
   Store,
 };
 
-use sflyn_parser::Import;
+use sflyn_parser::{
+  Expression,
+  Import,
+  Statement,
+};
+
 use std::path::Path;
 
 pub fn evaluate(
@@ -22,7 +27,7 @@ pub fn evaluate(
   if environment.current_file.is_none() {
     return Some(Error::new(
       String::from("the file is not valid."),
-      import.token,
+      import.get_token(),
     ));
   }
 
@@ -37,27 +42,27 @@ pub fn evaluate(
   if current_path.parent().is_none() {
     return Some(Error::new(
       String::from("the file does not has a parent directory."),
-      import.token,
+      import.get_token(),
     ));
   }
 
   // Get the object for the import path.
-  let path_obj = evaluate_expression(&import.path, environment);
+  let path_obj = evaluate_expression(&import.get_path(), environment);
 
   // Check if the path object is an error.
-  if path_obj.clone().get_error().is_some() {
+  if path_obj.get_error().is_some() {
     return Some(path_obj);
   }
 
   // Check if the path object is not a string.
-  if path_obj.clone().get_string().is_none() {
+  if path_obj.get_string().is_none() {
     return Some(Error::new(
       String::from("is not a valid path."),
-      import.path.token(),
+      import.get_path().token(),
     ));
   }
 
-  let mut path_to = path_obj.get_string().unwrap().value;
+  let mut path_to = path_obj.get_string().unwrap().get_value();
 
   if path_to.ends_with(".sf") {
     path_to = path_to[0..path_to.len() - 3].to_string();
@@ -85,17 +90,17 @@ pub fn evaluate(
   if new_file.is_none() {
     return Some(Error::new(
       String::from("the file imported is not valid."),
-      import.path.token(),
+      import.get_path().token(),
     ));
   }
 
   let file_exports = new_file.unwrap().exports;
   let mut exports_items: Vec<HashItem> = Vec::new();
 
-  for export in file_exports {
-    if let Some(env_obj) = import_environment.store.get_object(export.clone()) {
+  for export in file_exports.iter() {
+    if let Some(env_obj) = import_environment.store.get_object(export) {
       exports_items.push(HashItem {
-        key: export,
+        key: export.clone(),
         value: env_obj,
       });
 
@@ -104,11 +109,11 @@ pub fn evaluate(
 
     return Some(Error::new(
       format!("`{}` is not a valid export in `{}`.", export, path_to),
-      import.path.token(),
+      import.get_path().token(),
     ));
   }
 
-  if import.modules.len() == 0 {
+  if import.get_modules().len() == 0 {
     for item in exports_items {
       environment.store.set_object(item.key, item.value);
     }
@@ -116,50 +121,50 @@ pub fn evaluate(
     let exports = HashMap::new(exports_items);
 
     // Evaluate import modules.
-    for module in import.modules {
+    for module in import.get_modules() {
       // Check if the module is an identifier.
-      if let Some(identifier) = module.clone().get_identifier() {
-        if let Some(env_obj) = import_environment.store.get_object(identifier.value.clone()) {
-          environment.store.set_object(identifier.value, env_obj);
+      if let Some(identifier) = module.get_identifier() {
+        if let Some(env_obj) = import_environment.store.get_object(&identifier.get_value()) {
+          environment.store.set_object(identifier.get_value(), env_obj);
           continue;
         }
 
         return Some(Error::new(
-          format!("`{}` identifier not found in `{}`.", identifier.value.clone(), path_to),
-          identifier.token,
+          format!("`{}` identifier not found in `{}`.", identifier.get_value(), path_to),
+          identifier.get_token(),
         ));
       }
       // Check if the module is an infix.
-      if let Some(infix) = module.clone().get_infix() {
+      if let Some(infix) = module.get_infix() {
         // Check if the infix expression is an alias.
-        if infix.clone().is_alias() {
+        if infix.is_alias() {
           // Get the left identifier.
-          if let Some(left_identifier) = infix.left.clone().get_identifier() {
+          if let Some(left_identifier) = infix.get_left().get_identifier() {
             // Get the object from the environment.
-            if let Some(env_obj) = import_environment.store.get_object(left_identifier.value.clone()) {
-              if let Some(right_identifier) = infix.right.clone().get_identifier() {
-                environment.store.set_object(right_identifier.value, env_obj);
+            if let Some(env_obj) = import_environment.store.get_object(&left_identifier.get_value()) {
+              if let Some(right_identifier) = infix.get_right().get_identifier() {
+                environment.store.set_object(right_identifier.get_value(), env_obj);
                 continue;
               }
             }
             // Check if the left identifier is an `*`.
-            else if left_identifier.value == "*" {
-              if let Some(right_identifier) = infix.right.clone().get_identifier() {
-                environment.store.set_object(right_identifier.value, exports.clone());
+            else if left_identifier.get_value() == "*" {
+              if let Some(right_identifier) = infix.get_right().get_identifier() {
+                environment.store.set_object(right_identifier.get_value(), exports.clone());
                 continue;
               }
             }
 
             return Some(Error::new(
-              format!("`{}` identifier not found in `{}`.", left_identifier.value, path_to),
-              left_identifier.token,
+              format!("`{}` identifier not found in `{}`.", left_identifier.get_value(), path_to),
+              left_identifier.get_token(),
             ));
           }
         }
 
         return Some(Error::new(
           String::from("only can use `as` expressions."),
-          infix.token,
+          infix.get_token(),
         ));
       }
 

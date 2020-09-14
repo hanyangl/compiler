@@ -19,30 +19,34 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct HashMap {
-  pub token: Token,
-  pub items: HashMapSTD<String, Box<Expressions>>,
+  token: Token,
+  items: HashMapSTD<String, Box<Expressions>>,
 }
 
 impl Expression for HashMap {
-  fn new() -> HashMap {
-    HashMap {
+  fn new() -> Self {
+    Self {
       token: Token::new_empty(),
       items: HashMapSTD::new(),
     }
   }
 
-  fn from_token(token: Token) -> HashMap {
-    let mut hashmap: HashMap = Expression::new();
+  fn from_token(token: Token) -> Self {
+    let mut hashmap: Self = Expression::new();
 
     hashmap.token = token;
 
     hashmap
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
     let mut values: Vec<String> = Vec::new();
 
-    for (key, value) in self.items.clone() {
+    for (key, value) in self.get_items() {
       values.push(format!("{}: {}", key, value.string()));
     }
 
@@ -51,6 +55,10 @@ impl Expression for HashMap {
 }
 
 impl HashMap {
+  pub fn get_items(&self) -> HashMapSTD<String, Box<Expressions>> {
+    self.items.clone()
+  }
+
   pub fn parse<'a>(
     parser: &'a mut Parser,
     standard_library: bool,

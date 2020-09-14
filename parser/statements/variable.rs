@@ -15,15 +15,15 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Variable {
-  pub token: Token,
-  pub name: Token,
-  pub data_type: Token,
-  pub value: Option<Box<Expressions>>,
+  token: Token,
+  name: Token,
+  data_type: Token,
+  value: Option<Box<Expressions>>,
 }
 
 impl Statement for Variable {
-  fn new() -> Variable {
-    Variable {
+  fn new() -> Self {
+    Self {
       token: Token::new_empty(),
       name: Token::new_empty(),
       data_type: Token::from_value("any", 0, 0),
@@ -31,18 +31,22 @@ impl Statement for Variable {
     }
   }
 
-  fn from_token(token: Token) -> Variable {
-    let mut variable: Variable = Statement::new();
+  fn from_token(token: Token) -> Self {
+    let mut variable: Self = Statement::new();
 
     variable.token = token;
 
     variable
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
     let mut value = String::new();
 
-    if let Some(default_value) = &self.value {
+    if let Some(default_value) = self.get_value() {
       let default_value = default_value.string();
 
       if default_value.ends_with(";") {
@@ -54,9 +58,9 @@ impl Statement for Variable {
 
     format!(
       "{} {}: {} = {};",
-      self.token.value,
-      self.name.value,
-      self.data_type.value,
+      self.get_token().value,
+      self.get_name().value,
+      self.get_type().value,
       value,
     )
   }
@@ -65,6 +69,18 @@ impl Statement for Variable {
 impl Variable {
   pub fn new_box() -> Box<Statements> {
     Box::new(Statements::VARIABLE(Statement::new()))
+  }
+
+  pub fn get_name(&self) -> Token {
+    self.name.clone()
+  }
+
+  pub fn get_type(&self) -> Token {
+    self.data_type.clone()
+  }
+
+  pub fn get_value(&self) -> Option<Box<Expressions>> {
+    self.value.clone()
   }
 
   pub fn parse<'a>(

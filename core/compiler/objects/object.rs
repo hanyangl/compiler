@@ -51,7 +51,7 @@ impl Objects {
 
   pub fn expect_boolean(&self, value: bool) -> bool {
     match self {
-      Objects::BOOLEAN(boolean) => boolean.value == value,
+      Objects::BOOLEAN(boolean) => boolean.get_value() == value,
       _ => false,
     }
   }

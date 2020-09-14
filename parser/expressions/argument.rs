@@ -18,36 +18,40 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Argument {
-  pub token: Token,
-  pub data_type: Token,
-  pub value: Option<Box<Expressions>>
+  token: Token,
+  data_type: Token,
+  value: Option<Box<Expressions>>
 }
 
 impl Expression for Argument {
-  fn new() -> Argument {
-    Argument {
+  fn new() -> Self {
+    Self {
       token: Token::new_empty(),
       data_type: Token::new_empty(),
       value: None,
     }
   }
 
-  fn from_token(token: Token) -> Argument {
-    Argument {
+  fn from_token(token: Token) -> Self {
+    Self {
       token,
       data_type: Token::new_empty(),
       value: None,
     }
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
     let argument = format!(
       "{}: {}",
-      self.token.value,
-      self.data_type.value,
+      self.get_token().value,
+      self.get_type().value,
     );
 
-    match self.value.clone() {
+    match self.get_value() {
       Some(value) => format!("{} = {}", argument, value.string()),
       None => argument,
     }
@@ -63,8 +67,16 @@ impl Argument {
     Box::new(Expressions::ARGUMENT(Expression::from_token(token)))
   }
 
-  pub fn has_default_value(&self) -> bool {
-    self.value.is_some()
+  pub fn new_box_full(token: Token, data_type: Token, value: Option<Box<Expressions>>) -> Box<Expressions> {
+    Box::new(Expressions::ARGUMENT(Argument { token, data_type, value }))
+  }
+
+  pub fn get_type(&self) -> Token {
+    self.data_type.clone()
+  }
+
+  pub fn get_value(&self) -> Option<Box<Expressions>> {
+    self.value.clone()
   }
 
   pub fn parse<'a>(

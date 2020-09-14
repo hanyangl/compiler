@@ -46,24 +46,24 @@ pub fn run(file_name: String) -> Result<File, (Error, Option<File>)> {
         file.statements.push(statement.clone());
 
         // Check if the current statement is an export.
-        if let Some(export) = statement.clone().get_export() {
+        if let Some(export) = statement.get_export() {
           // Check if the export value is a variabe.
-          if let Some(variable) = export.value.clone().get_variable() {
-            file.exports.push(variable.name.value);
+          if let Some(variable) = export.get_value().get_variable() {
+            file.exports.push(variable.get_name().value);
           }
           // Check if the export value is a function.
-          else if let Some(function) = export.value.clone().get_function() {
-            file.exports.push(function.name.value);
+          else if let Some(function) = export.get_value().get_function() {
+            file.exports.push(function.get_name().value);
           }
           // Check if the export value is an interface.
-          else if let Some(interface) = export.value.clone().get_interface() {
-            file.exports.push(interface.name.value);
+          else if let Some(interface) = export.get_value().get_interface() {
+            file.exports.push(interface.get_name().value);
           }
           // Check if the export value is an expression.
-          else if let Some(expression) = export.value.clone().get_expression() {
+          else if let Some(expression) = export.get_value().get_expression() {
             // Check if the expression is an identifier.
-            if let Some(identifier) = expression.expression.clone().get_identifier() {
-              file.exports.push(identifier.value);
+            if let Some(identifier) = expression.get_expression().get_identifier() {
+              file.exports.push(identifier.get_value());
             }
           }
         }

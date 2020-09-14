@@ -12,8 +12,8 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Block {
-  pub token: Token,
-  pub statements: Vec<Box<Statements>>,
+  token: Token,
+  statements: Vec<Box<Statements>>,
 }
 
 impl Statement for Block {
@@ -31,11 +31,15 @@ impl Statement for Block {
     }
   }
 
+  fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
   fn string(&self) -> String {
     let mut strings: Vec<String> = Vec::new();
 
-    for stmt in self.statements.iter() {
-      strings.push(stmt.clone().string());
+    for stmt in self.get_statements().iter() {
+      strings.push(stmt.string());
     }
 
     format!("{{\n{}\n}}", strings.join("\n"))
@@ -49,6 +53,10 @@ impl Block {
 
   pub fn new_box_from_token(token: Token) -> Box<Statements> {
     Box::new(Statements::BLOCK(Statement::from_token(token)))
+  }
+
+  pub fn get_statements(&self) -> Vec<Box<Statements>> {
+    self.statements.clone()
   }
 
   pub fn parse<'a>(

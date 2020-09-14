@@ -22,7 +22,7 @@ pub fn evaluate_statement(
   if let Some(block) = statement.get_block() {
     let mut result_object: Option<Box<Objects>> = None;
 
-    for statement in block.statements.iter() {
+    for statement in block.get_statements().iter() {
       result_object = evaluate_statement(statement, environment);
 
       if let Some(object) = result_object.clone() {
@@ -38,36 +38,36 @@ pub fn evaluate_statement(
 
   // Export
   if let Some(export) = statement.get_export() {
-    return evaluate_statement(&export.value, environment);
+    return evaluate_statement(&export.get_value(), environment);
   }
 
   // Expression
   if let Some(expression) = statement.get_expression() {
-    return Some(evaluate_expression(&expression.expression, environment));
+    return Some(evaluate_expression(&expression.get_expression(), environment));
   }
 
   // Function
   if let Some(function) = statement.get_function() {
     AnonymousFunction::add_arguments_to_environment(
-      function.arguments.clone(),
+      function.get_arguments(),
       environment,
     );
 
     let object = AnonymousFunction::new(
       true,
-      function.arguments.clone(),
-      function.data_type,
-      function.body,
+      function.get_arguments(),
+      function.get_type(),
+      function.get_body(),
       environment.store.clone(),
     );
 
     // Add function object to the environment.
-    environment.store.set_object(function.name.value, object);
+    environment.store.set_object(function.get_name().value, object);
   }
 
   // If else
   if let Some(if_else) = statement.get_if_else() {
-    for condition in if_else.conditions.iter() {
+    for condition in if_else.get_conditions().iter() {
       let object = evaluate_expression(&condition.condition, environment);
 
       if Boolean::is_truthy(object) {
@@ -75,7 +75,7 @@ pub fn evaluate_statement(
       }
     }
 
-    if let Some(alternative) = if_else.alternative {
+    if let Some(alternative) = if_else.get_alternative() {
       return evaluate_statement(&alternative, environment);
     }
   }
@@ -90,7 +90,7 @@ pub fn evaluate_statement(
   // Return
   if let Some(return_s) = statement.get_return() {
     // Get the return value.
-    if let Some(value) = return_s.value {
+    if let Some(value) = return_s.get_value() {
       // Evaluate the return value.
       let object = evaluate_expression(&value, environment);
 
@@ -108,7 +108,7 @@ pub fn evaluate_statement(
   // Variable
   if let Some(variable) = statement.get_variable() {
     // Get the variable value.
-    if let Some(value) = variable.value {
+    if let Some(value) = variable.get_value() {
       // Evaluate the variable value.
       let object = evaluate_expression(&value, environment);
 
@@ -117,7 +117,7 @@ pub fn evaluate_statement(
         return Some(object);
       }
 
-      environment.store.set_object(variable.name.value, object);
+      environment.store.set_object(variable.get_name().value, object);
     }
   }
 

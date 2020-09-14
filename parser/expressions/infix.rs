@@ -24,49 +24,58 @@ pub enum InfixType {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Infix {
-  pub token: Token,
-  pub itype: InfixType,
-  pub left: Box<Expressions>,
-  pub operator: String,
-  pub right: Box<Expressions>,
+  token: Token,
+  itype: InfixType,
+  left: Box<Expressions>,
+  right: Box<Expressions>,
 }
 
 impl Expression for Infix {
-  fn new() -> Infix {
-    Infix {
+  fn new() -> Self {
+    Self {
       token: Token::new_empty(),
       itype: InfixType::INFIX,
       left: Identifier::new_box(),
-      operator: String::new(),
       right: Identifier::new_box(),
     }
   }
 
-  fn from_token(token: Token) -> Infix {
-    Infix {
-      token: token.clone(),
+  fn from_token(token: Token) -> Self {
+    Self {
+      token,
       itype: InfixType::INFIX,
       left: Identifier::new_box(),
-      operator: token.value,
       right: Identifier::new_box(),
     }
+  }
+
+  fn get_token(&self) -> Token {
+    self.token.clone()
   }
 
   fn string(&self) -> String {
-    let whitespace = if self.clone().is_method() { "" } else { " " };
+    let whitespace = if self.is_method() { "" } else { " " };
 
     format!(
       "{}{}{}{}{}",
-      self.left.string(),
+      self.get_left().string(),
       whitespace,
-      self.operator,
+      self.get_token().value,
       whitespace,
-      self.right.string(),
+      self.get_right().string(),
     )
   }
 }
 
 impl Infix {
+  pub fn new_box() -> Box<Expressions> {
+    Box::new(Expressions::INFIX(Expression::new()))
+  }
+
+  pub fn new_box_from_token(token: Token) -> Box<Expressions> {
+    Box::new(Expressions::INFIX(Expression::from_token(token)))
+  }
+
   pub fn is_infix(&self) -> bool {
     self.itype == InfixType::INFIX
   }
@@ -79,12 +88,12 @@ impl Infix {
     self.itype == InfixType::METHOD
   }
 
-  pub fn new_box() -> Box<Expressions> {
-    Box::new(Expressions::INFIX(Expression::new()))
+  pub fn get_left(&self) -> Box<Expressions> {
+    self.left.clone()
   }
 
-  pub fn new_box_from_token(token: Token) -> Box<Expressions> {
-    Box::new(Expressions::INFIX(Expression::from_token(token)))
+  pub fn get_right(&self) -> Box<Expressions> {
+    self.right.clone()
   }
 
   pub fn parse<'a>(

@@ -5,7 +5,7 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ReturnO {
-  pub value: Box<Objects>,
+  value: Box<Objects>,
 }
 
 impl Object for ReturnO {
@@ -16,8 +16,10 @@ impl Object for ReturnO {
 
 impl ReturnO {
   pub fn new(value: Box<Objects>) -> Box<Objects> {
-    Box::new(Objects::RETURN(ReturnO {
-      value
-    }))
+    Box::new(Objects::RETURN(ReturnO { value }))
+  }
+
+  pub fn get_value(&self) -> Box<Objects> {
+    self.value.clone()
   }
 }

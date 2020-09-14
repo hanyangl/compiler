@@ -7,7 +7,7 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Null {
-  pub token: Token,
+  token: Token,
 }
 
 impl Expression for Null {
@@ -21,6 +21,10 @@ impl Expression for Null {
     Self {
       token,
     }
+  }
+
+  fn get_token(&self) -> Token {
+    self.token.clone()
   }
 
   fn string(&self) -> String {

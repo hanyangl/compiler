@@ -127,9 +127,9 @@ impl IfElseCondition {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IfElse {
-  pub token: Token,
-  pub conditions: Vec<IfElseCondition>,
-  pub alternative: Option<Box<Statements>>,
+  token: Token,
+  conditions: Vec<IfElseCondition>,
+  alternative: Option<Box<Statements>>,
 }
 
 impl Statement for IfElse {
@@ -147,6 +147,10 @@ impl Statement for IfElse {
     if_else.token = token;
 
     if_else
+  }
+
+  fn get_token(&self) -> Token {
+    self.token.clone()
   }
 
   fn string(&self) -> String {
@@ -168,6 +172,14 @@ impl Statement for IfElse {
 }
 
 impl IfElse {
+  pub fn get_conditions(&self) -> Vec<IfElseCondition> {
+    self.conditions.clone()
+  }
+
+  pub fn get_alternative(&self) -> Option<Box<Statements>> {
+    self.alternative.clone()
+  }
+
   pub fn parse<'a>(
     parser: &'a mut Parser,
     standard_library: bool,

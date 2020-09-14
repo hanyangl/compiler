@@ -7,7 +7,7 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Boolean {
-  pub value: bool,
+  value: bool,
 }
 
 impl Object for Boolean {
@@ -29,6 +29,10 @@ impl Boolean {
     Box::new(Objects::BOOLEAN(Boolean {
       value,
     }))
+  }
+
+  pub fn get_value(&self) -> bool {
+    self.value.clone()
   }
 
   pub fn is_truthy(object: Box<Objects>) -> bool {

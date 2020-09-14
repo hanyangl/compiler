@@ -7,7 +7,7 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Number {
-  pub value: f64,
+  value: f64,
 }
 
 impl Object for Number {
@@ -26,8 +26,10 @@ impl Hashable for Number {
 
 impl Number {
   pub fn new(value: f64) -> Box<Objects> {
-    Box::new(Objects::NUMBER(Number {
-      value,
-    }))
+    Box::new(Objects::NUMBER(Number { value }))
+  }
+
+  pub fn get_value(&self) -> f64 {
+    self.value.clone()
   }
 }

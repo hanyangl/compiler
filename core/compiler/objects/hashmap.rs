@@ -11,7 +11,7 @@ pub struct HashItem {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct HashMap {
-  pub data: Vec<HashItem>,
+  data: Vec<HashItem>,
 }
 
 impl Object for HashMap {
@@ -34,11 +34,11 @@ impl Object for HashMap {
 }
 
 impl HashMap {
-  pub fn new(
-    data: Vec<HashItem>,
-  ) -> Box<Objects> {
-    Box::new(Objects::HASHMAP(HashMap {
-      data,
-    }))
+  pub fn new(data: Vec<HashItem>) -> Box<Objects> {
+    Box::new(Objects::HASHMAP(HashMap { data }))
+  }
+
+  pub fn get_data(&self) -> Vec<HashItem> {
+    self.data.clone()
   }
 }
