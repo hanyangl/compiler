@@ -20,7 +20,7 @@ impl File {
     }
   }
 
-  pub fn get_lines(self) -> Vec<String> {
+  pub fn get_lines(&self) -> Vec<String> {
     self.content.split("\n")
       .map(|x| x.to_string())
       .collect::<Vec<String>>()

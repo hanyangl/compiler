@@ -10,7 +10,7 @@ pub fn show_error(
   error: Error,
 ) {
   if error.line > 0 {
-    let line = file.get_lines()[error.line - 1].clone();
+    let line = file.get_lines()[error.line - 1].to_string();
 
     println!(
       "{} | {}\n{} | {}{} {}",

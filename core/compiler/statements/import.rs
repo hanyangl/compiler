@@ -42,7 +42,7 @@ pub fn evaluate(
   }
 
   // Get the object for the import path.
-  let path_obj = evaluate_expression(import.path.clone(), environment);
+  let path_obj = evaluate_expression(&import.path, environment);
 
   // Check if the path object is an error.
   if path_obj.clone().get_error().is_some() {
@@ -92,10 +92,10 @@ pub fn evaluate(
   let file_exports = new_file.unwrap().exports;
   let mut exports_items: Vec<HashItem> = Vec::new();
 
-  for export in file_exports.iter() {
+  for export in file_exports {
     if let Some(env_obj) = import_environment.store.get_object(export.clone()) {
       exports_items.push(HashItem {
-        key: export.clone(),
+        key: export,
         value: env_obj,
       });
 
@@ -109,14 +109,14 @@ pub fn evaluate(
   }
 
   if import.modules.len() == 0 {
-    for item in exports_items.iter() {
-      environment.store.set_object(item.key.clone(), item.value.clone());
+    for item in exports_items {
+      environment.store.set_object(item.key, item.value);
     }
   } else {
     let exports = HashMap::new(exports_items);
 
     // Evaluate import modules.
-    for module in import.modules.iter() {
+    for module in import.modules {
       // Check if the module is an identifier.
       if let Some(identifier) = module.clone().get_identifier() {
         if let Some(env_obj) = import_environment.store.get_object(identifier.value.clone()) {

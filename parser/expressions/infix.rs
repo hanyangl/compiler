@@ -52,7 +52,7 @@ impl Expression for Infix {
     }
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     let whitespace = if self.clone().is_method() { "" } else { " " };
 
     format!(
@@ -67,15 +67,15 @@ impl Expression for Infix {
 }
 
 impl Infix {
-  pub fn is_infix(self) -> bool {
+  pub fn is_infix(&self) -> bool {
     self.itype == InfixType::INFIX
   }
 
-  pub fn is_alias(self) -> bool {
+  pub fn is_alias(&self) -> bool {
     self.itype == InfixType::ALIAS
   }
 
-  pub fn is_method(self) -> bool {
+  pub fn is_method(&self) -> bool {
     self.itype == InfixType::METHOD
   }
 
@@ -93,7 +93,7 @@ impl Infix {
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Expressions>, Error> {
-    let mut infix: Infix = Expression::from_token(parser.current_token.clone());
+    let mut infix: Infix = Expression::from_token(parser.get_current_token());
 
     // Check if it is an alias expression.
     if parser.current_token_is(Keywords::new(Keywords::AS)) {

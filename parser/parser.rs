@@ -11,8 +11,8 @@ use super::{
 pub struct Parser {
   pub lexer: Lexer,
 
-  pub current_token: Token,
-  pub next_token: Token,
+  current_token: Token,
+  next_token: Token,
 }
 
 impl Parser {
@@ -28,6 +28,14 @@ impl Parser {
     parser.next_token();
 
     parser
+  }
+
+  pub fn get_current_token(&self) -> Token {
+    self.current_token.clone()
+  }
+
+  pub fn get_next_token(&self) -> Token {
+    self.next_token.clone()
   }
 
   pub fn next_token(&mut self) {

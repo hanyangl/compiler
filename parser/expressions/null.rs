@@ -23,8 +23,8 @@ impl Expression for Null {
     }
   }
 
-  fn string(self) -> String {
-    self.token.value
+  fn string(&self) -> String {
+    self.token.value.clone()
   }
 }
 

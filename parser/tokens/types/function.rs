@@ -90,7 +90,7 @@ impl Function {
       return Err(0);
     }
 
-    let current_token = parser.current_token.clone();
+    let current_token = parser.get_current_token();
 
     // Get the next token.
     parser.next_token();
@@ -103,7 +103,7 @@ impl Function {
         return Err(1);
       }
 
-      let key = parser.current_token.value.clone();
+      let key = parser.get_current_token().value;
 
       if function.arguments.len() > 0 {
         function.value.push_str(" ");

@@ -46,12 +46,12 @@ impl Statement for VariableSet {
     variable
   }
 
-  fn string(self) -> String {
-    if self.assign.token.clone().expect_sign(Signs::PLUSPLUS) ||
-      self.assign.token.clone().expect_sign(Signs::MINUSMINUS) {
+  fn string(&self) -> String {
+    if self.assign.token.expect_sign(&Signs::PLUSPLUS) ||
+      self.assign.token.expect_sign(&Signs::MINUSMINUS) {
       return format!(
         "{}{}{};",
-        match self.this {
+        match &self.this {
           Some(this) => format!("{}.", this.value),
           None => String::new(),
         },
@@ -64,12 +64,12 @@ impl Statement for VariableSet {
       "{} {} {};",
       format!(
         "{}{}{}",
-        match self.this {
+        match &self.this {
           Some(this) => format!("{}.", this.value),
           None => String::new(),
         },
         self.token.value,
-        match self.array_position {
+        match &self.array_position {
           Some(position) => format!("[{}]", position.string()),
           None => String::new(),
         },
@@ -87,7 +87,7 @@ impl VariableSet {
     this: Option<Token>,
     with_this: bool,
   ) -> Result<Box<Statements>, Error> {
-    let mut variable: VariableSet = Statement::from_token(parser.current_token.clone());
+    let mut variable: VariableSet = Statement::from_token(parser.get_current_token());
 
     // Set the variable this.
     variable.this = this;
@@ -115,8 +115,8 @@ impl VariableSet {
       // Check if the next token is a right bracket.
       if !parser.expect_token(Signs::new(Signs::RIGHTBRACKET)) {
         return Err(Error::from_token(
-          format!("expect `]`, got `{}` instead.", parser.next_token.value.clone()),
-          parser.next_token.clone(),
+          format!("expect `]`, got `{}` instead.", parser.get_next_token().value),
+          parser.get_next_token(),
         ));
       }
     }
@@ -128,7 +128,7 @@ impl VariableSet {
       parser.expect_token(Signs::new(Signs::MULTIPLYASSIGN)) ||
       parser.expect_token(Signs::new(Signs::DIVIDEASSIGN)) {
       // Set the variable assign token.
-      variable.assign = parser.current_token.clone();
+      variable.assign = parser.get_current_token();
 
       // Get the next token.
       parser.next_token();
@@ -148,7 +148,7 @@ impl VariableSet {
     else if parser.expect_token(Signs::new(Signs::PLUSPLUS)) ||
       parser.expect_token(Signs::new(Signs::MINUSMINUS)) {
       // Set the variable assign token.
-      variable.assign = parser.current_token.clone();
+      variable.assign = parser.get_current_token();
 
       // Get the next token.
       parser.next_token();

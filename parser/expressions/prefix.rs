@@ -36,7 +36,7 @@ impl Expression for Prefix {
     }
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     format!(
       "{}{}",
       self.operator,
@@ -51,7 +51,7 @@ impl Prefix {
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Expressions>, Error> {
-    let mut prefix: Prefix = Expression::from_token(parser.current_token.clone());
+    let mut prefix: Prefix = Expression::from_token(parser.get_current_token());
 
     // Get the next token.
     parser.next_token();

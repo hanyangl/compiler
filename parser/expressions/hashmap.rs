@@ -39,10 +39,10 @@ impl Expression for HashMap {
     hashmap
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     let mut values: Vec<String> = Vec::new();
 
-    for (key, value) in self.items {
+    for (key, value) in self.items.clone() {
       values.push(format!("{}: {}", key, value.string()));
     }
 
@@ -56,7 +56,7 @@ impl HashMap {
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Expressions>, Error> {
-    let mut hashmap: HashMap = Expression::from_token(parser.current_token.clone());
+    let mut hashmap: HashMap = Expression::from_token(parser.get_current_token());
 
     // Check if the next token is a right brace.
     if parser.next_token_is(Signs::new(Signs::RIGHTBRACE)) {
@@ -69,11 +69,11 @@ impl HashMap {
       if !parser.expect_token(Box::new(Tokens::IDENTIFIER)) {
         return Err(Error::from_token(
           String::from("is not a valid hashmap key."),
-          parser.next_token.clone(),
+          parser.get_next_token(),
         ));
       }
 
-      let mut key = parser.current_token.value.clone();
+      let mut key = parser.get_current_token().value;
 
       // Remove the quotes if the current token is a string.
       if parser.current_token_is(Box::new(Tokens::STRING)) {
@@ -84,15 +84,15 @@ impl HashMap {
       if hashmap.items.clone().contains_key(&key.clone()) {
         return Err(Error::from_token(
           String::from("the hashmap key is already in use."),
-          parser.current_token.clone(),
+          parser.get_current_token(),
         ));
       }
 
       // Check if the next token is a colon.
       if !parser.expect_token(Signs::new(Signs::COLON)) {
         return Err(Error::from_token(
-          format!("expect `:`, got `{}` instead.", parser.next_token.value),
-          parser.next_token.clone(),
+          format!("expect `:`, got `{}` instead.", parser.get_next_token().value),
+          parser.get_next_token(),
         ));
       }
 

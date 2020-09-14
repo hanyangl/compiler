@@ -37,11 +37,11 @@ impl Expression for Array {
     array
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     let mut data: Vec<String> = Vec::new();
 
-    for expression in self.data {
-      data.push(expression.string());
+    for expression in self.data.iter() {
+      data.push(expression.clone().string());
     }
 
     format!("[{}]", data.join(", "))
@@ -54,7 +54,7 @@ impl Array {
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Expressions>, Error> {
-    let mut array: Array = Expression::from_token(parser.current_token.clone());
+    let mut array: Array = Expression::from_token(parser.get_current_token());
 
     // Get the next token.
     parser.next_token();
@@ -113,11 +113,11 @@ impl Expression for ArrayIndex {
     array_index
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     format!(
       "{}[{}]",
       self.token.value,
-      self.index.string(),
+      self.index.clone().string(),
     )
   }
 }
@@ -152,13 +152,13 @@ impl ArrayIndex {
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Expressions>, Error> {
-    let mut array_index: ArrayIndex = Expression::from_token(parser.current_token.clone());
+    let mut array_index: ArrayIndex = Expression::from_token(parser.get_current_token());
 
     // Check if the next token is a left bracket.
     if !parser.expect_token(Signs::new(Signs::LEFTBRACKET)) {
       return Err(Error::from_token(
-        format!("expect `[`, got `{}` instead.", parser.next_token.value.clone()),
-        parser.next_token.clone(),
+        format!("expect `[`, got `{}` instead.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 
@@ -183,8 +183,8 @@ impl ArrayIndex {
     // Check if the next token is a right bracket.
     if !parser.expect_token(Signs::new(Signs::RIGHTBRACKET)) {
       return Err(Error::from_token(
-        format!("expect `]`, got `{}` instead.", parser.next_token.value.clone()),
-        parser.next_token.clone(),
+        format!("expect `]`, got `{}` instead.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 

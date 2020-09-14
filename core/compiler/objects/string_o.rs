@@ -11,13 +11,13 @@ pub struct StringO {
 }
 
 impl Object for StringO {
-  fn string(self) -> String {
-    self.value
+  fn string(&self) -> String {
+    self.value.clone()
   }
 }
 
 impl Hashable for StringO {
-  fn get_hashkey(self) -> HashKey {
+  fn get_hashkey(&self) -> HashKey {
     let mut value: f64 = 0.0;
 
     for byte in self.value.as_bytes() {

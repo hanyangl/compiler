@@ -31,11 +31,11 @@ impl Statement for Block {
     }
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     let mut strings: Vec<String> = Vec::new();
 
-    for stmt in self.statements {
-      strings.push(stmt.string());
+    for stmt in self.statements.iter() {
+      strings.push(stmt.clone().string());
     }
 
     format!("{{\n{}\n}}", strings.join("\n"))
@@ -57,7 +57,7 @@ impl Block {
     from_class: bool,
     with_this: bool,
   ) -> Result<Box<Statements>, Error> {
-    let mut block: Block = Statement::from_token(parser.current_token.clone());
+    let mut block: Block = Statement::from_token(parser.get_current_token());
 
     // Get the next token.
     parser.next_token();

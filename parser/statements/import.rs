@@ -42,11 +42,11 @@ impl Statement for Import {
     import
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     let mut modules: Vec<String> = Vec::new();
 
-    for module in self.modules {
-      modules.push(module.string());
+    for module in self.modules.iter() {
+      modules.push(module.clone().string());
     }
 
     if modules.len() == 0 {
@@ -79,7 +79,7 @@ impl Import {
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Statements>, Error> {
-    let mut import: Import = Statement::from_token(parser.current_token.clone());
+    let mut import: Import = Statement::from_token(parser.get_current_token());
     let mut required_from = false;
 
     // Check if the next token is a left brace.
@@ -130,20 +130,20 @@ impl Import {
     // Check if the next token is `from` when it's required.
     if required_from && !parser.expect_token(Keywords::new(Keywords::FROM)) {
       return Err(Error::from_token(
-        format!("expect `from`, got `{}` instead.", parser.next_token.value.clone()),
-        parser.next_token.clone(),
+        format!("expect `from`, got `{}` instead.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 
     // Check if the next token is a string.
     if !parser.expect_token(Box::new(Tokens::STRING)) {
       return Err(Error::from_token(
-        format!("`{}` is not a valid string.", parser.next_token.value.clone()),
-        parser.next_token.clone(),
+        format!("`{}` is not a valid string.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 
-    import.path = StringE::new_box_from_token(parser.current_token.clone());
+    import.path = StringE::new_box_from_token(parser.get_current_token());
 
     // Check if the next token is a semicolon.
     if parser.next_token_is(Signs::new(Signs::SEMICOLON)) {

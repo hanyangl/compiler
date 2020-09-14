@@ -11,13 +11,13 @@ pub struct Boolean {
 }
 
 impl Object for Boolean {
-  fn string(self) -> String {
+  fn string(&self) -> String {
     self.value.to_string()
   }
 }
 
 impl Hashable for Boolean {
-  fn get_hashkey(self) -> HashKey {
+  fn get_hashkey(&self) -> HashKey {
     HashKey {
       value: if self.value { 1.0 } else { 0.0 },
     }

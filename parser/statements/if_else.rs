@@ -36,16 +36,16 @@ impl IfElseCondition {
     }
   }
 
-  pub fn string(self) -> String {
+  pub fn string(&self) -> String {
     format!(
       "{}{} ({}) {}",
-      match self.with_else {
+      match self.with_else.clone() {
         Some(with_else) => format!("{} ", with_else.value),
         None => String::new(),
       },
       self.token.value,
       self.condition.string(),
-      self.consequence.string(),
+      self.consequence.clone().string(),
     )
   }
 
@@ -58,7 +58,7 @@ impl IfElseCondition {
 
     // Check if the current token is an `else`.
     if parser.current_token_is(Keywords::new(Keywords::ELSE)) {
-      condition.with_else = Some(parser.current_token.clone());
+      condition.with_else = Some(parser.get_current_token());
 
       // Get the next token.
       parser.next_token();
@@ -66,7 +66,7 @@ impl IfElseCondition {
 
     // Check if the current token is an `if`.
     if parser.current_token_is(Keywords::new(Keywords::IF)) {
-      condition.token = parser.current_token.clone();
+      condition.token = parser.get_current_token();
 
       // Get the next token.
       parser.next_token();
@@ -75,8 +75,8 @@ impl IfElseCondition {
     // Check if the current token is a left parentheses.
     if !parser.current_token_is(Signs::new(Signs::LEFTPARENTHESES)) {
       return Err(Error::from_token(
-        format!("expect `(`, got `{}` instead.", parser.next_token.value.clone()),
-        parser.next_token.clone(),
+        format!("expect `(`, got `{}` instead.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 
@@ -97,16 +97,16 @@ impl IfElseCondition {
     // Check if the next token is a right parentheses.
     if !parser.expect_token(Signs::new(Signs::RIGHTPARENTHESES)) {
       return Err(Error::from_token(
-        format!("expect `)`, got `{}` instead.", parser.next_token.value.clone()),
-        parser.next_token.clone(),
+        format!("expect `)`, got `{}` instead.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 
     // Check if the next token is a left brace.
     if !parser.expect_token(Signs::new(Signs::LEFTBRACE)) {
       return Err(Error::from_token(
-        format!("expect `{{`, got `{}` instead.", parser.next_token.value.clone()),
-        parser.next_token.clone(),
+        format!("expect `{{`, got `{}` instead.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 
@@ -149,17 +149,17 @@ impl Statement for IfElse {
     if_else
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     let mut conditions: Vec<String> = Vec::new();
 
-    for condition in self.conditions {
+    for condition in self.conditions.iter() {
       conditions.push(condition.string());
     }
 
     format!(
       "{}{}",
       conditions.join(""),
-      match self.alternative {
+      match self.alternative.clone() {
         Some(alternative) => format!(" else {}", alternative.string()),
         None => String::new(),
       },
@@ -173,7 +173,7 @@ impl IfElse {
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Statements>, Error> {
-    let mut if_else: Self = Statement::from_token(parser.current_token.clone());
+    let mut if_else: Self = Statement::from_token(parser.get_current_token());
 
     while !parser.current_token_is(Signs::new(Signs::RIGHTBRACE)) ||
       parser.next_token_is(Keywords::new(Keywords::ELSE)) {
@@ -206,8 +206,8 @@ impl IfElse {
         // Check if the next token is an left brace.
         if !parser.expect_token(Signs::new(Signs::LEFTBRACE)) {
           return Err(Error::from_token(
-            format!("expect `{{`, got `{}` instead.", parser.next_token.value.clone()),
-            parser.next_token.clone(),
+            format!("expect `{{`, got `{}` instead.", parser.get_next_token().value),
+            parser.get_next_token(),
           ));
         }
 

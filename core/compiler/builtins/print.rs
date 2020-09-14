@@ -14,7 +14,7 @@ pub fn print(token: Token, arguments: Vec<Box<Objects>>) -> Box<Objects> {
   if arguments.len() != 1 {
     return Error::new(
       format!("expect `1` argument, got `{}` instead.", arguments.len()),
-      token.clone(),
+      token,
     );
   }
 

@@ -81,13 +81,13 @@ pub fn parse_statement<'a>(
     if !with_this {
       return Err(Error::from_token(
         String::from("can not use this here."),
-        parser.current_token.clone(),
+        parser.get_current_token(),
       ));
     }
 
     // Check if the next token is a dot.
     if parser.next_token_is(Signs::new(Signs::DOT)) {
-      let this = parser.current_token.clone();
+      let this = parser.get_current_token();
 
       // Get the next token.
       parser.next_token();

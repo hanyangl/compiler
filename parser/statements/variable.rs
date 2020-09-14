@@ -39,10 +39,10 @@ impl Statement for Variable {
     variable
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     let mut value = String::new();
 
-    if let Some(default_value) = self.value {
+    if let Some(default_value) = &self.value {
       let default_value = default_value.string();
 
       if default_value.ends_with(";") {
@@ -72,11 +72,11 @@ impl Variable {
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Statements>, Error> {
-    let mut variable: Variable = Statement::from_token(parser.current_token.clone());
+    let mut variable: Variable = Statement::from_token(parser.get_current_token());
 
     // Check if the next token is a valid identifier.
     if !parser.expect_token(Box::new(Tokens::IDENTIFIER)) {
-      let mut message = format!("`{}` is not a valid variable name.", parser.next_token.value.clone());
+      let mut message = format!("`{}` is not a valid variable name.", parser.get_next_token().value);
 
       if parser.next_token_is(Signs::new(Signs::COLON)) {
         message = String::from("you must enter the variable name.");
@@ -84,12 +84,12 @@ impl Variable {
 
       return Err(Error::from_token(
         message,
-        parser.next_token.clone(),
+        parser.get_next_token(),
       ));
     }
 
     // Set the variable name.
-    variable.name = parser.current_token.clone();
+    variable.name = parser.get_current_token();
 
     // Check if the next token is an assign sign.
     if parser.next_token_is(Signs::new(Signs::ASSIGN)) {
@@ -112,8 +112,8 @@ impl Variable {
       // Check if the next token is a colon.
       if !parser.expect_token(Signs::new(Signs::COLON)) {
         return Err(Error::from_token(
-          format!("expect `:`, got `{}` instead.", parser.next_token.value.clone()),
-          parser.next_token.clone(),
+          format!("expect `:`, got `{}` instead.", parser.get_next_token().value),
+          parser.get_next_token(),
         ));
       }
 
@@ -129,8 +129,8 @@ impl Variable {
           // Check if the next token is an assign sign.
           if !parser.expect_token(Signs::new(Signs::ASSIGN)) {
             return Err(Error::from_token(
-              format!("expect `=`, got `{}` instead.", parser.next_token.value.clone()),
-              parser.next_token.clone(),
+              format!("expect `=`, got `{}` instead.", parser.get_next_token().value),
+              parser.get_next_token(),
             ));
           }
 
@@ -150,7 +150,7 @@ impl Variable {
         Err(_) => {
           return Err(Error::from_token(
             String::from("is not a valid type."),
-            parser.current_token.clone(),
+            parser.get_current_token(),
           ));
         },
       }

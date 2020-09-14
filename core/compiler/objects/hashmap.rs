@@ -15,14 +15,14 @@ pub struct HashMap {
 }
 
 impl Object for HashMap {
-  fn string(self) -> String {
+  fn string(&self) -> String {
     let mut data: Vec<String> = Vec::new();
 
-    for item in self.data {
+    for item in self.data.iter() {
       data.push(format!(
         "{}: {}",
         item.key,
-        item.value.string(),
+        item.value.clone().string(),
       ));
     }
 

@@ -19,7 +19,7 @@ use sflyn_parser::{
 use super::evaluate_expression;
 
 pub fn evaluate(
-  infix: Infix,
+  infix: &Infix,
   environment: &mut Environment,
 ) -> Box<Objects> {
   let error = Error::new(
@@ -28,7 +28,7 @@ pub fn evaluate(
   );
 
   // Evaluate left expression.
-  let mut left_object = evaluate_expression(infix.left.clone(), environment);
+  let mut left_object = evaluate_expression(&infix.left, environment);
 
   // Check if the left object is an error.
   if left_object.clone().get_error().is_some() {
@@ -78,7 +78,7 @@ pub fn evaluate(
   }
 
   // Evaluate right expression.
-  let mut right_object = evaluate_expression(infix.right.clone(), &mut right_environment);
+  let mut right_object = evaluate_expression(&infix.right, &mut right_environment);
 
   // Check if the right object is an error.
   if right_object.clone().get_error().is_some() {
@@ -91,26 +91,26 @@ pub fn evaluate(
   }
 
   // Parse method.
-  if infix.clone().is_method() {
-    let right_token = infix.right.clone().token();
+  if infix.is_method() {
+    let right_token = infix.right.token();
 
     if (
-      left_object.clone().get_number().is_some() ||
-      left_object.clone().get_boolean().is_some() ||
-      left_object.clone().get_array().is_some()
+      left_object.get_number().is_some() ||
+      left_object.get_boolean().is_some() ||
+      left_object.get_array().is_some()
     ) && right_token.value == "toString" {
-      return crate::compiler::builtins::to_string(infix.token, [left_object].to_vec());
+      return crate::compiler::builtins::to_string(infix.token.clone(), [left_object].to_vec());
     }
 
     return right_object;
   }
   // Parse infix.
-  else if infix.clone().is_infix() {
+  else if infix.is_infix() {
     // Check if left and right objects are numbers.
-    if left_object.clone().get_number().is_some() &&
-      right_object.clone().get_number().is_some() {
-      let left_value = left_object.clone().get_number().unwrap().value;
-      let right_value = right_object.clone().get_number().unwrap().value;
+    if left_object.get_number().is_some() &&
+      right_object.get_number().is_some() {
+      let left_value = left_object.get_number().unwrap().value;
+      let right_value = right_object.get_number().unwrap().value;
 
       return match infix.operator.clone().as_str() {
         "+" => Number::new(left_value + right_value),
@@ -129,33 +129,33 @@ pub fn evaluate(
       };
     }
     // Check if left or right object is a string.
-    else if infix.token.token.clone().expect_sign(Signs::PLUS) && (
-      left_object.clone().get_string().is_some() ||
-      right_object.clone().get_string().is_some()
+    else if infix.token.token.expect_sign(&Signs::PLUS) && (
+      left_object.get_string().is_some() ||
+      right_object.get_string().is_some()
     ) {
       return StringO::new(left_object.string() + &right_object.string());
     }
     // Check if the operator is an equal sign.
-    else if infix.token.token.clone().expect_sign(Signs::EQUAL) {
+    else if infix.token.token.expect_sign(&Signs::EQUAL) {
       return Boolean::new(left_object == right_object);
     }
     // Check if the operator is a not equal sign.
-    else if infix.token.token.clone().expect_sign(Signs::NOTEQUAL) {
+    else if infix.token.token.expect_sign(&Signs::NOTEQUAL) {
       return Boolean::new(left_object != right_object);
     }
     // Check if the operator is an or sign.
-    else if infix.token.token.clone().expect_sign(Signs::OR) {
+    else if infix.token.token.expect_sign(&Signs::OR) {
       // TODO: The rest of the expressions.
       // Null objects.
-      let mut return_right = left_object.clone().get_null().is_some();
+      let mut return_right = left_object.get_null().is_some();
 
       // Empty strings
-      if let Some(string) = left_object.clone().get_string() {
+      if let Some(string) = left_object.get_string() {
         return_right = string.value.len() == 0;
       }
 
       // false boolean
-      if let Some(boolean) = left_object.clone().get_boolean() {
+      if let Some(boolean) = left_object.get_boolean() {
         return_right = boolean.value == false;
       }
 
@@ -163,9 +163,9 @@ pub fn evaluate(
       return if return_right { right_object } else { left_object };
     }
     // Check if the operator is an and sign.
-    else if infix.token.token.clone().expect_sign(Signs::AND) &&
-      left_object.clone().get_boolean().is_some() &&
-      right_object.clone().get_boolean().is_some() {
+    else if infix.token.token.expect_sign(&Signs::AND) &&
+      left_object.get_boolean().is_some() &&
+      right_object.get_boolean().is_some() {
       return Boolean::new(
         left_object.get_boolean().unwrap().value &&
         right_object.get_boolean().unwrap().value

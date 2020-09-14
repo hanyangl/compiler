@@ -28,12 +28,12 @@ impl Expression for Boolean {
   fn from_token(token: Token) -> Boolean {
     Boolean {
       token: token.clone(),
-      value: token.token.expect_keyword(Keywords::TRUE),
+      value: token.token.expect_keyword(&Keywords::TRUE),
     }
   }
 
-  fn string(self) -> String {
-    self.token.value
+  fn string(&self) -> String {
+    self.token.value.clone()
   }
 }
 
@@ -43,6 +43,6 @@ impl Boolean {
   }
 
   pub fn parse<'a>(parser: &'a mut Parser) -> Box<Expressions> {
-    Boolean::new_box_from_token(parser.current_token.clone())
+    Boolean::new_box_from_token(parser.get_current_token())
   }
 }

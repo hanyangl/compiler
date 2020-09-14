@@ -31,7 +31,7 @@ impl PartialEq for BuiltIn {
 }
 
 impl Object for BuiltIn {
-  fn string(self) -> String {
+  fn string(&self) -> String {
     String::from("builtin")
   }
 }

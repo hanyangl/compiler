@@ -24,9 +24,9 @@ pub fn run(
 
       for statement in file.statements.iter() {
         // Evaluate the statement.
-        if let Some(object) = evaluate_statement(statement.clone(), environment) {
+        if let Some(object) = evaluate_statement(statement, environment) {
           // Check if the object is an error.
-          if let Some(error) = object.clone().get_error() {
+          if let Some(error) = object.get_error() {
             println!("\n{}", error.string(file.clone()));
           }
         }
@@ -35,11 +35,11 @@ pub fn run(
   }
 
   // Evaluate file statements.
-  for statement in file.statements.clone() {
+  for statement in file.statements.iter() {
     // Evaluate the statement.
     if let Some(object) = evaluate_statement(statement, environment) {
       // Check if the object is an error.
-      if let Some(error) = object.clone().get_error() {
+      if let Some(error) = object.get_error() {
         println!("\n{}", error.string(file.clone()));
       }
     }

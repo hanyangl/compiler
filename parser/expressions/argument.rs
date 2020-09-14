@@ -40,14 +40,14 @@ impl Expression for Argument {
     }
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     let argument = format!(
       "{}: {}",
       self.token.value,
       self.data_type.value,
     );
 
-    match self.value {
+    match self.value.clone() {
       Some(value) => format!("{} = {}", argument, value.string()),
       None => argument,
     }
@@ -63,11 +63,8 @@ impl Argument {
     Box::new(Expressions::ARGUMENT(Expression::from_token(token)))
   }
 
-  pub fn has_default_value(self) -> bool {
-    match self.value {
-      Some(_) => true,
-      None => false,
-    }
+  pub fn has_default_value(&self) -> bool {
+    self.value.is_some()
   }
 
   pub fn parse<'a>(
@@ -89,17 +86,17 @@ impl Argument {
       if !parser.expect_token(Box::new(Tokens::IDENTIFIER)) {
         return Err(Error::from_token(
           String::from("is not a valid identifier."),
-          parser.next_token.clone(),
+          parser.get_next_token(),
         ));
       }
 
-      let mut argument: Argument = Expression::from_token(parser.current_token.clone());
+      let mut argument: Argument = Expression::from_token(parser.get_current_token());
 
       // Check if the next token is a colon.
       if !parser.expect_token(Signs::new(Signs::COLON)) {
         return Err(Error::from_token(
-          format!("expect `:`, got `{}` instead.", parser.next_token.value.clone()),
-          parser.next_token.clone(),
+          format!("expect `:`, got `{}` instead.", parser.get_next_token().value),
+          parser.get_next_token(),
         ));
       }
 
@@ -115,7 +112,7 @@ impl Argument {
         Err(_) => {
           return Err(Error::from_token(
             String::from("is not a valid data type."),
-            parser.current_token.clone(),
+            parser.get_current_token(),
           ));
         },
       }
@@ -139,7 +136,7 @@ impl Argument {
       } else if has_default {
         return Err(Error::from_token(
           String::from("the argument must has a default value."),
-          parser.next_token.clone(),
+          parser.get_next_token(),
         ));
       }
 

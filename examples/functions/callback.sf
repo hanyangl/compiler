@@ -1,0 +1,11 @@
+func connect(
+  callback: (message: string) => void,
+): void {
+  callback('Connected!');
+}
+
+func callback(message: string) {
+  print('From callback: ' + message);
+}
+
+connect(callback);

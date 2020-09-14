@@ -14,9 +14,9 @@ pub struct Error {
 }
 
 impl Error {
-  pub fn string(self, file: File) -> String {
+  pub fn string(&self, file: File) -> String {
     if self.token.line < 1 {
-      return self.message;
+      return self.message.clone();
     }
 
     let line = file.get_lines()[self.token.line - 1].clone();

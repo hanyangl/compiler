@@ -3,9 +3,9 @@ use crate::tokens::*;
 
 pub fn parse_type<'a>(parser: &'a mut Parser) -> Result<Token, ()> {
   let token: Token =
-    if parser.current_token.token.clone().get_type().is_some() ||
-      parser.current_token.token.clone().is_identifier() {
-      parser.current_token.clone()
+    if parser.get_current_token().token.get_type().is_some() ||
+      parser.get_current_token().token.is_identifier() {
+      parser.get_current_token()
     } else {
       match Function::parse(parser) {
         Ok(token) => token,

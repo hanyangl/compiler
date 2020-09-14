@@ -30,8 +30,8 @@ impl Expression for Number {
     }
   }
 
-  fn string(self) -> String {
-    self.token.value
+  fn string(&self) -> String {
+    self.token.value.clone()
   }
 }
 
@@ -51,16 +51,16 @@ impl Number {
   }
 
   pub fn parse<'a>(parser: &'a mut Parser) -> Result<Box<Expressions>, Error> {
-    let mut number: Number = Expression::from_token(parser.current_token.clone());
+    let mut number: Number = Expression::from_token(parser.get_current_token());
 
-    match parser.current_token.value.clone().parse::<f64>() {
+    match parser.get_current_token().value.parse::<f64>() {
       Ok(value) => {
         number.value = value;
         Ok(Box::new(Expressions::NUMBER(number)))
       },
       Err(_) => Err(Error::from_token(
-        format!("could not parse `{}` as integer.", parser.current_token.value.clone()),
-        parser.current_token.clone(),
+        format!("could not parse `{}` as integer.", parser.get_current_token().value),
+        parser.get_current_token(),
       )),
     }
   }

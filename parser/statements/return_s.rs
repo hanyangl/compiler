@@ -37,11 +37,11 @@ impl Statement for Return {
     return_s
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     format!(
       "{}{};",
       self.token.value,
-      match self.value {
+      match &self.value {
         Some(value) => format!(" {}", value.string()),
         None => String::new(),
       },
@@ -55,7 +55,7 @@ impl Return {
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Statements>, Error> {
-    let mut return_s: Return = Statement::from_token(parser.current_token.clone());
+    let mut return_s: Return = Statement::from_token(parser.get_current_token());
 
     // Get the next token.
     parser.next_token();

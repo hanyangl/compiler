@@ -36,11 +36,11 @@ impl Statement for Export {
     export
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     format!(
       "{} {};",
       self.token.value,
-      self.value.string(),
+      self.value.clone().string(),
     )
   }
 }
@@ -50,7 +50,7 @@ impl Export {
     parser: &'a mut Parser,
     standard_library: bool,
   ) -> Result<Box<Statements>, Error> {
-    let mut export: Export = Statement::from_token(parser.current_token.clone());
+    let mut export: Export = Statement::from_token(parser.get_current_token());
 
     // Get the next token.
     parser.next_token();

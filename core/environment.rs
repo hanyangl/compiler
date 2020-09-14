@@ -55,7 +55,7 @@ impl Environment {
       return 1;
     }
 
-    match run_parser(path.clone()) {
+    match run_parser(path) {
       Ok(stdlib_file) => {
         self.stdlibs.insert(name.to_string(), stdlib_file);
         return 0;

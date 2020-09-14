@@ -24,7 +24,7 @@ pub fn evaluate(
   };
 
   // Check if the function object is an error.
-  if function_object.clone().get_error().is_some() {
+  if function_object.get_error().is_some() {
     return function_object;
   }
 
@@ -32,12 +32,12 @@ pub fn evaluate(
   let arguments = evaluate_expressions(call.arguments.clone(), environment);
 
   // Check if the first argument is an error.
-  if arguments.len() == 1 && arguments[0].clone().get_error().is_some() {
+  if arguments.len() == 1 && arguments[0].get_error().is_some() {
     return arguments[0].clone();
   }
 
   // Check if the function object is an anonymous function.
-  if let Some(anonymous_function) = function_object.clone().get_anonymous_function() {
+  if let Some(anonymous_function) = function_object.get_anonymous_function() {
     let mut index: usize = 0;
 
     let mut function_environment = environment.clone();
@@ -46,14 +46,14 @@ pub fn evaluate(
 
     // Add call arguments to the function environment.
     for argument in arguments {
-      let function_argument = anonymous_function.arguments[index].clone().get_argument().unwrap();
+      let function_argument = anonymous_function.arguments[index].get_argument().unwrap();
 
       function_environment.store.set_object(function_argument.token.value.clone(), argument);
 
       index += 1;
     }
 
-    return match evaluate_statement(anonymous_function.body.clone(), &mut function_environment) {
+    return match evaluate_statement(&anonymous_function.body, &mut function_environment) {
       Some(object) => object,
       None => Error::new(
         format!("unknown statement"),
@@ -62,7 +62,7 @@ pub fn evaluate(
     };
   }
   // Check if the function object is a builtin.
-  else if let Some(builtin) = function_object.clone().get_builtin() {
+  else if let Some(builtin) = function_object.get_builtin() {
     if let Some(fun) = builtin.fun {
       return (fun)(call.token, arguments);
     }

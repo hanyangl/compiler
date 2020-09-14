@@ -29,10 +29,10 @@ impl Expression for Identifier {
     }
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     format!(
       "{}{}",
-      match self.this {
+      match self.this.clone() {
         Some(this) => format!("{}.", this.value),
         None => String::new(),
       },

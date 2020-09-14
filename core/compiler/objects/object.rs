@@ -6,11 +6,11 @@ pub struct HashKey {
 }
 
 pub trait Hashable {
-  fn get_hashkey(self) -> HashKey;
+  fn get_hashkey(&self) -> HashKey;
 }
 
 pub trait Object {
-  fn string(self) -> String;
+  fn string(&self) -> String;
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -28,84 +28,84 @@ pub enum Objects {
 }
 
 impl Objects {
-  pub fn get_anonymous_function(self) -> Option<AnonymousFunction> {
+  pub fn get_anonymous_function(&self) -> Option<AnonymousFunction> {
     match self {
-      Objects::ANONYMOUSFUNCTION(anonymous_function) => Some(anonymous_function),
+      Objects::ANONYMOUSFUNCTION(anonymous_function) => Some(anonymous_function.clone()),
       _ => None,
     }
   }
 
-  pub fn get_array(self) -> Option<Array> {
+  pub fn get_array(&self) -> Option<Array> {
     match self {
-      Objects::ARRAY(array) => Some(array),
+      Objects::ARRAY(array) => Some(array.clone()),
       _ => None,
     }
   }
 
-  pub fn get_boolean(self) -> Option<Boolean> {
+  pub fn get_boolean(&self) -> Option<Boolean> {
     match self {
-      Objects::BOOLEAN(boolean) => Some(boolean),
+      Objects::BOOLEAN(boolean) => Some(boolean.clone()),
       _ => None,
     }
   }
 
-  pub fn expect_boolean(self, value: bool) -> bool {
+  pub fn expect_boolean(&self, value: bool) -> bool {
     match self {
       Objects::BOOLEAN(boolean) => boolean.value == value,
       _ => false,
     }
   }
 
-  pub fn get_builtin(self) -> Option<BuiltIn> {
+  pub fn get_builtin(&self) -> Option<BuiltIn> {
     match self {
-      Objects::BUILTIN(builtin) => Some(builtin),
+      Objects::BUILTIN(builtin) => Some(builtin.clone()),
       _ => None,
     }
   }
 
-  pub fn get_error(self) -> Option<Error> {
+  pub fn get_error(&self) -> Option<Error> {
     match self {
-      Objects::ERROR(error) => Some(error),
+      Objects::ERROR(error) => Some(error.clone()),
       _ => None,
     }
   }
 
-  pub fn get_hashmap(self) -> Option<HashMap> {
+  pub fn get_hashmap(&self) -> Option<HashMap> {
     match self {
-      Objects::HASHMAP(hashmap) => Some(hashmap),
+      Objects::HASHMAP(hashmap) => Some(hashmap.clone()),
       _ => None,
     }
   }
 
-  pub fn get_null(self) -> Option<Null> {
+  pub fn get_null(&self) -> Option<Null> {
     match self {
-      Objects::NULL(null) => Some(null),
+      Objects::NULL(null) => Some(null.clone()),
       _ => None,
     }
   }
 
-  pub fn get_number(self) -> Option<Number> {
+  pub fn get_number(&self) -> Option<Number> {
     match self {
-      Objects::NUMBER(number) => Some(number),
+      Objects::NUMBER(number) => Some(number.clone()),
       _ => None,
     }
   }
 
-  pub fn get_return(self) -> Option<ReturnO> {
+  pub fn get_return(&self) -> Option<ReturnO> {
     match self {
-      Objects::RETURN(return_o) => Some(return_o),
+      Objects::RETURN(return_o) => Some(return_o.clone()),
       _ => None,
     }
   }
 
-  pub fn get_string(self) -> Option<StringO> {
+  pub fn get_string(&self) -> Option<StringO> {
     match self {
-      Objects::STRING(string) => Some(string),
+      Objects::STRING(string) => Some(string.clone()),
       _ => None,
     }
   }
 
-  pub fn get_hashkey(self) -> Option<HashKey> {
+  pub fn get_hashkey(&self) -> Option<HashKey> {
     match self {
       Objects::BOOLEAN(boolean) => Some(boolean.get_hashkey()),
       Objects::NUMBER(number) => Some(number.get_hashkey()),
@@ -114,7 +114,7 @@ impl Objects {
     }
   }
 
-  pub fn string(self) -> String {
+  pub fn string(&self) -> String {
     match self {
       Objects::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.string(),
       Objects::ARRAY(array) => array.string(),

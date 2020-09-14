@@ -10,7 +10,7 @@ pub trait Statement {
   fn from_token(token: Token) -> Self;
 
   /// Parse the statement to a string.
-  fn string(self) -> String;
+  fn string(&self) -> String;
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -28,78 +28,78 @@ pub enum Statements {
 }
 
 impl Statements {
-  pub fn get_block(self) -> Option<Block> {
+  pub fn get_block(&self) -> Option<Block> {
     match self {
-      Statements::BLOCK(block) => Some(block),
+      Statements::BLOCK(block) => Some(block.clone()),
       _ => None,
     }
   }
 
-  pub fn get_export(self) -> Option<Export> {
+  pub fn get_export(&self) -> Option<Export> {
     match self {
-      Statements::EXPORT(export) => Some(export),
+      Statements::EXPORT(export) => Some(export.clone()),
       _ => None,
     }
   }
 
-  pub fn get_expression(self) -> Option<ExpressionStatement> {
+  pub fn get_expression(&self) -> Option<ExpressionStatement> {
     match self {
-      Statements::EXPRESSION(exp) => Some(exp),
+      Statements::EXPRESSION(exp) => Some(exp.clone()),
       _ => None,
     }
   }
 
-  pub fn get_function(self) -> Option<Function> {
+  pub fn get_function(&self) -> Option<Function> {
     match self {
-      Statements::FUNCTION(function) => Some(function),
+      Statements::FUNCTION(function) => Some(function.clone()),
       _ => None,
     }
   }
 
-  pub fn get_if_else(self) -> Option<IfElse> {
+  pub fn get_if_else(&self) -> Option<IfElse> {
     match self {
-      Statements::IFELSE(if_else) => Some(if_else),
+      Statements::IFELSE(if_else) => Some(if_else.clone()),
       _ => None,
     }
   }
 
-  pub fn get_import(self) -> Option<Import> {
+  pub fn get_import(&self) -> Option<Import> {
     match self {
-      Statements::IMPORT(import) => Some(import),
+      Statements::IMPORT(import) => Some(import.clone()),
       _ => None,
     }
   }
 
-  pub fn get_interface(self) -> Option<Interface> {
+  pub fn get_interface(&self) -> Option<Interface> {
     match self {
-      Statements::INTERFACE(interface) => Some(interface),
+      Statements::INTERFACE(interface) => Some(interface.clone()),
       _ => None,
     }
   }
 
-  pub fn get_return(self) -> Option<Return> {
+  pub fn get_return(&self) -> Option<Return> {
     match self {
-      Statements::RETURN(return_s) => Some(return_s),
+      Statements::RETURN(return_s) => Some(return_s.clone()),
       _ => None,
     }
   }
 
-  pub fn get_variable_set(self) -> Option<VariableSet> {
+  pub fn get_variable_set(&self) -> Option<VariableSet> {
     match self {
-      Statements::VARIABLESET(variable_set) => Some(variable_set),
+      Statements::VARIABLESET(variable_set) => Some(variable_set.clone()),
       _ => None,
     }
   }
 
-  pub fn get_variable(self) -> Option<Variable> {
+  pub fn get_variable(&self) -> Option<Variable> {
     match self {
-      Statements::VARIABLE(variable) => Some(variable),
+      Statements::VARIABLE(variable) => Some(variable.clone()),
       _ => None,
     }
   }
 
-  pub fn token(self) -> Token {
-    match self {
+  pub fn token(&self) -> Token {
+    match self.clone() {
       Statements::BLOCK(block) => block.token,
       Statements::EXPORT(export) => export.token,
       Statements::EXPRESSION(expression) => expression.token,
@@ -113,7 +113,7 @@ impl Statements {
     }
   }
 
-  pub fn string(self) -> String {
+  pub fn string(&self) -> String {
     match self {
       Statements::BLOCK(block) => block.string(),
       Statements::EXPORT(export) => export.string(),

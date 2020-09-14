@@ -26,8 +26,8 @@ impl Expression for StringE {
     }
   }
 
-  fn string(self) -> String {
-    self.value
+  fn string(&self) -> String {
+    self.value.clone()
   }
 }
 

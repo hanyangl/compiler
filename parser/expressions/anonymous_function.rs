@@ -43,11 +43,11 @@ impl Expression for AnonymousFunction {
     function
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     let mut arguments: Vec<String> = Vec::new();
 
-    for argument in self.arguments {
-      arguments.push(argument.string());
+    for argument in self.arguments.iter() {
+      arguments.push(argument.clone().string());
     }
 
     let function = format!(
@@ -56,11 +56,13 @@ impl Expression for AnonymousFunction {
       self.data_type.value,
     );
 
-    if self.token.token.clone().expect_keyword(Keywords::FUNCTION) {
-      return format!("{} {} {}", self.token.value, function, self.body.string());
+    let body = self.body.clone().string();
+
+    if self.token.token.expect_keyword(&Keywords::FUNCTION) {
+      return format!("{} {} {}", self.token.value, function, body);
     }
 
-    format!("{} => {}", function, self.body.string())
+    format!("{} => {}", function, body)
   }
 }
 
@@ -70,7 +72,7 @@ impl AnonymousFunction {
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Expressions>, Error> {
-    let mut function: AnonymousFunction = Expression::from_token(parser.current_token.clone());
+    let mut function: AnonymousFunction = Expression::from_token(parser.get_current_token());
 
     // Check if the current token is a left parentheses.
     if !parser.current_token_is(Signs::new(Signs::LEFTPARENTHESES)) {
@@ -108,7 +110,7 @@ impl AnonymousFunction {
         Err(_) => {
           return Err(Error::from_token(
             String::from("is not a valid type."),
-            parser.current_token.clone(),
+            parser.get_current_token(),
           ));
         },
       }
@@ -118,12 +120,12 @@ impl AnonymousFunction {
     }
 
     // Check if the function token is a left parentheses.
-    if function.token.token.clone().expect_sign(Signs::LEFTPARENTHESES) {
+    if function.token.token.expect_sign(&Signs::LEFTPARENTHESES) {
       // Check if the next token is an assign arrow sign.
       if !parser.current_token_is(Signs::new(Signs::ASSIGNARROW)) {
         return Err(Error::from_token(
-          format!("expect `=>`, got `{}` instead.", parser.current_token.value.clone()),
-          parser.current_token.clone(),
+          format!("expect `=>`, got `{}` instead.", parser.get_current_token().value),
+          parser.get_current_token(),
         ));
       }
 
@@ -134,8 +136,8 @@ impl AnonymousFunction {
     // Check if the next token is a left brace.
     if !parser.current_token_is(Signs::new(Signs::LEFTBRACE)) {
       return Err(Error::from_token(
-        format!("expect `{{`, got `{}` instead.", parser.current_token.value.clone()),
-        parser.current_token.clone(),
+        format!("expect `{{`, got `{}` instead.", parser.get_current_token().value),
+        parser.get_current_token(),
       ));
     }
 

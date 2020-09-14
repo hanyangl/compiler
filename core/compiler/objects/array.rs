@@ -9,11 +9,11 @@ pub struct Array {
 }
 
 impl Object for Array {
-  fn string(self) -> String {
+  fn string(&self) -> String {
     let mut elements: Vec<String> = Vec::new();
 
-    for element in self.elements {
-      elements.push(element.string());
+    for element in self.elements.iter() {
+      elements.push(element.clone().string());
     }
 
     format!(

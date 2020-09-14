@@ -10,7 +10,7 @@ pub trait Expression {
   fn from_token(token: Token) -> Self;
 
   /// Get the expression value.
-  fn string(self) -> String;
+  fn string(&self) -> String;
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -31,98 +31,98 @@ pub enum Expressions {
 }
 
 impl Expressions {
-  pub fn get_anonymous_function(self) -> Option<AnonymousFunction> {
+  pub fn get_anonymous_function(&self) -> Option<AnonymousFunction> {
     match self {
-      Expressions::ANONYMOUSFUNCTION(anonymous_function) => Some(anonymous_function),
+      Expressions::ANONYMOUSFUNCTION(anonymous_function) => Some(anonymous_function.clone()),
       _ => None,
     }
   }
 
-  pub fn get_argument(self) -> Option<Argument> {
+  pub fn get_argument(&self) -> Option<Argument> {
     match self {
-      Expressions::ARGUMENT(argument) => Some(argument),
+      Expressions::ARGUMENT(argument) => Some(argument.clone()),
       _ => None,
     }
   }
 
-  pub fn get_array(self) -> Option<Array> {
+  pub fn get_array(&self) -> Option<Array> {
     match self {
-      Expressions::ARRAY(array) => Some(array),
+      Expressions::ARRAY(array) => Some(array.clone()),
       _ => None,
     }
   }
 
-  pub fn get_array_index(self) -> Option<ArrayIndex> {
+  pub fn get_array_index(&self) -> Option<ArrayIndex> {
     match self {
-      Expressions::ARRAYINDEX(array_index) => Some(array_index),
+      Expressions::ARRAYINDEX(array_index) => Some(array_index.clone()),
       _ => None,
     }
   }
 
-  pub fn get_boolean(self) -> Option<Boolean> {
+  pub fn get_boolean(&self) -> Option<Boolean> {
     match self {
-      Expressions::BOOLEAN(boolean) => Some(boolean),
+      Expressions::BOOLEAN(boolean) => Some(boolean.clone()),
       _ => None,
     }
   }
-  pub fn get_call(self) -> Option<Call> {
+  pub fn get_call(&self) -> Option<Call> {
     match self {
-      Expressions::CALL(call) => Some(call),
-      _ => None,
-    }
-  }
-
-  pub fn get_hashmap(self) -> Option<HashMap> {
-    match self {
-      Expressions::HASHMAP(hashmap) => Some(hashmap),
+      Expressions::CALL(call) => Some(call.clone()),
       _ => None,
     }
   }
 
-  pub fn get_identifier(self) -> Option<Identifier> {
+  pub fn get_hashmap(&self) -> Option<HashMap> {
     match self {
-      Expressions::IDENTIFIER(identifier) => Some(identifier),
+      Expressions::HASHMAP(hashmap) => Some(hashmap.clone()),
       _ => None,
     }
   }
 
-  pub fn get_infix(self) -> Option<Infix> {
+  pub fn get_identifier(&self) -> Option<Identifier> {
     match self {
-      Expressions::INFIX(infix) => Some(infix),
+      Expressions::IDENTIFIER(identifier) => Some(identifier.clone()),
       _ => None,
     }
   }
 
-  pub fn get_null(self) -> Option<Null> {
+  pub fn get_infix(&self) -> Option<Infix> {
     match self {
-      Expressions::NULL(null) => Some(null),
+      Expressions::INFIX(infix) => Some(infix.clone()),
       _ => None,
     }
   }
 
-  pub fn get_number(self) -> Option<Number> {
+  pub fn get_null(&self) -> Option<Null> {
     match self {
-      Expressions::NUMBER(number) => Some(number),
+      Expressions::NULL(null) => Some(null.clone()),
       _ => None,
     }
   }
 
-  pub fn get_prefix(self) -> Option<Prefix> {
+  pub fn get_number(&self) -> Option<Number> {
     match self {
-      Expressions::PREFIX(prefix) => Some(prefix),
+      Expressions::NUMBER(number) => Some(number.clone()),
       _ => None,
     }
   }
 
-  pub fn get_string(self) -> Option<StringE> {
+  pub fn get_prefix(&self) -> Option<Prefix> {
     match self {
-      Expressions::STRING(string) => Some(string),
+      Expressions::PREFIX(prefix) => Some(prefix.clone()),
       _ => None,
     }
   }
 
-  pub fn token(self) -> Token {
+  pub fn get_string(&self) -> Option<StringE> {
     match self {
+      Expressions::STRING(string) => Some(string.clone()),
+      _ => None,
+    }
+  }
+
+  pub fn token(&self) -> Token {
+    match self.clone() {
       Expressions::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.token,
       Expressions::ARGUMENT(argument) => argument.token,
       Expressions::ARRAY(array) => array.token,
@@ -139,7 +139,7 @@ impl Expressions {
     }
   }
 
-  pub fn string(self) -> String {
+  pub fn string(&self) -> String {
     match self {
       Expressions::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.string(),
       Expressions::ARGUMENT(argument) => argument.string(),

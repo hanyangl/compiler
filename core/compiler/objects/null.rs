@@ -7,7 +7,7 @@ use super::{
 pub struct Null;
 
 impl Object for Null {
-  fn string(self) -> String {
+  fn string(&self) -> String {
     String::from("null")
   }
 }

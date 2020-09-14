@@ -47,69 +47,69 @@ pub fn parse_expression<'a>(
   standard_library: bool,
   with_this: bool,
 ) -> Result<Box<Expressions>, Error> {
-  let current_token: Token = parser.current_token.clone();
+  let current_token: Token = parser.get_current_token();
   let mut expression: Result<Box<Expressions>, Error> = Err(Error::from_token(
-    format!("`{}` is not a valid expression.", parser.current_token.value.clone()),
-    parser.current_token.clone(),
+    format!("`{}` is not a valid expression.", parser.get_current_token().value),
+    parser.get_current_token(),
   ));
 
   // Parse identifiers.
-  if current_token.token.clone().is_identifier() &&
-    !parser.next_token.token.clone().expect_sign(Signs::LEFTBRACKET) &&
-    !parser.next_token.token.clone().expect_sign(Signs::LEFTPARENTHESES) {
+  if current_token.token.is_identifier() &&
+    !parser.get_next_token().token.expect_sign(&Signs::LEFTBRACKET) &&
+    !parser.get_next_token().token.expect_sign(&Signs::LEFTPARENTHESES) {
     expression = Ok(Identifier::new_box_from_token(current_token.clone()));
   }
 
   // Parse nulls.
-  if current_token.token.clone().expect_type(Types::NULL) {
+  if current_token.token.expect_type(&Types::NULL) {
     expression = Ok(Null::new_box_from_token(current_token.clone()));
   }
 
   // Parse strings.
-  if current_token.token.clone().is_string() {
+  if current_token.token.is_string() {
     expression = Ok(StringE::new_box_from_token(current_token.clone()));
   }
 
   // Parse numbers.
-  if current_token.token.clone().is_number() {
+  if current_token.token.is_number() {
     expression = Number::parse(parser);
   }
 
   // Parse booleans.
-  if current_token.token.clone().expect_keyword(Keywords::TRUE) ||
-    current_token.token.clone().expect_keyword(Keywords::FALSE) {
+  if current_token.token.expect_keyword(&Keywords::TRUE) ||
+    current_token.token.expect_keyword(&Keywords::FALSE) {
     expression = Ok(Boolean::parse(parser));
   }
 
   // Parse prefixes.
-  if current_token.token.clone().expect_sign(Signs::NOT) ||
-    current_token.token.clone().expect_sign(Signs::MINUS) {
+  if current_token.token.expect_sign(&Signs::NOT) ||
+    current_token.token.expect_sign(&Signs::MINUS) {
     expression = Prefix::parse(parser, standard_library, with_this);
   }
 
   // Parse anonymous functions.
-  if current_token.token.clone().expect_keyword(Keywords::FUNCTION) || (
-    current_token.token.clone().expect_sign(Signs::LEFTPARENTHESES) && (
-      parser.next_token.token.clone().is_identifier() ||
-      parser.next_token.token.clone().expect_sign(Signs::RIGHTPARENTHESES)
+  if current_token.token.expect_keyword(&Keywords::FUNCTION) || (
+    current_token.token.expect_sign(&Signs::LEFTPARENTHESES) && (
+      parser.get_next_token().token.is_identifier() ||
+      parser.get_next_token().token.expect_sign(&Signs::RIGHTPARENTHESES)
     )
   ) {
     expression = AnonymousFunction::parse(parser, standard_library, with_this);
   }
 
   // Parse calls.
-  if current_token.token.clone().is_identifier() &&
+  if current_token.token.is_identifier() &&
     parser.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) {
     expression = Call::parse(parser, standard_library, with_this);
   }
 
   // Parse hashmaps.
-  if current_token.token.clone().expect_sign(Signs::LEFTBRACE) {
+  if current_token.token.expect_sign(&Signs::LEFTBRACE) {
     expression = HashMap::parse(parser, standard_library, with_this);
   }
 
   // Parse arrays.
-  if current_token.token.clone().expect_sign(Signs::LEFTBRACKET) {
+  if current_token.token.expect_sign(&Signs::LEFTBRACKET) {
     expression = Array::parse(parser, standard_library, with_this);
   }
 
@@ -121,7 +121,7 @@ pub fn parse_expression<'a>(
 
   // Parse * as identifier.
   if parser.current_token_is(Signs::new(Signs::MULTIPLY)) {
-    expression = Ok(Identifier::new_box_from_token(parser.current_token.clone()));
+    expression = Ok(Identifier::new_box_from_token(parser.get_current_token()));
   }
 
   // Parse this.
@@ -129,29 +129,29 @@ pub fn parse_expression<'a>(
     if !with_this {
       return Err(Error::from_token(
         String::from("can not use this here."),
-        parser.current_token.clone(),
+        parser.get_current_token(),
       ));
     }
 
-    let this = parser.current_token.clone();
+    let this = parser.get_current_token();
 
     // Check if the next token is a dot.
     if !parser.expect_token(Signs::new(Signs::DOT)) {
       return Err(Error::from_token(
-        format!("expect `.`, get `{}` instead,", parser.next_token.value.clone()),
-        parser.next_token.clone(),
+        format!("expect `.`, get `{}` instead,", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 
     // Check if the next token is an identifier.
     if !parser.expect_token(Box::new(Tokens::IDENTIFIER)) {
       return Err(Error::from_token(
-        format!("`{}` is not a valid identifier.", parser.next_token.value.clone()),
-        parser.next_token.clone(),
+        format!("`{}` is not a valid identifier.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 
-    let mut identifier = Identifier::from_token(parser.current_token.clone());
+    let mut identifier = Identifier::from_token(parser.get_current_token());
 
     identifier.this = Some(this);
 

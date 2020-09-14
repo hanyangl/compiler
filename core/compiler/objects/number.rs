@@ -11,13 +11,13 @@ pub struct Number {
 }
 
 impl Object for Number {
-  fn string(self) -> String {
+  fn string(&self) -> String {
     self.value.to_string()
   }
 }
 
 impl Hashable for Number {
-  fn get_hashkey(self) -> HashKey {
+  fn get_hashkey(&self) -> HashKey {
     HashKey {
       value: self.value,
     }

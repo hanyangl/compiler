@@ -38,18 +38,18 @@ impl Expression for Call {
     call
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     let mut arguments: Vec<String> = Vec::new();
 
-    for argument in self.arguments {
-      arguments.push(argument.string());
+    for argument in self.arguments.iter() {
+      arguments.push(argument.clone().string());
     }
 
     format!(
       "{}({}){}",
       self.token.value,
       arguments.join(", "),
-      match self.semicolon {
+      match self.semicolon.clone() {
         Some(semicolon) => semicolon.value,
         None => String::new(),
       },
@@ -63,13 +63,13 @@ impl Call {
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Expressions>, Error> {
-    let mut call: Call = Expression::from_token(parser.current_token.clone());
+    let mut call: Call = Expression::from_token(parser.get_current_token());
 
     // Check if the next token is a left parentheses.
     if !parser.expect_token(Signs::new(Signs::LEFTPARENTHESES)) {
       return Err(Error::from_token(
-        format!("expect `(`, got `{}` instead.", parser.next_token.value.clone()),
-        parser.next_token.clone(),
+        format!("expect `(`, got `{}` instead.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 
@@ -103,7 +103,7 @@ impl Call {
       // Get the next token.
       parser.next_token();
 
-      call.semicolon = Some(parser.current_token.clone());
+      call.semicolon = Some(parser.get_current_token());
     }
 
     // Return the call expression.

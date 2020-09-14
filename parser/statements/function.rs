@@ -40,11 +40,11 @@ impl Statement for Function {
     function
   }
 
-  fn string(self) -> String {
+  fn string(&self) -> String {
     let mut arguments: Vec<String> = Vec::new();
 
-    for argument in self.arguments {
-      arguments.push(argument.string());
+    for argument in self.arguments.iter() {
+      arguments.push(argument.clone().string());
     }
 
     format!(
@@ -52,7 +52,7 @@ impl Statement for Function {
       self.name.value,
       arguments.join(", "),
       self.data_type.value,
-      self.body.string(),
+      self.body.clone().string(),
     )
   }
 }
@@ -63,11 +63,11 @@ impl Function {
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Statements>, Error> {
-    let mut function: Function = Statement::from_token(parser.current_token.clone());
+    let mut function: Function = Statement::from_token(parser.get_current_token());
 
     // Check if the next token is a valid identifier.
     if !parser.expect_token(Box::new(Tokens::IDENTIFIER)) {
-      let mut message = format!("`{}` is not a valid function name.", parser.next_token.value.clone());
+      let mut message = format!("`{}` is not a valid function name.", parser.get_next_token().value);
 
       if parser.next_token_is(Signs::new(Signs::LEFTPARENTHESES)) {
         message = String::from("you must enter the function name.");
@@ -75,18 +75,18 @@ impl Function {
 
       return Err(Error::from_token(
         message,
-        parser.next_token.clone(),
+        parser.get_next_token(),
       ));
     }
 
     // Set the function name.
-    function.name = parser.current_token.clone();
+    function.name = parser.get_current_token();
 
     // Check if the next token is a left parentheses.
     if !parser.expect_token(Signs::new(Signs::LEFTPARENTHESES)) {
       return Err(Error::from_token(
-        format!("expect `(`, got `{}` instead.", parser.next_token.value.clone()),
-        parser.next_token.clone(),
+        format!("expect `(`, got `{}` instead.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 
@@ -112,15 +112,15 @@ impl Function {
       parser.next_token();
 
       // Get the return data type.
-      match parser.current_token.token.clone().get_type() {
+      match parser.get_current_token().token.get_type() {
         Some(_) => {
           // Set the function return data type.
-          function.data_type = parser.current_token.clone();
+          function.data_type = parser.get_current_token();
         },
         None => {
           return Err(Error::from_token(
-            format!("`{}` is not a valid type.", parser.current_token.value.clone()),
-            parser.current_token.clone(),
+            format!("`{}` is not a valid type.", parser.get_current_token().value),
+            parser.get_current_token(),
           ));
         },
       }
@@ -132,8 +132,8 @@ impl Function {
     // Check if the next token is a left brace.
     if !parser.current_token_is(Signs::new(Signs::LEFTBRACE)) {
       return Err(Error::from_token(
-        format!("expect `{{`, got `{}` instead.", parser.current_token.value.clone()),
-        parser.current_token.clone(),
+        format!("expect `{{`, got `{}` instead.", parser.get_current_token().value),
+        parser.get_current_token(),
       ));
     }
 

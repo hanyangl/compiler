@@ -9,8 +9,8 @@ pub struct ReturnO {
 }
 
 impl Object for ReturnO {
-  fn string(self) -> String {
-    self.value.string()
+  fn string(&self) -> String {
+    self.value.clone().string()
   }
 }
 

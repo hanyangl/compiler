@@ -34,8 +34,8 @@ impl Statement for ExpressionStatement {
     }
   }
 
-  fn string(self) -> String {
-    self.expression.string()
+  fn string(&self) -> String {
+    self.expression.clone().string()
   }
 }
 
@@ -49,7 +49,7 @@ impl ExpressionStatement {
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Statements>, Error> {
-    let mut statement: ExpressionStatement = Statement::from_token(parser.current_token.clone());
+    let mut statement: ExpressionStatement = Statement::from_token(parser.get_current_token());
 
     // Parse expression.
     match parse_expression(parser, Precedence::LOWEST, standard_library, with_this) {

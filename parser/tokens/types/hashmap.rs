@@ -54,7 +54,7 @@ impl HashMap {
       return Err(0);
     }
 
-    let current_token = parser.current_token.clone();
+    let current_token = parser.get_current_token();
 
     // Get the next token.
     parser.next_token();
@@ -67,7 +67,7 @@ impl HashMap {
         return Err(1);
       }
 
-      let key = parser.current_token.value.clone();
+      let key = parser.get_current_token().value;
 
       hashmap.value.push_str(" ");
       hashmap.value.push_str(key.as_str());
