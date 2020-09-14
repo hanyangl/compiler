@@ -50,6 +50,10 @@ impl TTypes {
     Self::new(TType::NONE, data_type, type_value, token, Vec::new(), HashMap::new())
   }
 
+  pub fn new_interface(data_type: Types, type_value: String, token: Token, methods: HashMap<String, TTypes>) -> Self {
+    Self::new(TType::INTERFACE, data_type, type_value, token, Vec::new(), methods)
+  } 
+
   pub fn new_function(data_type: Types, type_value: String, token: Token, arguments: Vec<Box<Expressions>>) -> Self {
     Self::new(TType::FUNCTION, data_type, type_value, token, arguments, HashMap::new())
   }
