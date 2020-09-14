@@ -40,8 +40,9 @@ impl Function {
     );
 
     let arguments = parts[0..parts.len() - 1].join("=>");
+    let arguments = arguments.trim();
 
-    if arguments.trim().len() > 2 {
+    if arguments != "()" {
       // Parse function arguments.
       for argument in arguments[1..].split(",") {
         let argument: Vec<&str> = argument.split(":").collect();
@@ -50,9 +51,16 @@ impl Function {
           return Err(());
         }
 
+        let data_type = argument[1..].join(":");
+        let mut data_type = data_type.trim();
+
+        if !data_type.starts_with("(") && data_type.ends_with(")") {
+          data_type = &data_type[..data_type.len() - 1];
+        }
+
         function.arguments.insert(
           argument[0].trim().to_string(),
-          Token::from_value(argument[1..].join(":").trim(), 0, 0),
+          Token::from_value(data_type, 0, 0),
         );
       }
     }

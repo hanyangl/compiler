@@ -54,16 +54,3 @@ fn array_from_value_1() {
   assert_eq!(array_2.is_ok(), true);
   assert_eq!(array_2.unwrap(), array);
 }
-
-#[test]
-fn array_from_value_2() {
-  let array = Array::new(
-    Token::from_value("(number | undefined | string[])", 0, 0),
-    String::from("(number | undefined | string[])[]"),
-  );
-
-  let array_2 = Array::from_value("(number | undefined | string[])[]");
-
-  assert_eq!(array_2.is_ok(), true);
-  assert_eq!(array_2.unwrap(), array);
-}
