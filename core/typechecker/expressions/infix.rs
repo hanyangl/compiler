@@ -3,6 +3,7 @@ use crate::{
   Store,
   typechecker::{
     check_expression,
+    equal_types,
     TTypes,
   },
 };
@@ -42,8 +43,12 @@ pub fn check(
   if infix.is_method() {
     let mut from_std = "";
 
+    // Check if the left type is null.
+    if left_type.get_type() == Types::NULL {
+      from_std = "Null";
+    }
     // Check if the left type is a number.
-    if left_type.get_type() == Types::NUMBER {
+    else if left_type.get_type() == Types::NUMBER {
       from_std = "Number";
     }
     // Check if the left type is a boolean.
@@ -137,6 +142,21 @@ pub fn check(
     // Parse '==' and '!='.
     else if infix.get_token().token.expect_sign(&Signs::EQUAL) || infix.get_token().token.expect_sign(&Signs::NOTEQUAL) {
       return Ok(TTypes::new_type(Types::BOOLEAN, String::from("boolean"), infix.get_token()));
+    }
+    // Parse '||'.
+    else if infix.get_token().token.expect_sign(&Signs::OR) {
+      if left_type.get_type() == Types::NULL {
+        return Ok(right_type);
+      }
+
+      if !equal_types(left_type.get_type(), right_type.get_type()) {
+        return Err(Error::from_token(
+          format!("`{}` not satisfied the `{}` data type.", right_type.get_value(), left_type.get_value()),
+          right_type.get_token(),
+        ));
+      }
+
+      return Ok(left_type);
     }
     // Parse '&&'.
     else if infix.get_token().token.expect_sign(&Signs::AND) {

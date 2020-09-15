@@ -1,5 +1,6 @@
 mod block;
 mod function;
+mod if_else;
 mod interface;
 mod variable;
 
@@ -40,6 +41,9 @@ pub fn check_statement(
   }
 
   // If else
+  if let Some(if_else_stmt) = statement.get_if_else() {
+    return if_else::check(&if_else_stmt, environment);
+  }
 
   // Import
 

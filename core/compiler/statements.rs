@@ -68,10 +68,10 @@ pub fn evaluate_statement(
   // If else
   if let Some(if_else) = statement.get_if_else() {
     for condition in if_else.get_conditions().iter() {
-      let object = evaluate_expression(&condition.condition, environment);
+      let object = evaluate_expression(&condition.get_condition(), environment);
 
       if Boolean::is_truthy(object) {
-        return evaluate_statement(&condition.consequence, environment);
+        return evaluate_statement(&condition.get_consequence(), environment);
       }
     }
 

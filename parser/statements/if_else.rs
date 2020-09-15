@@ -20,10 +20,10 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IfElseCondition {
-  pub with_else: Option<Token>,
-  pub token: Token,
-  pub condition: Box<Expressions>,
-  pub consequence: Box<Statements>,
+  with_else: Option<Token>,
+  token: Token,
+  condition: Box<Expressions>,
+  consequence: Box<Statements>,
 }
 
 impl IfElseCondition {
@@ -34,6 +34,18 @@ impl IfElseCondition {
       condition: Infix::new_box(),
       consequence: Block::new_box(),
     }
+  }
+
+  pub fn get_token(&self) -> Token {
+    self.token.clone()
+  }
+
+  pub fn get_condition(&self) -> Box<Expressions> {
+    self.condition.clone()
+  }
+
+  pub fn get_consequence(&self) -> Box<Statements> {
+    self.consequence.clone()
   }
 
   pub fn string(&self) -> String {
