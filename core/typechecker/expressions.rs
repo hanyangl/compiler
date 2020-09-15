@@ -1,5 +1,6 @@
 mod anonymous_function;
 mod argument;
+mod array;
 mod call;
 mod hashmap;
 mod infix;
@@ -31,8 +32,14 @@ pub fn check_expression(
   // Argument
 
   // Array
+  if let Some(array_exp) = expression.get_array() {
+    return array::check(&array_exp, environment);
+  }
 
   // Array Index
+  if let Some(array_index) = expression.get_array_index() {
+    return array::check_index(&array_index, environment);
+  }
 
   // Boolean
   if let Some(boolean) = expression.get_boolean() {

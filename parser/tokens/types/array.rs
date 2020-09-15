@@ -10,8 +10,8 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Array {
-  pub data_type: Token,
-  pub value: String,
+  data_type: Token,
+  value: String,
 }
 
 impl Array {
@@ -25,6 +25,14 @@ impl Array {
     }
 
     Ok(Array::new(Token::from_value(&value[0..value.len() - 2], 0, 0), value.to_string()))
+  }
+
+  pub fn get_type(&self) -> Token {
+    self.data_type.clone()
+  }
+
+  pub fn get_value(&self) -> String {
+    self.value.clone()
   }
 
   pub fn parse<'a>(parser: &'a mut Parser, token: Token) -> Result<Token, ()> {

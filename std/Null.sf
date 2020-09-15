@@ -1,0 +1,6 @@
+
+const Null = {
+  toString: (): string => {
+    return 'null';
+  },
+};

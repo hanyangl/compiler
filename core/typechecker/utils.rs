@@ -43,6 +43,13 @@ pub fn equal_types(one: Types, two: Types) -> bool {
       return true;
     }
   }
+  // Check if both types are arrays.
+  else if one.get_array().is_some() && two.get_array().is_some() {
+    let one_array = one.get_array().unwrap();
+    let two_array = two.get_array().unwrap();
+
+    return equal_tokens(one_array.get_type(), two_array.get_type());
+  }
 
   one == two
 }

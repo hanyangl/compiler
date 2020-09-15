@@ -62,6 +62,8 @@ pub fn evaluate(
       name = "Boolean";
     } else if left_object.get_array().is_some() {
       name = "Array";
+    } else if left_object.get_null().is_some() {
+      name = "Null";
     }
 
     if !name.is_empty() {

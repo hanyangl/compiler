@@ -14,6 +14,7 @@ pub enum TType {
   INTERFACE,
   FUNCTION,
   HASHMAP,
+  ARRAY,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -62,6 +63,10 @@ impl TTypes {
     Self::new(TType::HASHMAP, data_type, type_value, token, Vec::new(), methods)
   }
 
+  pub fn new_array(data_type: Types, type_value: String, token: Token) -> Self {
+    Self::new(TType::ARRAY, data_type, type_value, token, Vec::new(), HashMap::new())
+  }
+
   pub fn is_interface(&self) -> bool {
     self.ttype == TType::INTERFACE
   }
@@ -72,6 +77,10 @@ impl TTypes {
 
   pub fn is_hashmap(&self) -> bool {
     self.ttype == TType::HASHMAP
+  }
+
+  pub fn is_array(&self) -> bool {
+    self.ttype == TType::ARRAY
   }
 
   pub fn get_type(&self) -> Types {

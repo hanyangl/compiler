@@ -2,7 +2,7 @@ let numbers: number[] = [0, 1, 2, 3, 4];
 print(numbers->toString());
 print(numbers[0]->toString());
 print(numbers[-1]->toString());
-print(numbers[5]);
+print(numbers[5]->toString());
 
 let letters: string[] = ['A', 'B', 'C', 'D', 'E'];
 print(letters->toString());
