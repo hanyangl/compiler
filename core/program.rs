@@ -9,6 +9,9 @@ use super::{
 pub fn run_file(
   file_name: String,
   environment: &mut Environment,
+  with_typechecker: bool,
+  with_compiler: bool,
+  with_stdlib: bool,
 ) -> i32 {
   match sflyn_parser::run(file_name) {
     Ok(file) => {
@@ -17,11 +20,15 @@ pub fn run_file(
       let mut file = file.clone();
 
       if file.statements.len() > 0 {
-        if let Err(_) = typechecker::run(&mut file, environment) {
-          return 1;
+        if with_typechecker {
+          if let Err(_) = typechecker::run(&mut file, environment, with_stdlib) {
+            return 1;
+          }
         }
 
-        compiler::run(file.clone(), environment);
+        if with_compiler {
+          compiler::run(file.clone(), environment, with_stdlib);
+        }
       }
 
       environment.files.push(file.clone());
@@ -60,5 +67,5 @@ pub fn start() -> i32 {
     return 1;
   }
 
-  run_file(environment.arguments.file.clone(), &mut environment)
+  run_file(environment.arguments.file.clone(), &mut environment, true, true, true)
 }

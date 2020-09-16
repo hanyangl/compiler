@@ -7,7 +7,6 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Identifier {
-  this: Option<Token>,
   token: Token,
   value: String,
 }
@@ -15,7 +14,6 @@ pub struct Identifier {
 impl Expression for Identifier {
   fn new() -> Self {
     Self {
-      this: None,
       token: Token::new_empty(),
       value: String::new(),
     }
@@ -23,7 +21,6 @@ impl Expression for Identifier {
 
   fn from_token(token: Token) -> Self {
     Self {
-      this: None,
       token: token.clone(),
       value: token.value.clone(),
     }
@@ -34,14 +31,7 @@ impl Expression for Identifier {
   }
 
   fn string(&self) -> String {
-    format!(
-      "{}{}",
-      match self.this.clone() {
-        Some(this) => format!("{}.", this.value),
-        None => String::new(),
-      },
-      self.value,
-    )
+    format!("{}", self.get_value())
   }
 }
 

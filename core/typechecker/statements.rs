@@ -1,6 +1,7 @@
 mod block;
 mod function;
 mod if_else;
+mod import;
 mod interface;
 mod variable;
 
@@ -29,6 +30,9 @@ pub fn check_statement(
   }
 
   // Export
+  if let Some(export) = statement.get_export() {
+    return check_statement(&export.get_value(), environment);
+  }
 
   // Expression
   if let Some(expression) = statement.get_expression() {
@@ -46,6 +50,9 @@ pub fn check_statement(
   }
 
   // Import
+  if let Some(import_stmt) = statement.get_import() {
+    return import::check(&import_stmt, environment);
+  }
 
   // Interface
   if let Some(interface_stmt) = statement.get_interface() {

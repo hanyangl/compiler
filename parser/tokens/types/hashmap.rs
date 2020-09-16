@@ -36,13 +36,13 @@ impl HashMap {
     for item in new_value.split(",") {
       let item: Vec<&str> = item.split(":").collect();
 
-      if item.len() != 2 {
+      if item.len() < 2 {
         return Err(());
       }
 
       hashmap.items.insert(
         item[0].trim().to_string(),
-        Token::from_value(item[1].trim(), 0, 0),
+        Token::from_value(item[1..].join(":").trim(), 0, 0),
       );
     }
 

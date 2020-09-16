@@ -18,9 +18,10 @@ use super::{
 pub fn run(
   file: &mut File,
   environment: &mut Environment,
+  with_stdlib: bool,
 ) -> Result<(), ()> {
   // Add stdlib.
-  if environment.stdlibs.len() > 0 {
+  if environment.stdlibs.len() > 0 && with_stdlib {
     for (name, file) in environment.stdlibs.clone().iter() {
       if file.statements.len() == 0 {
         println!("`{}` library is an empty file.", name);

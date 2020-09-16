@@ -14,9 +14,10 @@ use super::Environment;
 pub fn run(
   file: File,
   environment: &mut Environment,
+  with_stdlib: bool,
 ) {
   // Evaluate stdlib.
-  if environment.stdlibs.len() > 0 {
+  if environment.stdlibs.len() > 0 && with_stdlib {
     for (name, file) in environment.stdlibs.clone().iter() {
       if name == "builtins" || file.statements.len() == 0 {
         continue;
