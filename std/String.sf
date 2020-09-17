@@ -1,0 +1,7 @@
+
+const String = {
+  length: 0,
+  split: (character: string): string[] => {
+    return [];
+  },
+};

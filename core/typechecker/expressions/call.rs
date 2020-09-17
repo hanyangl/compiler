@@ -12,7 +12,10 @@ use sflyn_parser::{
   Call,
   Error,
   Expression,
-  tokens::Token,
+  tokens::{
+    Token,
+    Types,
+  },
 };
 
 pub fn check(
@@ -134,8 +137,18 @@ pub fn check(
   }
 
   if let Some(function) = function_type.get_type().get_function() {
+    let function_type: Types = function.get_type().token.get_type().unwrap();
+
+    if function_type.get_array().is_some() {
+      return Ok(TTypes::new_array(
+        function_type,
+        function.get_type().value,
+        call.get_token(),
+      ));
+    }
+
     return Ok(TTypes::new_type(
-      function.get_type().token.get_type().unwrap(),
+      function_type,
       function.get_type().value,
       call.get_token(),
     ));

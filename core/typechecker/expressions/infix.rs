@@ -47,6 +47,10 @@ pub fn check(
     if left_type.get_type() == Types::NULL {
       from_std = "Null";
     }
+    // Check if the left type is a string.
+    else if left_type.get_type() == Types::STRING {
+      from_std = "String";
+    }
     // Check if the left type is a number.
     else if left_type.get_type() == Types::NUMBER {
       from_std = "Number";

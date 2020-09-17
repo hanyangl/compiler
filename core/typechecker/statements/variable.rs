@@ -34,7 +34,7 @@ pub fn check(
           environment.store.set_type(variable.get_name().value, token.clone());
           return Ok(token);
         } else if let Some(ttype) = data_type.token.get_type() {
-          if equal_types(ttype, token.get_type()) {
+          if equal_types(ttype, token.get_type()) || token.get_value() == "any" {
             environment.store.set_type(variable.get_name().value, token.clone());
             return Ok(token);
           }

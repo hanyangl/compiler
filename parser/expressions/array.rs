@@ -102,6 +102,7 @@ impl Array {
 #[derive(Debug, Clone, PartialEq)]
 pub struct ArrayIndex {
   token: Token,
+  left: Option<Box<Expressions>>,
   index: Box<Expressions>,
 }
 
@@ -109,6 +110,7 @@ impl Expression for ArrayIndex {
   fn new() -> ArrayIndex {
     ArrayIndex {
       token: Token::new_empty(),
+      left: None,
       index: Number::new_box(),
     }
   }
@@ -135,6 +137,10 @@ impl Expression for ArrayIndex {
 }
 
 impl ArrayIndex {
+  pub fn get_left(&self) -> Option<Box<Expressions>> {
+    self.left.clone()
+  }
+
   pub fn get_index(&self) -> Box<Expressions> {
     self.index.clone()
   }
@@ -165,10 +171,15 @@ impl ArrayIndex {
 
   pub fn parse<'a>(
     parser: &'a mut Parser,
+    left_exp: Result<Box<Expressions>, Error>,
     standard_library: bool,
     with_this: bool,
   ) -> Result<Box<Expressions>, Error> {
     let mut array_index: ArrayIndex = Expression::from_token(parser.get_current_token());
+
+    if let Ok(left_exp) = left_exp {
+      array_index.left = Some(left_exp);
+    }
 
     // Check if the next token is a left bracket.
     if !parser.expect_token(Signs::new(Signs::LEFTBRACKET)) {

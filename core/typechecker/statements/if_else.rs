@@ -39,7 +39,7 @@ pub fn check(
     match check_statement(&condition.get_consequence(), environment) {
       Ok(token) => {
         if data_type.clone().is_some() {
-          if !equal_types(data_type.clone().unwrap().get_type(), token.get_type()) {
+          if !equal_types(data_type.clone().unwrap().get_type(), token.get_type()) && token.get_value() != "any" {
             return Err(Error::from_token(
               format!("`{}` not satisfied the `{}` data type.", token.get_value(), data_type.unwrap().get_value()),
               token.get_token(),
@@ -67,7 +67,7 @@ pub fn check(
   if let Some(alternative) = if_else.get_alternative() {
     match check_statement(&alternative, environment) {
       Ok(token) => {
-        if !equal_types(data_type.clone().unwrap().get_type(), token.get_type()) {
+        if !equal_types(data_type.clone().unwrap().get_type(), token.get_type()) && token.get_value() != "any" {
           return Err(Error::from_token(
             format!("`{}` not satisfied the `{}` data type.", token.get_value(), data_type.unwrap().get_value()),
             token.get_token(),

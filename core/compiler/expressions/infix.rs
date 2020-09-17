@@ -1,5 +1,6 @@
 use crate::{
   compiler::{
+    Array,
     Boolean,
     Error,
     Number,
@@ -64,6 +65,8 @@ pub fn evaluate(
       name = "Array";
     } else if left_object.get_null().is_some() {
       name = "Null";
+    } else if left_object.get_string().is_some() {
+      name = "String";
     }
 
     if !name.is_empty() {
@@ -75,6 +78,28 @@ pub fn evaluate(
             right_environment.store.set_object(item.key, item.value);
           }
         }
+      }
+    }
+  }
+
+  if left_object.get_string().is_some() &&
+    infix.get_right().token().value == "split" &&
+    infix.get_right().get_call().is_some() {
+    let call_right = infix.get_right().get_call().unwrap();
+    let arguments = call_right.get_arguments();
+
+    if arguments.len() == 1 {
+      let arg = arguments[0].clone();
+
+      if let Some(string) = arg.get_string() {
+        let split_value = string.get_value();
+        let elements: Vec<Box<Objects>> = left_object
+          .get_string().unwrap().get_value()
+          .split(&split_value[1..split_value.len() - 1])
+          .map(|x| StringO::new(format!("'{}'", x)))
+          .collect();
+
+        return Array::new(elements[1..elements.len() - 1].to_vec());
       }
     }
   }
@@ -96,12 +121,22 @@ pub fn evaluate(
   if infix.is_method() {
     let right_token = infix.get_right().token();
 
-    if (
+    // Check if the method is 'toString()'.
+    if right_token.value == "toString" && (
       left_object.get_number().is_some() ||
       left_object.get_boolean().is_some() ||
       left_object.get_array().is_some()
-    ) && right_token.value == "toString" {
-      return crate::compiler::builtins::to_string(infix.get_token(), [left_object].to_vec());
+    ) {
+      return StringO::new(left_object.string());
+    }
+    // Check if the method is 'length' in a string.
+    else if right_token.value == "length" && left_object.get_string().is_some() {
+      return Number::new(
+        left_object
+          .get_string().unwrap()
+          .get_value().len()
+          .to_string().parse().unwrap()
+      );
     }
 
     return right_object;

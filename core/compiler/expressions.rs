@@ -78,7 +78,7 @@ pub fn evaluate_expression(
     let elements = evaluate_expressions(array.get_data(), environment);
 
     // Check if the first element is an error.
-    if elements.len() == 0 && elements[0].get_error().is_some() {
+    if elements.len() == 1 && elements[0].get_error().is_some() {
       return elements[0].clone();
     }
 
@@ -87,11 +87,21 @@ pub fn evaluate_expression(
 
   // Array index
   if let Some(array_index) = expression.get_array_index() {
-    let identifier_obj = evaluate_expression(&Identifier::new_box_from_token(array_index.get_token()), environment);
+    let mut identifier_obj = evaluate_expression(&Identifier::new_box_from_token(array_index.get_token()), environment);
 
     // Check if the identifier object is an error.
     if identifier_obj.get_error().is_some() {
-      return identifier_obj;
+      if let Some(left_exp) = array_index.get_left() {
+        identifier_obj = evaluate_expression(&left_exp, environment);
+      }
+
+      if identifier_obj.get_error().is_some() {
+        return identifier_obj;
+      }
+    }
+
+    if let Some(return_o) = identifier_obj.get_return() {
+      identifier_obj = return_o.get_value();
     }
 
     let index_obj = evaluate_expression(&array_index.get_index(), environment);
@@ -101,8 +111,26 @@ pub fn evaluate_expression(
       return index_obj;
     }
 
+    // Get string value.
+    if identifier_obj.get_string().is_some() && index_obj.get_number().is_some() {
+      let index: usize;
+      let string: String = identifier_obj.get_string().unwrap().get_value();
+      let value: String = index_obj.get_number().unwrap().string();
+
+      if value == "-1" {
+        index = string.len() - 1;
+      } else {
+        index = value.parse().unwrap();
+      }
+
+      if index >= string.len() {
+        return Null::new();
+      }
+
+      return StringO::new(string[index..index + 1].to_string());
+    }
     // Get array value.
-    if identifier_obj.get_array().is_some() && index_obj.get_number().is_some() {
+    else if identifier_obj.get_array().is_some() && index_obj.get_number().is_some() {
       let index: usize;
       let elements = identifier_obj.get_array().unwrap().get_elements();
       let value = index_obj.get_number().unwrap().string();
@@ -113,7 +141,7 @@ pub fn evaluate_expression(
         index = value.parse().unwrap();
       }
 
-      if index > elements.len() - 1 {
+      if index >= elements.len() {
         return Null::new();
       }
 

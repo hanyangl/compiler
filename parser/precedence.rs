@@ -15,8 +15,8 @@ pub enum Precedence {
   EMPOWERMENT = 7,
   PREFIX = 8,
   CALL = 9,
-  INDEX = 10,
-  METHOD = 11,
+  METHOD = 10,
+  INDEX = 11,
   ALIAS = 12,
 }
 
@@ -65,11 +65,11 @@ impl Precedence {
       // CALL
       Signs::LEFTPARENTHESES => Precedence::CALL,
 
-      // Index
-      Signs::LEFTBRACKET => Precedence::INDEX,
-
       // METHOD
       Signs::ARROW => Precedence::METHOD,
+
+      // Index
+      Signs::LEFTBRACKET => Precedence::INDEX,
 
       // LOWEST
       _ => Precedence::LOWEST,

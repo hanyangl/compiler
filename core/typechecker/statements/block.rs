@@ -2,6 +2,7 @@ use crate::{
   Environment,
   typechecker::{
     check_statement,
+    equal_types,
     TTypes,
   },
 };
@@ -25,14 +26,14 @@ pub fn check(
       Ok(token) => {
         if statement.get_return().is_some() || statement.get_if_else().is_some() {
           if let Some(rtoken) = return_token.clone() {
-            if rtoken.get_type() == token.get_type() {
+            if equal_types(rtoken.get_type(), token.get_type()) || token.get_value() == "any" {
               continue;
-            } else {
-              return Err(Error::from_token(
-                format!("`{}` not satisfied the `{}` data type.", token.get_token().value, rtoken.get_token().value),
-                token.get_token(),
-              ));
             }
+
+            return Err(Error::from_token(
+              format!("`{}` not satisfied the `{}` data type.", token.get_token().value, rtoken.get_token().value),
+              token.get_token(),
+            ));
           }
 
           return_token = Some(token);

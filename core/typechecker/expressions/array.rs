@@ -12,13 +12,25 @@ use sflyn_parser::{
   ArrayIndex,
   Error,
   Expression,
-  tokens::Token,
+  tokens::{
+    Array as ArrayType,
+    Token,
+    Types,
+  },
 };
 
 pub fn check(
   array: &Array,
   environment: &mut Environment,
 ) -> Result<TTypes, Error> {
+  if array.get_data().len() == 0 {
+    return Ok(TTypes::new_type(
+      Types::ARRAY(ArrayType::from_value("null[]").unwrap()),
+      String::from("any"),
+      array.get_token(),
+    ));
+  }
+
   let mut data_type: Option<TTypes> = None;
 
   for item in array.get_data().iter() {
@@ -71,18 +83,37 @@ pub fn check_index(
   array_index: &ArrayIndex,
   environment: &mut Environment,
 ) -> Result<TTypes, Error> {
-  let array_type = environment.store.get_type(&array_index.get_token().value);
+  let mut array_type = environment.store.get_type(&array_index.get_token().value);
 
   if array_type.is_none() {
-    return Err(Error::from_token(
-      format!("`{}` identifier not found.", array_index.get_token().value),
-      array_index.get_token(),
-    ));
+    if let Some(left_exp) = array_index.get_left() {
+      match check_expression(&left_exp, environment) {
+        Ok(token) => {
+          array_type = Some(token);
+        },
+        Err(error) => {
+          return Err(error);
+        },
+      }
+    }
+
+    if array_type.is_none() {
+      return Err(Error::from_token(
+        format!("`{}` identifier not found.", array_index.get_token().value),
+        array_index.get_token(),
+      ));
+    }
   }
 
   let array_type = array_type.unwrap();
 
-  if !array_type.is_array() {
+  if array_type.get_type() == Types::STRING {
+    return Ok(TTypes::new_type(
+      array_type.get_type(),
+      array_type.get_value(),
+      array_index.get_token(),
+    ));
+  } else if !array_type.is_array() {
     return Err(Error::from_token(
       format!("`{}` is not an array.", array_index.get_token().value),
       array_index.get_token(),

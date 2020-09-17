@@ -115,7 +115,7 @@ pub fn parse_expression<'a>(
   // Parse array index.
   if current_token.token.clone().is_identifier() &&
     parser.next_token_is(Signs::new(Signs::LEFTBRACKET)) {
-    expression = ArrayIndex::parse(parser, standard_library, with_this);
+    expression = ArrayIndex::parse(parser, expression, standard_library, with_this);
   }
 
   // Parse * as identifier.

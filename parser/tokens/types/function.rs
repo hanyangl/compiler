@@ -30,7 +30,7 @@ impl Function {
   pub fn from_value(value: &str) -> Result<Function, ()> {
     let parts: Vec<String> = value.split("=>").map(|x| x.to_string()).collect();
 
-    if !value.starts_with("(") && parts.len() < 2 {
+    if !value.starts_with("(") || parts.len() < 2 {
       return Err(());
     }
 

@@ -42,6 +42,11 @@ impl Types {
   }
 
   pub fn from_value(value: &str) -> Result<Types, ()> {
+    // Parse functions.
+    if let Ok(function) = Function::from_value(value) {
+      return Ok(Types::FUNCTION(function));
+    }
+
     // Parse array.
     if let Ok(array) = Array::from_value(value) {
       return Ok(Types::ARRAY(array));
@@ -50,11 +55,6 @@ impl Types {
     // Parse hashmaps.
     if let Ok(hashmap) = HashMap::from_value(value) {
       return Ok(Types::HASHMAP(hashmap));
-    }
-
-    // Parse functions.
-    if let Ok(function) = Function::from_value(value) {
-      return Ok(Types::FUNCTION(function));
     }
 
     match value {

@@ -89,6 +89,11 @@ impl Environment {
       return null_lib;
     }
 
+    let string_lib = self.load_stdlib(format!("{}std/String.sf", sflyn_path), "String");
+    if string_lib != 0 {
+      return string_lib;
+    }
+
     let number_lib = self.load_stdlib(format!("{}std/Number.sf", sflyn_path), "Number");
     if number_lib != 0 {
       return number_lib;

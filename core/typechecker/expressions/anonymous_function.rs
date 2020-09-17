@@ -43,7 +43,7 @@ pub fn check(
   match check_statement(&anonymous_function.get_body(), &mut function_environment) {
     Ok(token) => {
       if let Some(ttoken) = data_type.token.get_type() {
-        if !equal_types(ttoken, token.get_type()) {
+        if !equal_types(ttoken, token.get_type()) && token.get_value() != "any" {
           return Err(Error::from_token(
             format!("`{}` not satisfied the `{}` data type.", token.get_token().value, data_type.value),
             token.get_token(),
