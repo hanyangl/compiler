@@ -21,6 +21,7 @@ pub enum Statements {
   BLOCK(Block),
   EXPORT(Export),
   EXPRESSION(ExpressionStatement),
+  FOR(For),
   FUNCTION(Function),
   IFELSE(IfElse),
   IMPORT(Import),
@@ -47,6 +48,13 @@ impl Statements {
   pub fn get_expression(&self) -> Option<ExpressionStatement> {
     match self {
       Statements::EXPRESSION(exp) => Some(exp.clone()),
+      _ => None,
+    }
+  }
+
+  pub fn get_for(&self) -> Option<For> {
+    match self {
+      Statements::FOR(for_s) => Some(for_s.clone()),
       _ => None,
     }
   }
@@ -98,6 +106,7 @@ impl Statements {
       Statements::BLOCK(block) => block.get_token(),
       Statements::EXPORT(export) => export.get_token(),
       Statements::EXPRESSION(expression) => expression.get_token(),
+      Statements::FOR(for_s) => for_s.get_token(),
       Statements::FUNCTION(function) => function.get_token(),
       Statements::IFELSE(if_else) => if_else.get_token(),
       Statements::IMPORT(import) => import.get_token(),
@@ -112,6 +121,7 @@ impl Statements {
       Statements::BLOCK(block) => block.string(),
       Statements::EXPORT(export) => export.string(),
       Statements::EXPRESSION(exp) => exp.string(),
+      Statements::FOR(for_s) => for_s.string(),
       Statements::FUNCTION(function) => function.string(),
       Statements::IFELSE(if_else) => if_else.string(),
       Statements::IMPORT(import) => import.string(),

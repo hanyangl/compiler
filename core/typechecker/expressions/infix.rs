@@ -4,6 +4,7 @@ use crate::{
   typechecker::{
     check_expression,
     equal_types,
+    get_ttypes_from_token,
     TTypes,
   },
 };
@@ -13,6 +14,8 @@ use sflyn_parser::{
   Expression,
   Infix,
   tokens::{
+    Array,
+    Keywords,
     Signs,
     Types,
   },
@@ -23,16 +26,33 @@ pub fn check(
   environment: &mut Environment,
 ) -> Result<TTypes, Error> {
   // Get the left expression type.
-  let left_type;
+  let mut left_type: Option<TTypes> = None;
 
-  match check_expression(&infix.get_left(), environment) {
-    Ok(token) => {
-      left_type = token;
-    },
-    Err(error) => {
-      return Err(error);
-    },
+  // Check if the token is 'in'.
+  if infix.get_token().token.expect_keyword(&Keywords::IN) {
+    if infix.get_left().get_identifier().is_none() {
+      return Err(Error::from_token(
+        String::from("is not a valid expression for an `in`."),
+        infix.get_left().token(),
+      ));
+    }
   }
+  // Check if the token is 'of'.
+  else if infix.get_token().token.expect_keyword(&Keywords::OF) {
+    return Err(Error::from_token(
+      String::from("is not a valid expression for an `of`."),
+      infix.get_left().token(),
+    ));
+  } else {
+    match check_expression(&infix.get_left(), environment) {
+      Ok(token) => {
+        left_type = Some(token);
+      },
+      Err(error) => {
+        return Err(error);
+      },
+    }
+  } 
 
   // Create a new environment.
   let mut right_environment = environment.clone();
@@ -40,7 +60,8 @@ pub fn check(
   right_environment.store = Store::from_store(environment.store.clone());
 
   // Check if is a method.
-  if infix.is_method() {
+  if infix.is_method() && left_type.clone().is_some() {
+    let left_type: TTypes = left_type.clone().unwrap();
     let mut from_std = "";
 
     // Check if the left type is null.
@@ -83,7 +104,7 @@ pub fn check(
   }
 
   // Get the right type.
-  let right_type;
+  let right_type: TTypes;
 
   match check_expression(&infix.get_right(), &mut right_environment) {
     Ok(token) => {
@@ -98,8 +119,10 @@ pub fn check(
   if infix.is_method() {
     return Ok(right_type);
   }
-  // Check if is an infix.
-  else if infix.is_infix() {
+  // Check if is an infix without 'in' or 'of'.
+  else if infix.is_infix() && left_type.clone().is_some() {
+    let left_type: TTypes = left_type.clone().unwrap();
+
     // Parse '-', '/', '*', '^', '**' and '%' with numbers.
     if infix.get_token().token.expect_sign(&Signs::MINUS) ||
       infix.get_token().token.expect_sign(&Signs::DIVIDE) ||
@@ -173,6 +196,31 @@ pub fn check(
 
       return Ok(left_type);
     }
+  }
+  // Check if is an infix with 'in' or 'of'.
+  else if infix.is_infix() && left_type.clone().is_none() {
+    // Check if the token is 'in'.
+    if infix.get_token().token.expect_keyword(&Keywords::IN) {
+      if right_type.is_array() && right_type.get_type().get_array().is_some() {
+        let right_array: Array = right_type.get_type().get_array().unwrap();
+
+        if let Some(ttype) = get_ttypes_from_token(right_array.get_type(), right_type.get_token()) {
+          environment.store.set_type(
+            infix.get_left().get_identifier().unwrap().get_value(),
+            ttype.clone(),
+          );
+
+          return Ok(ttype);
+        }
+      }
+
+      return Err(Error::from_token(
+        String::from("expect an array expression."),
+        infix.get_right().token(),
+      ));
+    }
+    // Check if the token is 'of'.
+    else if infix.get_token().token.expect_keyword(&Keywords::OF) {}
   }
 
   Err(Error::from_token(

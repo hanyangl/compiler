@@ -145,6 +145,8 @@ pub fn parse_expression<'a>(
       parser.next_token_is(Signs::new(Signs::LESSOREQUALTHAN)) ||
       parser.next_token_is(Signs::new(Signs::GREATERTHAN)) ||
       parser.next_token_is(Signs::new(Signs::GREATEROREQUALTHAN)) ||
+      parser.next_token_is(Keywords::new(Keywords::IN)) ||
+      parser.next_token_is(Keywords::new(Keywords::OF)) ||
       parser.next_token_is(Keywords::new(Keywords::AS)) ||
       parser.next_token_is(Signs::new(Signs::ARROW)) ||
       parser.next_token_is(Signs::new(Signs::OR)) ||

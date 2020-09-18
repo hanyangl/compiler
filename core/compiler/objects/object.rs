@@ -20,6 +20,7 @@ pub enum Objects {
   BOOLEAN(Boolean),
   BUILTIN(BuiltIn),
   ERROR(Error),
+  FORIN(ForIn),
   HASHMAP(HashMap),
   NULL(Null),
   NUMBER(Number),
@@ -66,6 +67,13 @@ impl Objects {
   pub fn get_error(&self) -> Option<Error> {
     match self {
       Objects::ERROR(error) => Some(error.clone()),
+      _ => None,
+    }
+  }
+
+  pub fn get_for_in(&self) -> Option<ForIn> {
+    match self {
+      Objects::FORIN(for_in) => Some(for_in.clone()),
       _ => None,
     }
   }
@@ -120,6 +128,7 @@ impl Objects {
       Objects::ARRAY(array) => array.string(),
       Objects::BOOLEAN(boolean) => boolean.string(),
       Objects::BUILTIN(builtin) => builtin.string(),
+      Objects::FORIN(for_in) => for_in.string(),
       Objects::HASHMAP(hashmap) => hashmap.string(),
       Objects::NULL(null) => null.string(),
       Objects::NUMBER(number) => number.string(),

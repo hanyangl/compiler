@@ -14,15 +14,20 @@ pub enum Precedence {
   PRODUCT = 6,
   EMPOWERMENT = 7,
   PREFIX = 8,
-  CALL = 9,
-  METHOD = 10,
-  INDEX = 11,
-  ALIAS = 12,
+  INOF = 9,
+  CALL = 10,
+  METHOD = 11,
+  INDEX = 12,
+  ALIAS = 13,
 }
 
 impl Precedence {
   pub fn from_keyword(keyword: Keywords) -> Precedence {
     match keyword {
+      // INOF
+      Keywords::IN |
+      Keywords::OF => Precedence::INOF,
+
       // ALIAS
       Keywords::AS => Precedence::ALIAS,
 

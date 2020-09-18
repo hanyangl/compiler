@@ -16,6 +16,8 @@ pub fn run(
   environment: &mut Environment,
   with_stdlib: bool,
 ) {
+  let mut showed: bool = false;
+
   // Evaluate stdlib.
   if environment.stdlibs.len() > 0 && with_stdlib {
     for (name, file) in environment.stdlibs.clone().iter() {
@@ -28,7 +30,13 @@ pub fn run(
         if let Some(object) = evaluate_statement(statement, environment) {
           // Check if the object is an error.
           if let Some(error) = object.get_error() {
-            println!("\n{}", error.string(file.clone()));
+            println!(
+              "{}{}",
+              if showed { "\n" } else { "" },
+              error.string(file.clone())
+            );
+
+            showed = true;
           }
         }
       }
@@ -41,7 +49,13 @@ pub fn run(
     if let Some(object) = evaluate_statement(statement, environment) {
       // Check if the object is an error.
       if let Some(error) = object.get_error() {
-        println!("\n{}", error.string(file.clone()));
+        println!(
+          "{}{}",
+          if showed { "\n" } else { "" },
+          error.string(file.clone())
+        );
+
+        showed = true;
       }
     }
   }

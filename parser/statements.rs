@@ -1,6 +1,7 @@
 mod block;
 mod export;
 mod expression;
+mod for_s;
 mod function;
 mod if_else;
 mod import;
@@ -12,6 +13,7 @@ mod variable;
 pub use block::*;
 pub use export::*;
 pub use expression::*;
+pub use for_s::*;
 pub use function::*;
 pub use if_else::*;
 pub use import::*;
@@ -32,11 +34,14 @@ pub fn parse_statement<'a>(
   _from_class: bool,
   with_this: bool,
 ) -> Result<Box<Statements>, Error> {
-  // Enum
-
   // Export
   if parser.current_token_is(Keywords::new(Keywords::EXPORT)) {
     return Export::parse(parser, standard_library);
+  }
+
+  // For
+  if parser.current_token_is(Keywords::new(Keywords::FOR)) {
+    return For::parse(parser, standard_library, with_this);
   }
 
   // Function

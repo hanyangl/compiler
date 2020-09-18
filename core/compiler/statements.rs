@@ -46,6 +46,27 @@ pub fn evaluate_statement(
     return Some(evaluate_expression(&expression.get_expression(), environment));
   }
 
+  // For
+  if let Some(for_s) = statement.get_for() {
+    let condition_obj = evaluate_expression(&for_s.get_condition(), environment);
+
+    if condition_obj.get_error().is_some() {
+      return Some(condition_obj);
+    }
+
+    if let Some(for_in) = condition_obj.get_for_in() {
+      if for_in.get_elements().len() > 0 {
+        let mut new_environment: Environment = environment.clone();
+
+        for obj in for_in.get_elements().iter() {
+          new_environment.store.set_object(for_in.get_name(), obj.clone());
+
+          evaluate_statement(&for_s.get_body(), &mut new_environment);
+        }
+      }
+    }
+  }
+
   // Function
   if let Some(function) = statement.get_function() {
     AnonymousFunction::add_arguments_to_environment(

@@ -39,6 +39,14 @@ pub fn check_statement(
     return check_expression(&expression.get_expression(), environment);
   }
 
+  // For
+  if let Some(for_stmt) = statement.get_for() {
+    return match check_expression(&for_stmt.get_condition(), environment) {
+      Ok(_) => check_statement(&for_stmt.get_body(), environment),
+      Err(error) => Err(error),
+    };
+  }
+
   // Function
   if let Some(function_stmt) = statement.get_function() {
     return function::check(&function_stmt, environment);

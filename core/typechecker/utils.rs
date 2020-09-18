@@ -1,7 +1,11 @@
+use crate::typechecker::TTypes;
+
 use sflyn_parser::tokens::{
   Token,
   Types,
 };
+
+use std::collections::HashMap;
 
 pub fn equal_types(one: Types, two: Types) -> bool {
   // Check if both types are functions.
@@ -60,4 +64,54 @@ pub fn equal_tokens(one: Token, two: Token) -> bool {
   }
 
   one == two
+}
+
+pub fn get_ttypes_from_token(
+  token: Token,
+  token_to_ttype: Token,
+) -> Option<TTypes> {
+  // Get the token data type.
+  if let Some(token_type) = token.token.get_type() {
+    // Check if is an array.
+    if token_type.get_array().is_some() {
+      return Some(TTypes::new_array(
+        token_type,
+        token.value,
+        token_to_ttype,
+      ));
+    }
+    // Check if is an hashmap.
+    else if let Some(hashmap) = token_type.get_hashmap() {
+      let mut methods: HashMap<String, TTypes> = HashMap::new();
+
+      for (key, value) in hashmap.get_items().iter() {
+        if let Some(ttype) = get_ttypes_from_token(value.clone(), token_to_ttype.clone()) {
+          methods.insert(key.clone(), ttype);
+          continue;
+        }
+
+        return None;
+      }
+
+      return Some(TTypes::new_hashmap(
+        token_type,
+        token.value,
+        token_to_ttype,
+        methods,
+      ));
+    }
+    // Check if is a function.
+    else if let Some(function) = token_type.get_function() {
+      println!("Function TType: {:?}\n", function);
+      return None;
+    }
+
+    return Some(TTypes::new_type(
+      token_type,
+      token.value,
+      token_to_ttype,
+    ));
+  }
+
+  None
 }

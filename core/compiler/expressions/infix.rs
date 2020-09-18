@@ -3,6 +3,7 @@ use crate::{
     Array,
     Boolean,
     Error,
+    ForIn,
     Number,
     Objects,
     StringO,
@@ -14,7 +15,10 @@ use crate::{
 use sflyn_parser::{
   Expression,
   Infix,
-  tokens::Signs,
+  tokens::{
+    Keywords,
+    Signs,
+  },
 };
 
 use super::evaluate_expression;
@@ -29,16 +33,42 @@ pub fn evaluate(
   );
 
   // Evaluate left expression.
-  let mut left_object = evaluate_expression(&infix.get_left(), environment);
+  let mut left_object: Option<Box<Objects>> = None;
 
-  // Check if the left object is an error.
-  if left_object.get_error().is_some() {
-    return left_object;
+  if infix.get_token().token.expect_keyword(&Keywords::IN) {
+    if let Some(identifier) = infix.get_left().get_identifier() {
+      if environment.store.get_object(&identifier.get_value()).is_some() {
+        return Error::new(
+          format!("`{}` is already in use.", identifier.get_value()),
+          infix.get_left().token(),
+        );
+      }
+    } else {
+      return Error::new(
+        String::from("is not a valid expression for an `in`."),
+        infix.get_left().token(),
+      );
+    }
   }
+  else if infix.get_token().token.expect_keyword(&Keywords::OF) {
+    return Error::new(
+      String::from("is not a valid expression for an `of`."),
+      infix.get_left().token(),
+    );
+  } else {
+    left_object = Some(evaluate_expression(&infix.get_left(), environment));
 
-  // Check if the left object is a return.
-  if let Some(return_o) = left_object.get_return() {
-    left_object = return_o.get_value();
+    let obj = left_object.clone().unwrap();
+
+    // Check if the left object is an error.
+    if obj.get_error().is_some() {
+      return obj;
+    }
+
+    // Check if the left object is a return.
+    if let Some(return_o) = obj.get_return() {
+      left_object = Some(return_o.get_value());
+    }
   }
 
   // Create a new environment.
@@ -48,7 +78,8 @@ pub fn evaluate(
   right_environment.store = Store::from_store(environment.store.clone());
 
   // Check if the infix is a method.
-  if infix.is_method() {
+  if infix.is_method() && left_object.clone().is_some() {
+    let left_object: Box<Objects> = left_object.clone().unwrap();
     let mut name = "";
 
     // Check if the left object is a hashmap.
@@ -82,7 +113,8 @@ pub fn evaluate(
     }
   }
 
-  if left_object.get_string().is_some() &&
+  if left_object.clone().is_some() &&
+    left_object.clone().unwrap().get_string().is_some() &&
     infix.get_right().token().value == "split" &&
     infix.get_right().get_call().is_some() {
     let call_right = infix.get_right().get_call().unwrap();
@@ -93,10 +125,10 @@ pub fn evaluate(
 
       if let Some(string) = arg.get_string() {
         let split_value = string.get_value();
-        let elements: Vec<Box<Objects>> = left_object
+        let elements: Vec<Box<Objects>> = left_object.unwrap()
           .get_string().unwrap().get_value()
           .split(&split_value[1..split_value.len() - 1])
-          .map(|x| StringO::new(format!("'{}'", x)))
+          .map(|x| StringO::new(x.to_string()))
           .collect();
 
         return Array::new(elements[1..elements.len() - 1].to_vec());
@@ -105,7 +137,7 @@ pub fn evaluate(
   }
 
   // Evaluate right expression.
-  let mut right_object = evaluate_expression(&infix.get_right(), &mut right_environment);
+  let mut right_object: Box<Objects> = evaluate_expression(&infix.get_right(), &mut right_environment);
 
   // Check if the right object is an error.
   if right_object.get_error().is_some() {
@@ -118,7 +150,8 @@ pub fn evaluate(
   }
 
   // Parse method.
-  if infix.is_method() {
+  if infix.is_method() && left_object.is_some() {
+    let left_object = left_object.unwrap();
     let right_token = infix.get_right().token();
 
     // Check if the method is 'toString()'.
@@ -141,8 +174,10 @@ pub fn evaluate(
 
     return right_object;
   }
-  // Parse infix.
-  else if infix.is_infix() {
+  // Parse infix without 'in' or 'of'.
+  else if infix.is_infix() && left_object.is_some() {
+    let left_object = left_object.unwrap();
+
     // Check if left and right objects are numbers.
     if left_object.get_number().is_some() &&
       right_object.get_number().is_some() {
@@ -208,6 +243,31 @@ pub fn evaluate(
         right_object.get_boolean().unwrap().get_value()
       );
     }
+  }
+  // Check if is an infix with 'in' or 'of'.
+  else if infix.is_infix() && left_object.clone().is_none() {
+    // Check if the token is 'in'.
+    if infix.get_token().token.expect_keyword(&Keywords::IN) {
+      if right_object.get_array().is_some() {
+        let mut name: String = String::new();
+
+        if let Some(identifier) = infix.get_left().get_identifier() {
+          name = identifier.get_value();
+        }
+
+        return ForIn::new(
+          name, 
+          right_object.get_array().unwrap().get_elements(),
+        );
+      }
+
+      return Error::new(
+        String::from("expect an array expression."),
+        infix.get_right().token(),
+      );
+    }
+    // Check if the token is 'of'.
+    else if infix.get_token().token.expect_keyword(&Keywords::OF) {}
   }
 
   error

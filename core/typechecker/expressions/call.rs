@@ -3,6 +3,7 @@ use crate::{
   typechecker::{
     check_expression,
     equal_types,
+    get_ttypes_from_token,
     TTypes,
   },
 };
@@ -12,10 +13,7 @@ use sflyn_parser::{
   Call,
   Error,
   Expression,
-  tokens::{
-    Token,
-    Types,
-  },
+  tokens::Token,
 };
 
 pub fn check(
@@ -137,21 +135,9 @@ pub fn check(
   }
 
   if let Some(function) = function_type.get_type().get_function() {
-    let function_type: Types = function.get_type().token.get_type().unwrap();
-
-    if function_type.get_array().is_some() {
-      return Ok(TTypes::new_array(
-        function_type,
-        function.get_type().value,
-        call.get_token(),
-      ));
+    if let Some(ttype) = get_ttypes_from_token(function.get_type(), call.get_token()) {
+      return Ok(ttype);
     }
-
-    return Ok(TTypes::new_type(
-      function_type,
-      function.get_type().value,
-      call.get_token(),
-    ));
   }
 
   Err(Error::from_token(
