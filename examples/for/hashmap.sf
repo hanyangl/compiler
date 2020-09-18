@@ -4,5 +4,5 @@ const data = {
 };
 
 for ([key, value] of data) {
-  print("The value of `" + key + "` is `" + value + "`.");
+  print("The value of `" + key + "` is `" + value->toString() + "`.");
 }

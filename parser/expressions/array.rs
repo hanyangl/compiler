@@ -88,12 +88,6 @@ impl Array {
       parser.next_token();
     }
 
-    // Check if the next token is a right bracket.
-    if parser.current_token_is(Signs::new(Signs::RIGHTBRACKET)) {
-      // Get the next token.
-      parser.next_token();
-    }
-
     // Return the array expression.
     Ok(Box::new(Expressions::ARRAY(array)))
   }

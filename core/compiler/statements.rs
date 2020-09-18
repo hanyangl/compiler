@@ -3,11 +3,12 @@ mod import;
 use crate::{
   compiler::{
     AnonymousFunction,
+    Boolean,
     evaluate_expression,
+    Null,
     Objects,
     ReturnO,
-    Boolean,
-    Null,
+    StringO,
   },
   Environment,
 };
@@ -54,14 +55,38 @@ pub fn evaluate_statement(
       return Some(condition_obj);
     }
 
+    let mut for_environment: Environment = environment.clone();
+
     if let Some(for_in) = condition_obj.get_for_in() {
       if for_in.get_elements().len() > 0 {
-        let mut new_environment: Environment = environment.clone();
-
         for obj in for_in.get_elements().iter() {
-          new_environment.store.set_object(for_in.get_name(), obj.clone());
+          for_environment.store.set_object(for_in.get_name(), obj.clone());
 
-          evaluate_statement(&for_s.get_body(), &mut new_environment);
+          if let Some(obj) = evaluate_statement(&for_s.get_body(), &mut for_environment) {
+            if obj.get_error().is_some() {
+              return Some(obj);
+            }
+          }
+        }
+      }
+    } else if let Some(for_of) = condition_obj.get_for_of() {
+      if for_of.get_names().len() == 2 {
+        for item in for_of.get_data().iter() {
+          for_environment.store.set_object(
+            for_of.get_names()[0].clone(),
+            StringO::new(item.key.clone()),
+          );
+
+          for_environment.store.set_object(
+            for_of.get_names()[1].clone(),
+            item.value.clone(),
+          );
+
+          if let Some(obj) = evaluate_statement(&for_s.get_body(), &mut for_environment) {
+            if obj.get_error().is_some() {
+              return Some(obj);
+            }
+          }
         }
       }
     }

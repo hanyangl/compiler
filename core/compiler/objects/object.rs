@@ -21,6 +21,7 @@ pub enum Objects {
   BUILTIN(BuiltIn),
   ERROR(Error),
   FORIN(ForIn),
+  FOROF(ForOf),
   HASHMAP(HashMap),
   NULL(Null),
   NUMBER(Number),
@@ -78,6 +79,13 @@ impl Objects {
     }
   }
 
+  pub fn get_for_of(&self) -> Option<ForOf> {
+    match self {
+      Objects::FOROF(for_of) => Some(for_of.clone()),
+      _ => None,
+    }
+  }
+
   pub fn get_hashmap(&self) -> Option<HashMap> {
     match self {
       Objects::HASHMAP(hashmap) => Some(hashmap.clone()),
@@ -129,6 +137,7 @@ impl Objects {
       Objects::BOOLEAN(boolean) => boolean.string(),
       Objects::BUILTIN(builtin) => builtin.string(),
       Objects::FORIN(for_in) => for_in.string(),
+      Objects::FOROF(for_of) => for_of.string(),
       Objects::HASHMAP(hashmap) => hashmap.string(),
       Objects::NULL(null) => null.string(),
       Objects::NUMBER(number) => number.string(),

@@ -1,4 +1,5 @@
 mod block;
+mod for_s;
 mod function;
 mod if_else;
 mod import;
@@ -41,10 +42,7 @@ pub fn check_statement(
 
   // For
   if let Some(for_stmt) = statement.get_for() {
-    return match check_expression(&for_stmt.get_condition(), environment) {
-      Ok(_) => check_statement(&for_stmt.get_body(), environment),
-      Err(error) => Err(error),
-    };
+    return for_s::check(&for_stmt, environment);
   }
 
   // Function

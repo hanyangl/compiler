@@ -4,6 +4,7 @@ use crate::{
     Boolean,
     Error,
     ForIn,
+    ForOf,
     Number,
     Objects,
     StringO,
@@ -35,26 +36,23 @@ pub fn evaluate(
   // Evaluate left expression.
   let mut left_object: Option<Box<Objects>> = None;
 
+  // Check if the token is 'in'.
   if infix.get_token().token.expect_keyword(&Keywords::IN) {
-    if let Some(identifier) = infix.get_left().get_identifier() {
-      if environment.store.get_object(&identifier.get_value()).is_some() {
-        return Error::new(
-          format!("`{}` is already in use.", identifier.get_value()),
-          infix.get_left().token(),
-        );
-      }
-    } else {
+    if infix.get_left().get_identifier().is_none() {
       return Error::new(
         String::from("is not a valid expression for an `in`."),
         infix.get_left().token(),
       );
     }
   }
+  // Check if the token is 'of'.
   else if infix.get_token().token.expect_keyword(&Keywords::OF) {
-    return Error::new(
-      String::from("is not a valid expression for an `of`."),
-      infix.get_left().token(),
-    );
+    if infix.get_left().get_array().is_none() {
+      return Error::new(
+        String::from("is not a valid expression for an `of`."),
+        infix.get_left().token(),
+      );
+    }
   } else {
     left_object = Some(evaluate_expression(&infix.get_left(), environment));
 
@@ -156,6 +154,7 @@ pub fn evaluate(
 
     // Check if the method is 'toString()'.
     if right_token.value == "toString" && (
+      left_object.get_string().is_some() ||
       left_object.get_number().is_some() ||
       left_object.get_boolean().is_some() ||
       left_object.get_array().is_some()
@@ -267,7 +266,39 @@ pub fn evaluate(
       );
     }
     // Check if the token is 'of'.
-    else if infix.get_token().token.expect_keyword(&Keywords::OF) {}
+    else if infix.get_token().token.expect_keyword(&Keywords::OF) {
+      if let Some(hashmap) = right_object.get_hashmap() {
+        if let Some(left_array) = infix.get_left().get_array() {
+          if left_array.get_data().len() != 2 {
+            return Error::new(
+              format!("expect `2` elements, got `{}` instead.", left_array.get_data().len()),
+              infix.get_left().token(),
+            );
+          }
+
+          let mut names: Vec<String> = Vec::new();
+
+          for element in left_array.get_data().iter() {
+            if let Some(identifier) = element.get_identifier() {
+              names.push(identifier.get_value());
+              continue;
+            }
+
+            return Error::new(
+              String::from("is not a valid identifier."),
+              element.token(),
+            );
+          }
+
+          return ForOf::new(names, hashmap.get_data());
+        }
+      }
+
+      return Error::new(
+        String::from("expect an hashmap expression."),
+        infix.get_right().token(),
+      );
+    }
   }
 
   error

@@ -1,6 +1,9 @@
 
 const String = {
   length: 0,
+  toString: (): string => {
+    return '';
+  },
   split: (character: string): string[] => {
     return [];
   },

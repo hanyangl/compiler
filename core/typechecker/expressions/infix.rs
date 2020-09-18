@@ -4,7 +4,6 @@ use crate::{
   typechecker::{
     check_expression,
     equal_types,
-    get_ttypes_from_token,
     TTypes,
   },
 };
@@ -14,7 +13,6 @@ use sflyn_parser::{
   Expression,
   Infix,
   tokens::{
-    Array,
     Keywords,
     Signs,
     Types,
@@ -39,10 +37,12 @@ pub fn check(
   }
   // Check if the token is 'of'.
   else if infix.get_token().token.expect_keyword(&Keywords::OF) {
-    return Err(Error::from_token(
-      String::from("is not a valid expression for an `of`."),
-      infix.get_left().token(),
-    ));
+    if infix.get_left().get_array().is_none() {
+      return Err(Error::from_token(
+        String::from("is not a valid expression for an `of`."),
+        infix.get_left().token(),
+      ));
+    }
   } else {
     match check_expression(&infix.get_left(), environment) {
       Ok(token) => {
@@ -202,16 +202,12 @@ pub fn check(
     // Check if the token is 'in'.
     if infix.get_token().token.expect_keyword(&Keywords::IN) {
       if right_type.is_array() && right_type.get_type().get_array().is_some() {
-        let right_array: Array = right_type.get_type().get_array().unwrap();
-
-        if let Some(ttype) = get_ttypes_from_token(right_array.get_type(), right_type.get_token()) {
-          environment.store.set_type(
-            infix.get_left().get_identifier().unwrap().get_value(),
-            ttype.clone(),
-          );
-
-          return Ok(ttype);
-        }
+        return Ok(TTypes::new_for_in(
+          right_type.get_type(),
+          right_type.get_value(),
+          right_type.get_token(),
+          infix.get_left().get_identifier().unwrap().get_value(),
+        ));
       }
 
       return Err(Error::from_token(
@@ -220,7 +216,45 @@ pub fn check(
       ));
     }
     // Check if the token is 'of'.
-    else if infix.get_token().token.expect_keyword(&Keywords::OF) {}
+    else if infix.get_token().token.expect_keyword(&Keywords::OF) {
+      if right_type.is_hashmap() && right_type.get_type().get_hashmap().is_some() {
+        if let Some(left_array) = infix.get_left().get_array() {
+          if left_array.get_data().len() != 2 {
+            return Err(Error::from_token(
+              format!("expect `2` elements, got `{}` instead.", left_array.get_data().len()),
+              infix.get_left().token(),
+            ));
+          }
+
+          let mut names: Vec<String> = Vec::new();
+
+          for element in left_array.get_data().iter() {
+            if let Some(identifier) = element.get_identifier() {
+              names.push(identifier.get_value());
+              continue;
+            }
+
+            return Err(Error::from_token(
+              String::from("is not a valid identifier."),
+              element.token(),
+            ));
+          }
+
+          return Ok(TTypes::new_for_of(
+            right_type.get_type(),
+            right_type.get_value(),
+            right_type.get_token(),
+            right_type.get_methods(),
+            names,
+          ));
+        }
+      }
+
+      return Err(Error::from_token(
+        String::from("expect an hashmap expression."),
+        infix.get_right().token(),
+      ));
+    }
   }
 
   Err(Error::from_token(

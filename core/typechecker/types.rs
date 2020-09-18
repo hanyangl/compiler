@@ -11,10 +11,14 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, PartialEq)]
 pub enum TType {
   NONE,
+
   INTERFACE,
   FUNCTION,
   HASHMAP,
   ARRAY,
+
+  FORIN,
+  FOROF,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -24,6 +28,7 @@ pub struct TTypes {
   type_value: String,
   token: Token,
 
+  names: Vec<String>,
   arguments: Vec<Box<Expressions>>,
   methods: HashMap<String, TTypes>,
 }
@@ -34,6 +39,7 @@ impl TTypes {
     data_type: Types,
     type_value: String,
     token: Token,
+    names: Vec<String>,
     arguments: Vec<Box<Expressions>>,
     methods: HashMap<String, TTypes>,
   ) -> Self {
@@ -42,29 +48,128 @@ impl TTypes {
       data_type,
       type_value,
       token,
+      names,
       arguments,
       methods,
     }
   }
 
-  pub fn new_type(data_type: Types, type_value: String, token: Token) -> Self {
-    Self::new(TType::NONE, data_type, type_value, token, Vec::new(), HashMap::new())
+  pub fn new_type(
+    data_type: Types,
+    type_value: String,
+    token: Token,
+  ) -> Self {
+    Self::new(
+      TType::NONE,
+      data_type,
+      type_value,
+      token,
+      Vec::new(),
+      Vec::new(),
+      HashMap::new(),
+    )
   }
 
-  pub fn new_interface(data_type: Types, type_value: String, token: Token, methods: HashMap<String, TTypes>) -> Self {
-    Self::new(TType::INTERFACE, data_type, type_value, token, Vec::new(), methods)
+  pub fn new_interface(
+    data_type: Types,
+    type_value: String,
+    token: Token,
+    methods: HashMap<String, TTypes>,
+  ) -> Self {
+    Self::new(
+      TType::INTERFACE,
+      data_type,
+      type_value,
+      token,
+      Vec::new(),
+      Vec::new(),
+      methods,
+    )
   } 
 
-  pub fn new_function(data_type: Types, type_value: String, token: Token, arguments: Vec<Box<Expressions>>) -> Self {
-    Self::new(TType::FUNCTION, data_type, type_value, token, arguments, HashMap::new())
+  pub fn new_function(
+    data_type: Types,
+    type_value: String,
+    token: Token,
+    arguments: Vec<Box<Expressions>>,
+  ) -> Self {
+    Self::new(
+      TType::FUNCTION,
+      data_type,
+      type_value,
+      token,
+      Vec::new(),
+      arguments,
+      HashMap::new(),
+    )
   }
 
-  pub fn new_hashmap(data_type: Types, type_value: String, token: Token, methods: HashMap<String, TTypes>) -> Self {
-    Self::new(TType::HASHMAP, data_type, type_value, token, Vec::new(), methods)
+  pub fn new_hashmap(
+    data_type: Types,
+    type_value: String,
+    token: Token,
+    methods: HashMap<String, TTypes>,
+  ) -> Self {
+    Self::new(
+      TType::HASHMAP,
+      data_type,
+      type_value,
+      token,
+      Vec::new(),
+      Vec::new(),
+      methods,
+    )
   }
 
-  pub fn new_array(data_type: Types, type_value: String, token: Token) -> Self {
-    Self::new(TType::ARRAY, data_type, type_value, token, Vec::new(), HashMap::new())
+  pub fn new_array(
+    data_type: Types,
+    type_value: String,
+    token: Token,
+  ) -> Self {
+    Self::new(
+      TType::ARRAY,
+      data_type,
+      type_value,
+      token,
+      Vec::new(),
+      Vec::new(),
+      HashMap::new(),
+    )
+  }
+
+  pub fn new_for_in(
+    data_type: Types,
+    type_value: String,
+    token: Token,
+    name: String,
+  ) -> Self {
+    Self::new(
+      TType::FORIN,
+      data_type,
+      type_value,
+      token,
+      [name].to_vec(),
+      Vec::new(),
+      HashMap::new(),
+    )
+  }
+
+  pub fn new_for_of(
+    data_type: Types,
+    type_value: String,
+    token: Token,
+    methods: HashMap<String, TTypes>,
+    names: Vec<String>,
+  ) -> Self {
+    Self::new(
+      TType::FOROF,
+      data_type,
+      type_value,
+      token,
+      names,
+      Vec::new(),
+      methods,
+    )
   }
 
   pub fn is_interface(&self) -> bool {
@@ -83,6 +188,14 @@ impl TTypes {
     self.ttype == TType::ARRAY
   }
 
+  pub fn is_for_in(&self) -> bool {
+    self.ttype == TType::FORIN
+  }
+
+  pub fn is_for_of(&self) -> bool {
+    self.ttype == TType::FOROF
+  }
+
   pub fn get_type(&self) -> Types {
     self.data_type.clone()
   }
@@ -93,6 +206,10 @@ impl TTypes {
 
   pub fn get_token(&self) -> Token {
     self.token.clone()
+  }
+
+  pub fn get_names(&self) -> Vec<String> {
+    self.names.clone()
   }
 
   pub fn get_arguments(&self) -> Vec<Box<Expressions>> {
