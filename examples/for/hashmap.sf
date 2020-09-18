@@ -1,0 +1,8 @@
+const data = {
+  name: 'Sflyn',
+  year: 2020,
+};
+
+for ([key, value] of data) {
+  print("The value of `" + key + "` is `" + value + "`.");
+}

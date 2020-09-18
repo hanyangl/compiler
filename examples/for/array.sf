@@ -1,0 +1,5 @@
+const lang = 'Sflyn';
+
+for (letter in lang->split('')) {
+  print(letter);
+}
