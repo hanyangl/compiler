@@ -1,4 +1,5 @@
 mod block;
+mod continue_break;
 mod export;
 mod expression;
 mod for_s;
@@ -11,6 +12,7 @@ mod statement;
 mod variable;
 
 pub use block::*;
+pub use continue_break::*;
 pub use export::*;
 pub use expression::*;
 pub use for_s::*;
@@ -34,6 +36,12 @@ pub fn parse_statement<'a>(
   _from_class: bool,
   with_this: bool,
 ) -> Result<Box<Statements>, Error> {
+  // Continue and Break
+  if parser.current_token_is(Keywords::new(Keywords::CONTINUE)) ||
+    parser.current_token_is(Keywords::new(Keywords::BREAK)) {
+    return Ok(ContinueBreak::parse(parser));
+  }
+
   // Export
   if parser.current_token_is(Keywords::new(Keywords::EXPORT)) {
     return Export::parse(parser, standard_library);

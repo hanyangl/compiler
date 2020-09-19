@@ -4,5 +4,13 @@ const data = {
 };
 
 for ([key, value] of data) {
-  print("The value of `" + key + "` is `" + value->toString() + "`.");
+  let type: string = "";
+
+  if (value is number) {
+    type = "a number";
+  } else if (value is string) {
+    type = "a string";
+  }
+
+  print("`" + key + "` value is " + type);
 }

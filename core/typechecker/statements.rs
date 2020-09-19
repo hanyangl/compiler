@@ -30,6 +30,15 @@ pub fn check_statement(
     return block::check(&block_stmt, environment);
   }
 
+  // Continue and break
+  if let Some(continue_break) = statement.get_continue_break() {
+    return Ok(TTypes::new_type(
+      Types::VOID,
+      continue_break.get_token().value,
+      continue_break.get_token(),
+    ));
+  }
+
   // Export
   if let Some(export) = statement.get_export() {
     return check_statement(&export.get_value(), environment);

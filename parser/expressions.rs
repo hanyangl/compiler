@@ -4,6 +4,7 @@ mod array;
 mod boolean;
 mod call;
 mod expression;
+mod for_condition;
 mod hashmap;
 mod identifier;
 mod infix;
@@ -11,6 +12,7 @@ mod null;
 mod number;
 mod prefix;
 mod string;
+mod suffix;
 mod types;
 
 pub use anonymous_function::*;
@@ -19,6 +21,7 @@ pub use array::*;
 pub use boolean::*;
 pub use call::*;
 pub use expression::*;
+pub use for_condition::*;
 pub use hashmap::*;
 pub use identifier::*;
 pub use infix::*;
@@ -26,6 +29,7 @@ pub use null::*;
 pub use number::*;
 pub use prefix::*;
 pub use string::*;
+pub use suffix::*;
 pub use types::*;
 
 use super::{
@@ -82,7 +86,9 @@ pub fn parse_expression<'a>(
 
   // Parse prefixes.
   if current_token.token.expect_sign(&Signs::NOT) ||
-    current_token.token.expect_sign(&Signs::MINUS) {
+    current_token.token.expect_sign(&Signs::MINUS) ||
+    current_token.token.expect_sign(&Signs::PLUSPLUS) ||
+    current_token.token.expect_sign(&Signs::MINUSMINUS) {
     expression = Prefix::parse(parser, standard_library, with_this);
   }
 
@@ -148,9 +154,15 @@ pub fn parse_expression<'a>(
       parser.next_token_is(Keywords::new(Keywords::IN)) ||
       parser.next_token_is(Keywords::new(Keywords::OF)) ||
       parser.next_token_is(Keywords::new(Keywords::AS)) ||
+      parser.next_token_is(Keywords::new(Keywords::IS)) ||
       parser.next_token_is(Signs::new(Signs::ARROW)) ||
       parser.next_token_is(Signs::new(Signs::OR)) ||
-      parser.next_token_is(Signs::new(Signs::AND)) {
+      parser.next_token_is(Signs::new(Signs::AND)) ||
+      parser.next_token_is(Signs::new(Signs::ASSIGN)) ||
+      parser.next_token_is(Signs::new(Signs::PLUSASSIGN)) ||
+      parser.next_token_is(Signs::new(Signs::MINUSASSIGN)) ||
+      parser.next_token_is(Signs::new(Signs::MULTIPLYASSIGN)) ||
+      parser.next_token_is(Signs::new(Signs::DIVIDEASSIGN)) {
       // Get the next token.
       parser.next_token();
 
@@ -161,6 +173,19 @@ pub fn parse_expression<'a>(
         if let Err(error) = expression {
           return Err(error);
         }
+      }
+
+      continue;
+    }
+    // Parse suffix expression.
+    else if parser.next_token_is(Signs::new(Signs::PLUSPLUS)) ||
+      parser.next_token_is(Signs::new(Signs::MINUSMINUS)) {
+      // Get the next token.
+      parser.next_token();
+
+      // Set the new expression.
+      if let Ok(left) = expression {
+        expression = Ok(Suffix::parse(parser, left));
       }
 
       continue;

@@ -2,6 +2,7 @@ use crate::{
   Argument,
   Error,
   Expressions,
+  parse_type,
   Parser,
   tokens::*,
 };
@@ -132,25 +133,22 @@ impl Function {
       parser.next_token();
 
       // Get the return data type.
-      match parser.get_current_token().token.get_type() {
-        Some(_) => {
+      match parse_type(parser) {
+        Ok(data_type) => {
           // Set the function return data type.
-          function.data_type = parser.get_current_token();
+          function.data_type = data_type;
         },
-        None => {
+        Err(_) => {
           return Err(Error::from_token(
             format!("`{}` is not a valid type.", parser.get_current_token().value),
             parser.get_current_token(),
           ));
         },
       }
-
-      // Get the next token.
-      parser.next_token();
     }
 
     // Check if the next token is a left brace.
-    if !parser.current_token_is(Signs::new(Signs::LEFTBRACE)) {
+    if !parser.expect_token(Signs::new(Signs::LEFTBRACE)) {
       return Err(Error::from_token(
         format!("expect `{{`, got `{}` instead.", parser.get_current_token().value),
         parser.get_current_token(),

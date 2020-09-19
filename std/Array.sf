@@ -1,5 +1,9 @@
 
 const Array = {
+  length: 0,
+  push: (element: number): number => {
+    return 0;
+  },
   toString: (): string => {
     return '[]';
   },

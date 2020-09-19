@@ -70,8 +70,6 @@ pub fn evaluate_expression(
     return object;
   }
 
-  // Argument
-
   // Array
   if let Some(array) = expression.get_array() {
     // Evaluate array elements.

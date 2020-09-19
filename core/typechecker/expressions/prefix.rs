@@ -40,6 +40,19 @@ pub fn check(
     }
 
     return Ok(right_type);
+  } else if prefix.get_token().token.expect_sign(&Signs::PLUSPLUS) ||
+    prefix.get_token().token.expect_sign(&Signs::MINUSMINUS) {
+    if right_type.get_type() != Types::NUMBER {
+      return Err(Error::from_token(
+        format!(
+          "only can {} to numbers.",
+          if prefix.get_token().token.expect_sign(&Signs::PLUSPLUS) { "add" } else { "subtract" }
+        ),
+        prefix.get_token(),
+      ));
+    }
+
+    return Ok(right_type);
   } else if prefix.get_token().token.expect_sign(&Signs::NOT) {
     if right_type.get_type() != Types::BOOLEAN && right_type.get_type() != Types::NULL {
       return Err(Error::from_token(

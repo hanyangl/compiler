@@ -11,6 +11,7 @@ use sflyn_parser::{
   Error,
   Variable,
   Statement,
+  tokens::Keywords,
 };
 
 pub fn check(
@@ -30,6 +31,10 @@ pub fn check(
   if let Some(value) = variable.get_value() {
     match check_expression(&value, environment) {
       Ok(token) => {
+        if variable.get_token().token.expect_keyword(&Keywords::CONST) {
+          environment.store.set_const(variable.get_name().value);
+        }
+
         if data_type.value == "any" {
           environment.store.set_type(variable.get_name().value, token.clone());
           return Ok(token);

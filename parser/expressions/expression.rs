@@ -24,6 +24,7 @@ pub enum Expressions {
   ARRAYINDEX(ArrayIndex),
   BOOLEAN(Boolean),
   CALL(Call),
+  FORCONDITION(ForCondition),
   HASHMAP(HashMap),
   IDENTIFIER(Identifier),
   INFIX(Infix),
@@ -31,6 +32,7 @@ pub enum Expressions {
   NUMBER(Number),
   PREFIX(Prefix),
   STRING(StringE),
+  SUFFIX(Suffix),
 }
 
 impl Expressions {
@@ -71,6 +73,13 @@ impl Expressions {
   pub fn get_call(&self) -> Option<Call> {
     match self {
       Expressions::CALL(call) => Some(call.clone()),
+      _ => None,
+    }
+  }
+
+  pub fn get_for_condition(&self) -> Option<ForCondition> {
+    match self {
+      Expressions::FORCONDITION(for_condition) => Some(for_condition.clone()),
       _ => None,
     }
   }
@@ -124,6 +133,13 @@ impl Expressions {
     }
   }
 
+  pub fn get_suffix(&self) -> Option<Suffix> {
+    match self {
+      Expressions::SUFFIX(suffix) => Some(suffix.clone()),
+      _ => None,
+    }
+  }
+
   pub fn token(&self) -> Token {
     match self {
       Expressions::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.get_token(),
@@ -132,6 +148,7 @@ impl Expressions {
       Expressions::ARRAYINDEX(array_index) => array_index.get_token(),
       Expressions::BOOLEAN(boolean) => boolean.get_token(),
       Expressions::CALL(call) => call.get_token(),
+      Expressions::FORCONDITION(for_condition) => for_condition.get_token(),
       Expressions::HASHMAP(hashmap) => hashmap.get_token(),
       Expressions::IDENTIFIER(identifier) => identifier.get_token(),
       Expressions::INFIX(infix) => infix.get_token(),
@@ -139,6 +156,7 @@ impl Expressions {
       Expressions::NUMBER(number) => number.get_token(),
       Expressions::PREFIX(prefix) => prefix.get_token(),
       Expressions::STRING(string) => string.get_token(),
+      Expressions::SUFFIX(suffix) => suffix.get_token(),
     }
   }
 
@@ -150,6 +168,7 @@ impl Expressions {
       Expressions::ARRAYINDEX(array_index) => array_index.string(),
       Expressions::BOOLEAN(boolean) => boolean.string(),
       Expressions::CALL(call) => call.string(),
+      Expressions::FORCONDITION(for_condition) => for_condition.string(),
       Expressions::HASHMAP(hashmap) => hashmap.string(),
       Expressions::IDENTIFIER(identifier) => identifier.string(),
       Expressions::INFIX(infix) => infix.string(),
@@ -157,6 +176,7 @@ impl Expressions {
       Expressions::NUMBER(number) => number.string(),
       Expressions::PREFIX(prefix) => prefix.string(),
       Expressions::STRING(string) => string.string(),
+      Expressions::SUFFIX(suffix) => suffix.string(),
     }
   }
 }

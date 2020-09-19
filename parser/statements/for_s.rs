@@ -2,6 +2,7 @@ use crate::{
   Block,
   Error,
   Expressions,
+  ForCondition,
   Infix,
   parse_expression,
   Parser,
@@ -71,8 +72,8 @@ impl For {
     // Check if the next token is a left parentheses.
     if !parser.expect_token(Signs::new(Signs::LEFTPARENTHESES)) {
       return Err(Error::from_token(
-        format!("expect `(`, got `{}` instead.", parser.get_current_token().value),
-        parser.get_current_token(),
+        format!("expect `(`, got `{}` instead.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 
@@ -81,7 +82,18 @@ impl For {
 
     match parse_expression(parser, Precedence::LOWEST, standard_library, with_this) {
       Ok(condition) => {
-        for_s.condition = condition;
+        if parser.current_token_is(Signs::new(Signs::SEMICOLON)) {
+          match ForCondition::parse(parser, condition, standard_library, with_this) {
+            Ok(condition) => {
+              for_s.condition = condition;
+            },
+            Err(error) => {
+              return Err(error);
+            }
+          }
+        } else {
+          for_s.condition = condition;
+        }
       },
       Err(error) => {
         return Err(error);
@@ -91,16 +103,16 @@ impl For {
     // Check if the next token is a right parentheses.
     if !parser.expect_token(Signs::new(Signs::RIGHTPARENTHESES)) {
       return Err(Error::from_token(
-        format!("expect `)`, got `{}` instead.", parser.get_current_token().value),
-        parser.get_current_token(),
+        format!("expect `)`, got `{}` instead.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 
     // Check if the next token is a left brace.
     if !parser.expect_token(Signs::new(Signs::LEFTBRACE)) {
       return Err(Error::from_token(
-        format!("expect `{{`, got `{}` instead.", parser.get_current_token().value),
-        parser.get_current_token(),
+        format!("expect `{{`, got `{}` instead.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 

@@ -19,6 +19,7 @@ pub trait Statement {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statements {
   BLOCK(Block),
+  CONTINUEBREAK(ContinueBreak),
   EXPORT(Export),
   EXPRESSION(ExpressionStatement),
   FOR(For),
@@ -34,6 +35,13 @@ impl Statements {
   pub fn get_block(&self) -> Option<Block> {
     match self {
       Statements::BLOCK(block) => Some(block.clone()),
+      _ => None,
+    }
+  }
+
+  pub fn get_continue_break(&self) -> Option<ContinueBreak> {
+    match self {
+      Statements::CONTINUEBREAK(continue_break) => Some(continue_break.clone()),
       _ => None,
     }
   }
@@ -104,6 +112,7 @@ impl Statements {
   pub fn token(&self) -> Token {
     match self {
       Statements::BLOCK(block) => block.get_token(),
+      Statements::CONTINUEBREAK(continue_break) => continue_break.get_token(),
       Statements::EXPORT(export) => export.get_token(),
       Statements::EXPRESSION(expression) => expression.get_token(),
       Statements::FOR(for_s) => for_s.get_token(),
@@ -119,6 +128,7 @@ impl Statements {
   pub fn string(&self) -> String {
     match self {
       Statements::BLOCK(block) => block.string(),
+      Statements::CONTINUEBREAK(continue_break) => continue_break.string(),
       Statements::EXPORT(export) => export.string(),
       Statements::EXPRESSION(exp) => exp.string(),
       Statements::FOR(for_s) => for_s.string(),

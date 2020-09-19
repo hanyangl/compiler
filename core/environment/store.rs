@@ -7,6 +7,8 @@ use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Store {
+  consts: Vec<String>,
+
   objects: HashMap<String, Box<Objects>>,
   types: HashMap<String, TTypes>,
 
@@ -16,6 +18,8 @@ pub struct Store {
 impl Store {
   pub fn new() -> Self {
     Self {
+      consts: Vec::new(),
+
       objects: HashMap::new(),
       types: HashMap::new(),
 
@@ -31,8 +35,16 @@ impl Store {
     store
   }
 
-  pub fn get_outer(&self) -> Option<Box<Store>> {
-    self.outer.clone()
+  pub fn get_consts(&self) -> Vec<String> {
+    self.consts.clone()
+  }
+
+  pub fn has_const(&mut self, name: &String) -> bool {
+    self.consts.contains(name)
+  }
+
+  pub fn set_const(&mut self, name: String) {
+    self.consts.push(name)
   }
 
   pub fn get_object(&self, key: &String) -> Option<Box<Objects>> {
@@ -61,5 +73,9 @@ impl Store {
 
   pub fn set_type(&mut self, key: String, value: TTypes) {
     self.types.insert(key, value);
+  }
+
+  pub fn get_outer(&self) -> Option<Box<Store>> {
+    self.outer.clone()
   }
 }

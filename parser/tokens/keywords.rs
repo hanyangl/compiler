@@ -19,6 +19,8 @@ pub enum Keywords {
   FOR,
   IN,
   OF,
+  CONTINUE,
+  BREAK,
   WHILE,
   DO,
 
@@ -72,6 +74,8 @@ impl Keywords {
       "for" => Ok(Keywords::FOR),
       "in" => Ok(Keywords::IN),
       "of" => Ok(Keywords::OF),
+      "continue" => Ok(Keywords::CONTINUE),
+      "break" => Ok(Keywords::BREAK),
       "while" => Ok(Keywords::WHILE),
       "do" => Ok(Keywords::DO),
 

@@ -159,14 +159,14 @@ pub fn check(
           if let Some(left_identifier) = infix.get_left().get_identifier() {
             // Get the type from the environment.
             if let Some(token) = import_environment.store.get_type(&left_identifier.get_value()) {
-              if let Some(right_identifier) = infix.get_right().get_identifier() {
+              if let Some(right_identifier) = infix.get_right().unwrap().get_identifier() {
                 environment.store.set_type(right_identifier.get_value(), token);
                 continue;
               }
             }
             // Check if the left identifier is an `*`.
             else if left_identifier.get_value() == "*" {
-              if let Some(right_identifier) = infix.get_right().get_identifier() {
+              if let Some(right_identifier) = infix.get_right().unwrap().get_identifier() {
                 environment.store.set_type(right_identifier.get_value(), ttype.clone());
                 continue;
               }

@@ -18,7 +18,9 @@ pub enum Objects {
   ANONYMOUSFUNCTION(AnonymousFunction),
   ARRAY(Array),
   BOOLEAN(Boolean),
+  BREAK(Break),
   BUILTIN(BuiltIn),
+  CONTINUE(Continue),
   ERROR(Error),
   FORIN(ForIn),
   FOROF(ForOf),
@@ -58,9 +60,23 @@ impl Objects {
     }
   }
 
+  pub fn get_break(&self) -> Option<Break> {
+    match self {
+      Objects::BREAK(break_o) => Some(break_o.clone()),
+      _ => None,
+    }
+  }
+
   pub fn get_builtin(&self) -> Option<BuiltIn> {
     match self {
       Objects::BUILTIN(builtin) => Some(builtin.clone()),
+      _ => None,
+    }
+  }
+
+  pub fn get_continue(&self) -> Option<Continue> {
+    match self {
+      Objects::CONTINUE(continue_o) => Some(continue_o.clone()),
       _ => None,
     }
   }
@@ -135,7 +151,9 @@ impl Objects {
       Objects::ANONYMOUSFUNCTION(anonymous_function) => anonymous_function.string(),
       Objects::ARRAY(array) => array.string(),
       Objects::BOOLEAN(boolean) => boolean.string(),
+      Objects::BREAK(break_o) => break_o.string(),
       Objects::BUILTIN(builtin) => builtin.string(),
+      Objects::CONTINUE(continue_o) => continue_o.string(),
       Objects::FORIN(for_in) => for_in.string(),
       Objects::FOROF(for_of) => for_of.string(),
       Objects::HASHMAP(hashmap) => hashmap.string(),

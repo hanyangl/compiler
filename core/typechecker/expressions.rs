@@ -2,9 +2,11 @@ mod anonymous_function;
 mod argument;
 mod array;
 mod call;
+mod for_condition;
 mod hashmap;
 mod infix;
 mod prefix;
+mod suffix;
 
 pub use argument::function_arguments_to_string;
 
@@ -29,8 +31,6 @@ pub fn check_expression(
     return anonymous_function::check(&anonymous_function_exp, environment);
   }
 
-  // Argument
-
   // Array
   if let Some(array_exp) = expression.get_array() {
     return array::check(&array_exp, environment);
@@ -49,6 +49,11 @@ pub fn check_expression(
   // Call
   if let Some(call_exp) = expression.get_call() {
     return call::check(&call_exp, environment);
+  }
+
+  // For Condition
+  if let Some(for_condition_exp) = expression.get_for_condition() {
+    return for_condition::check(&for_condition_exp, environment);
   }
 
   // HashMap
@@ -90,6 +95,11 @@ pub fn check_expression(
   // String
   if let Some(string) = expression.get_string() {
     return Ok(TTypes::new_type(Types::STRING, String::from("string"), string.get_token()));
+  }
+
+  // Suffix
+  if let Some(suffix_exp) = expression.get_suffix() {
+    return suffix::check(&suffix_exp, environment);
   }
 
   // Default

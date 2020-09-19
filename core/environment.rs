@@ -5,9 +5,12 @@ mod store;
 pub use package::Package;
 pub use store::Store;
 
-use sflyn_parser::{run as run_parser, File};
+use sflyn_parser::{
+  run as run_parser,
+  File,
+};
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use super::error::show_error;
 
@@ -17,9 +20,9 @@ pub struct Environment {
 
   pub current_file: Option<File>,
   pub files: Vec<File>,
-  pub packages: HashMap<String, Package>, // Package name + Package data
+  pub packages: BTreeMap<String, Package>,   // Package name + Package data
 
-  pub stdlibs: HashMap<String, File>, // Lib name + Lib file
+  pub stdlibs: BTreeMap<String, File>,       // Lib name + Lib file
 
   pub store: Store,
 }
@@ -31,9 +34,9 @@ impl Environment {
 
       current_file: None,
       files: Vec::new(),
-      packages: HashMap::new(),
+      packages: BTreeMap::new(),
 
-      stdlibs: HashMap::new(),
+      stdlibs: BTreeMap::new(),
 
       store: Store::new(),
     }
@@ -58,6 +61,7 @@ impl Environment {
     match run_parser(path) {
       Ok(stdlib_file) => {
         self.stdlibs.insert(name.to_string(), stdlib_file);
+
         return 0;
       }
       Err((error, file)) => {
@@ -104,6 +108,11 @@ impl Environment {
       return boolean_lib;
     }
 
-    self.load_stdlib(format!("{}std/Array.sf", sflyn_path), "Array")
+    let array_lib = self.load_stdlib(format!("{}std/Array.sf", sflyn_path), "Array");
+    if array_lib != 0 {
+      return array_lib;
+    }
+
+    self.load_stdlib(format!("{}std/range.sf", sflyn_path), "range")
   }
 }

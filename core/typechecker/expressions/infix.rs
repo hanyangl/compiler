@@ -4,6 +4,7 @@ use crate::{
   typechecker::{
     check_expression,
     equal_types,
+    get_ttypes_from_token,
     TTypes,
   },
 };
@@ -15,6 +16,7 @@ use sflyn_parser::{
   tokens::{
     Keywords,
     Signs,
+    Token,
     Types,
   },
 };
@@ -51,6 +53,26 @@ pub fn check(
       Err(error) => {
         return Err(error);
       },
+    }
+
+    if infix.is_variable_set() {
+      let mut name = String::new();
+      let mut token = Token::new_empty();
+
+      if let Some(identifier) = infix.get_left().get_identifier() {
+        name = identifier.get_value();
+        token = identifier.get_token();
+      } else if let Some(array_index) = infix.get_left().get_array_index() {
+        name = array_index.get_token().value;
+        token = array_index.get_token();
+      }
+
+      if environment.store.has_const(&name) {
+        return Err(Error::from_token(
+          format!("`{}` is a const.", name),
+          token,
+        ));
+      }
     }
   } 
 
@@ -106,13 +128,29 @@ pub fn check(
   // Get the right type.
   let right_type: TTypes;
 
-  match check_expression(&infix.get_right(), &mut right_environment) {
-    Ok(token) => {
-      right_type = token;
-    },
-    Err(error) => {
-      return Err(error);
-    },
+  if infix.is_type() {
+    let right_token = infix.get_right_type().unwrap();
+
+    match get_ttypes_from_token(right_token.clone(), right_token.clone()) {
+      Some(token) => {
+        right_type = token;
+      },
+      None => {
+        return Err(Error::from_token(
+          String::from("is not a valid data type."),
+          right_token,
+        ));
+      },
+    }
+  } else {
+    match check_expression(&infix.get_right().unwrap(), &mut right_environment) {
+      Ok(token) => {
+        right_type = token;
+      },
+      Err(error) => {
+        return Err(error);
+      },
+    }
   }
 
   // Check if is a method.
@@ -212,7 +250,7 @@ pub fn check(
 
       return Err(Error::from_token(
         String::from("expect an array expression."),
-        infix.get_right().token(),
+        infix.get_right().unwrap().token(),
       ));
     }
     // Check if the token is 'of'.
@@ -252,9 +290,48 @@ pub fn check(
 
       return Err(Error::from_token(
         String::from("expect an hashmap expression."),
-        infix.get_right().token(),
+        infix.get_right().unwrap().token(),
       ));
     }
+  }
+  // Check if is a type.
+  else if infix.is_type() {
+    return Ok(TTypes::new_type(Types::BOOLEAN, String::from("boolean"), infix.get_token()));
+  }
+  // Check if is a variable set.
+  else if infix.is_variable_set() && left_type.is_some() {
+    let left_type: TTypes = left_type.unwrap();
+
+    if (
+      infix.get_token().token.expect_sign(&Signs::MINUSASSIGN) ||
+      infix.get_token().token.expect_sign(&Signs::MULTIPLYASSIGN) ||
+      infix.get_token().token.expect_sign(&Signs::DIVIDEASSIGN)
+    ) && left_type.get_type() != Types::NUMBER {
+      return Err(Error::from_token(
+        format!("`{}` is not a number.", infix.get_left().string()),
+        infix.get_left().token(),
+      ));
+    } else if infix.get_token().token.expect_sign(&Signs::PLUSASSIGN) &&
+      left_type.get_type() != Types::NUMBER &&
+      left_type.get_type() != Types::STRING {
+      return Err(Error::from_token(
+        format!("`{}` is not a number or a string.", infix.get_left().string()),
+        infix.get_left().token(),
+      ));
+    }
+
+    if equal_types(left_type.get_type(), right_type.get_type()) {
+      return Ok(right_type);
+    }
+
+    return Err(Error::from_token(
+      format!(
+        "`{}` not satisfied the `{}` data type.",
+        infix.get_right().unwrap().string(),
+        left_type.get_value(),
+      ),
+      infix.get_right().unwrap().token(),
+    ));
   }
 
   Err(Error::from_token(

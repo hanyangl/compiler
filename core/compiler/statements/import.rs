@@ -140,14 +140,14 @@ pub fn evaluate(
           if let Some(left_identifier) = infix.get_left().get_identifier() {
             // Get the object from the environment.
             if let Some(env_obj) = import_environment.store.get_object(&left_identifier.get_value()) {
-              if let Some(right_identifier) = infix.get_right().get_identifier() {
+              if let Some(right_identifier) = infix.get_right().unwrap().get_identifier() {
                 environment.store.set_object(right_identifier.get_value(), env_obj);
                 continue;
               }
             }
             // Check if the left identifier is an `*`.
             else if left_identifier.get_value() == "*" {
-              if let Some(right_identifier) = infix.get_right().get_identifier() {
+              if let Some(right_identifier) = infix.get_right().unwrap().get_identifier() {
                 environment.store.set_object(right_identifier.get_value(), HashMap::new(exports_items.clone()));
                 continue;
               }
