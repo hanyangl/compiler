@@ -121,14 +121,8 @@ impl Function {
       },
     }
 
-    // Check if the current token is a right parentheses.
-    if parser.current_token_is(Signs::new(Signs::RIGHTPARENTHESES)) {
-      // Get the next token.
-      parser.next_token();
-    }
-
     // Check if the current token is a colon.
-    if parser.current_token_is(Signs::new(Signs::COLON)) {
+    if parser.expect_token(Signs::new(Signs::COLON)) {
       // Get the next token.
       parser.next_token();
 
@@ -150,8 +144,8 @@ impl Function {
     // Check if the next token is a left brace.
     if !parser.expect_token(Signs::new(Signs::LEFTBRACE)) {
       return Err(Error::from_token(
-        format!("expect `{{`, got `{}` instead.", parser.get_current_token().value),
-        parser.get_current_token(),
+        format!("expect `{{`, got `{}` instead.", parser.get_next_token().value),
+        parser.get_next_token(),
       ));
     }
 
