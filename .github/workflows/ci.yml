@@ -1,6 +1,12 @@
 name: Rust CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
@@ -26,11 +32,37 @@ jobs:
       - name: Test release
         run: cargo test --release --locked --all-targets
 
+      - name: Run examples
+        if: startsWith(matrix.os, 'ubuntu')
+        env:
+          SFLYN_PATH: ./
+        run: |
+          echo "For examples"
+          cargo run ./examples/for/array.sf
+          cargo run ./examples/for/hashmap.sf
+          echo "Functions examples"
+          cargo run ./examples/functions/callback.sf
+          cargo run ./examples/functions/double.sf
+          cargo run ./examples/functions/less_or_greater.sf
+          cargo run ./examples/functions/say_hi.sf
+          echo "Interfaces examples"
+          cargo run ./examples/interfaces/label.sf
+          echo "Modules examples"
+          cargo run ./examples/modules/basic/index.sf
+          echo "Variables examples"
+          cargo run ./examples/variables/arrays.sf
+          cargo run ./examples/variables/booleans.sf
+          cargo run ./examples/variables/const.sf
+          cargo run ./examples/variables/numbers.sf
+          cargo run ./examples/variables/strings.sf
+          echo "Hello world example"
+          cargo run ./examples/hello_world.sf
+
       - name: Create source code (Linux)
         if: |
           startsWith(matrix.os, 'ubuntu') &&
           github.repository == 'sflynlang/compiler' &&
-          startsWith(github.ref, 'refs/tags/v')
+          startsWith(github.ref, 'refs/tags/')
         run: |
           mkdir -p target/release
           zip -r target/release/sflyn-src.zip std/* LICENSE README.md
@@ -55,7 +87,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: |
           github.repository == 'sflynlang/compiler' &&
-          startsWith(github.ref, 'refs/tags/v')
+          startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
