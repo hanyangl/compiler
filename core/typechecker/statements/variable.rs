@@ -39,6 +39,17 @@ pub fn check(
           environment.store.set_type(variable.get_name().value, token.clone());
           return Ok(token);
         } else if let Some(ttype) = data_type.token.get_type() {
+          if token.is_array() && token.get_value() == "any" && ttype.get_array().is_some() {
+            let new_token: TTypes = TTypes::new_array(
+              ttype,
+              data_type.value.clone(),
+              data_type,
+            );
+
+            environment.store.set_type(variable.get_name().value, new_token.clone());
+            return Ok(new_token);
+          }
+
           if equal_types(ttype, token.get_type()) || token.get_value() == "any" {
             environment.store.set_type(variable.get_name().value, token.clone());
             return Ok(token);

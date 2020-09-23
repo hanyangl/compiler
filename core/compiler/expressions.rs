@@ -1,4 +1,5 @@
 mod call;
+mod for_condition;
 mod hashmap;
 mod infix;
 mod prefix;
@@ -23,6 +24,7 @@ use sflyn_parser::{
   Expression,
   Expressions,
   Identifier,
+  tokens::Signs,
 };
 
 pub fn evaluate_expressions(
@@ -64,7 +66,7 @@ pub fn evaluate_expression(
       anonymous_function.get_arguments(),
       anonymous_function.get_type(),
       anonymous_function.get_body(),
-      environment.store.clone(),
+      &environment.store,
     );
 
     return object;
@@ -134,7 +136,7 @@ pub fn evaluate_expression(
       let value = index_obj.get_number().unwrap().string();
 
       if value == "-1" {
-        index = elements.len() - 1;
+        index = if elements.len() > 0 { elements.len() - 1 } else { 0 };
       } else {
         index = value.parse().unwrap();
       }
@@ -157,6 +159,11 @@ pub fn evaluate_expression(
     return call::evaluate(call, environment);
   }
 
+  // For condition
+  if let Some(for_condition_exp) = expression.get_for_condition() {
+    return for_condition::evaluate(&for_condition_exp, environment);
+  }
+
   // HashMap
   if let Some(hashmap_exp) = expression.get_hashmap() {
     return hashmap::evaluate(hashmap_exp, environment);
@@ -164,10 +171,11 @@ pub fn evaluate_expression(
 
   // Identifier
   if let Some(identifier) = expression.get_identifier() {
-    return match environment.store.get_object(&identifier.get_value()) {
-      Some(object) => object.clone(),
-      None => get_builtin_for_identifier(identifier.get_token()),
-    };
+    if let Some(obj) = environment.store.get_object(&identifier.get_value()) {
+      return obj.clone();
+    }
+
+    return get_builtin_for_identifier(identifier.get_token());
   }
 
   // Infix
@@ -195,9 +203,38 @@ pub fn evaluate_expression(
     return StringO::new(string.get_value()[1..string.get_value().len() - 1].to_string());
   }
 
+  // Suffix
+  if let Some(suffix) = expression.get_suffix() {
+    let mut left_obj = evaluate_expression(&suffix.get_left(), environment);
+
+    if left_obj.get_error().is_some() {
+      return left_obj;
+    }
+
+    if let Some(return_obj) = left_obj.get_return() {
+      left_obj = return_obj.get_value();
+    }
+
+    if suffix.get_token().token.expect_sign(&Signs::PLUSPLUS) ||
+      suffix.get_token().token.expect_sign(&Signs::MINUSMINUS) {
+      if let Some(number_obj) = left_obj.get_number() {
+        if suffix.get_token().token.expect_sign(&Signs::MINUSMINUS) {
+          return Number::new(number_obj.get_value() - 1.0);
+        }
+
+        return Number::new(number_obj.get_value() + 1.0);
+      }
+
+      return Error::new(
+        format!("`{}` is not a valid number.", suffix.get_left().string()),
+        suffix.get_left().token(),
+      );
+    }
+  }
+
   // Default
   Error::new(
-    String::from("is not a valid expression."),
+    format!("`{}` is not a valid expression.", expression.string()),
     expression.token(),
   )
 }

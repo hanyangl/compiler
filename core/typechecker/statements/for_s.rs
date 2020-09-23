@@ -26,7 +26,7 @@ pub fn check(
 ) -> Result<TTypes, Error> {
   let mut for_environment: Environment = environment.clone();
 
-  for_environment.store = Store::from_store(environment.store.clone());
+  for_environment.store = Store::from_store(&environment.store);
 
   match check_expression(&for_s.get_condition(), &mut for_environment) {
     Ok(obj) => {

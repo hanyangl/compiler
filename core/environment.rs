@@ -24,7 +24,7 @@ pub struct Environment {
 
   pub stdlibs: BTreeMap<String, File>,       // Lib name + Lib file
 
-  pub store: Store,
+  pub store: Box<Store>,
 }
 
 impl Environment {
@@ -38,7 +38,7 @@ impl Environment {
 
       stdlibs: BTreeMap::new(),
 
-      store: Store::new(),
+      store: Store::new_box(),
     }
   }
 

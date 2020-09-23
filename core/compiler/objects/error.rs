@@ -19,7 +19,7 @@ impl Error {
   }
 
   pub fn string(&self, file: File) -> String {
-    if self.token.line < 1 {
+    if self.token.line < 1 || self.token.line > file.get_lines().len() {
       return self.message.clone();
     }
 

@@ -78,7 +78,7 @@ pub fn check(
   let mut import_environment = environment.clone();
 
   // Set a new store from the current environment store.
-  import_environment.store = Store::from_store(import_environment.store.clone());
+  import_environment.store = Store::from_store(&import_environment.store);
 
   // Parse and compile the file imported.
   run_file(new_path.clone(), &mut import_environment, true, false, false);

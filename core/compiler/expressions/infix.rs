@@ -74,7 +74,7 @@ pub fn evaluate(
   let mut right_environment = environment.clone();
 
   // Set the new store.
-  right_environment.store = Store::from_store(environment.store.clone());
+  right_environment.store = Store::from_store(&environment.store);
 
   // Check if the infix is a method.
   if infix.is_method() && left_object.clone().is_some() {
@@ -100,7 +100,6 @@ pub fn evaluate(
     }
 
     if !name.is_empty() {
-      // Get the object from the environment.
       if let Some(obj) = environment.store.get_object(&name.to_string()) {
         if let Some(hashmap) = obj.get_hashmap() {
           // Set the data keys to the new environment.
@@ -182,14 +181,53 @@ pub fn evaluate(
       ) {
         return StringO::new(left_object.string());
       }
-      // Check if the method is 'length' in a string.
-      else if right_token.value == "length" && left_object.get_string().is_some() {
-        return Number::new(
-          left_object
-            .get_string().unwrap()
-            .get_value().len()
-            .to_string().parse().unwrap()
-        );
+      // Check if the method is 'length' in a string or an array.
+      else if right_token.value == "length" {
+        if let Some(string_obj) = left_object.get_string() {
+          return Number::new(
+            string_obj
+              .get_value().len()
+              .to_string().parse().unwrap()
+          );
+        } else if let Some(array_obj) = left_object.get_array() {
+          return Number::new(
+            array_obj
+              .get_elements().len()
+              .to_string().parse().unwrap()
+          );
+        }
+      }
+      // Check if the method is 'push' in an array.
+      else if right_token.value == "push" && left_object.get_array().is_some() {
+        let mut array = left_object.get_array().unwrap();
+
+        if let Some(call) = infix.get_right().unwrap().get_call() {
+          let mut obj: Box<Objects> = evaluate_expression(
+            &call.get_arguments()[0].clone(),
+            environment,
+          );
+
+          if obj.get_error().is_some() {
+            return obj;
+          }
+
+          if let Some(return_o) = obj.get_return() {
+            obj = return_o.get_value();
+          }
+
+          array.add_element(&obj);
+
+          let array_box = Box::new(Objects::ARRAY(array));
+
+          if let Some(identifier) = infix.get_left().get_identifier() {
+            environment.store.replace_object(
+              &identifier.get_value(),
+              array_box.clone(),
+            );
+          }
+
+          return array_box;
+        }
       }
 
       return right_object;
@@ -325,27 +363,34 @@ pub fn evaluate(
     else if infix.is_variable_set() && left_object.is_some() {
       if infix.get_token().token.expect_sign(&Signs::ASSIGN) {
         if let Some(identifier) = infix.get_left().get_identifier() {
-          environment.store.set_object(identifier.get_value(), right_object.clone());
+          environment.store.replace_object(
+            &identifier.get_value(),
+            right_object.clone(),
+          );
+
           return right_object;
         } else if let Some(array_index) = infix.get_left().get_array_index() {
           if let Some(env_obj) = environment.store.get_object(&array_index.get_token().value) {
             if let Some(array_obj) = env_obj.get_array() {
+              let mut array_obj: Array = array_obj.clone();
               let mut index: usize = 0;
-              let mut elements: Vec<Box<Objects>> = array_obj.get_elements();
 
               if let Some(number) = array_index.get_index().get_number() {
                 index = number.string().parse().unwrap();
               } else if let Some(prefix) = array_index.get_index().get_prefix() {
                 if prefix.string() == "-1" {
-                  index = elements.len() - 1;
+                  index = array_obj.get_elements().len() - 1;
                 }
               }
 
-              elements[index] = right_object;
+              array_obj.replace_element(index, &right_object);
 
-              let new_array = Array::new(elements);
+              let new_array = Box::new(Objects::ARRAY(array_obj));
 
-              environment.store.set_object(array_index.get_token().value, new_array.clone());
+              environment.store.replace_object(
+                &array_index.get_token().value,
+                new_array.clone(),
+              );
 
               return new_array;
             }
@@ -369,27 +414,34 @@ pub fn evaluate(
           let new_object = Number::new(value);
 
           if let Some(identifier) = infix.get_left().get_identifier() {
-            environment.store.set_object(identifier.get_value(), new_object.clone());
+            environment.store.replace_object(
+              &identifier.get_value(),
+              new_object.clone(),
+            );
+
             return new_object;
           } else if let Some(array_index) = infix.get_left().get_array_index() {
             if let Some(env_obj) = environment.store.get_object(&array_index.get_token().value) {
               if let Some(array_obj) = env_obj.get_array() {
+                let mut array_obj: Array = array_obj.clone();
                 let mut index: usize = 0;
-                let mut elements: Vec<Box<Objects>> = array_obj.get_elements();
 
                 if let Some(number) = array_index.get_index().get_number() {
                   index = number.string().parse().unwrap();
                 } else if let Some(prefix) = array_index.get_index().get_prefix() {
                   if prefix.string() == "-1" {
-                    index = elements.len() - 1;
+                    index = array_obj.get_elements().len() - 1;
                   }
                 }
 
-                elements[index] = new_object;
+                array_obj.replace_element(index, &new_object);
 
-                let new_array = Array::new(elements);
+                let new_array = Box::new(Objects::ARRAY(array_obj));
 
-                environment.store.set_object(array_index.get_token().value, new_array.clone());
+                environment.store.replace_object(
+                  &array_index.get_token().value,
+                  new_array.clone(),
+                );
 
                 return new_array;
               }
@@ -410,22 +462,25 @@ pub fn evaluate(
           } else if let Some(array_index) = infix.get_left().get_array_index() {
             if let Some(env_obj) = environment.store.get_object(&array_index.get_token().value) {
               if let Some(array_obj) = env_obj.get_array() {
+                let mut array_obj: Array = array_obj.clone();
                 let mut index: usize = 0;
-                let mut elements: Vec<Box<Objects>> = array_obj.get_elements();
 
                 if let Some(number) = array_index.get_index().get_number() {
                   index = number.string().parse().unwrap();
                 } else if let Some(prefix) = array_index.get_index().get_prefix() {
                   if prefix.string() == "-1" {
-                    index = elements.len() - 1;
+                    index = array_obj.get_elements().len() - 1;
                   }
                 }
 
-                elements[index] = new_object;
+                array_obj.replace_element(index, &new_object);
 
-                let new_array = Array::new(elements);
+                let new_array = Box::new(Objects::ARRAY(array_obj));
 
-                environment.store.set_object(array_index.get_token().value, new_array.clone());
+                environment.store.replace_object(
+                  &array_index.get_token().value,
+                  new_array.clone(),
+                );
 
                 return new_array;
               }

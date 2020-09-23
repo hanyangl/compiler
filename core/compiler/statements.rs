@@ -70,7 +70,7 @@ pub fn evaluate_statement(
   if let Some(for_s) = statement.get_for() {
     let mut for_environment: Environment = environment.clone();
 
-    for_environment.store = Store::from_store(for_environment.store.clone());
+    for_environment.store = Store::from_store(&for_environment.store);
 
     let condition_obj = evaluate_expression(&for_s.get_condition(), &mut for_environment);
 
@@ -81,7 +81,9 @@ pub fn evaluate_statement(
     if let Some(for_in) = condition_obj.get_for_in() {
       if for_in.get_elements().len() > 0 {
         for obj in for_in.get_elements().iter() {
-          let mut new_environment = for_environment.clone();
+          let mut new_environment: Environment = environment.clone();
+
+          new_environment.store = Store::from_store(&new_environment.store);
 
           new_environment.store.set_object(for_in.get_name(), obj.clone());
 
@@ -98,12 +100,20 @@ pub fn evaluate_statement(
               break;
             }
           }
+
+          new_environment.store.delete_object(&for_in.get_name());
+
+          if let Some(outer) = new_environment.store.get_outer() {
+            environment.store = outer;
+          }
         }
       }
     } else if let Some(for_of) = condition_obj.get_for_of() {
       if for_of.get_names().len() == 2 {
         for item in for_of.get_data().iter() {
-          let mut new_environment = for_environment.clone();
+          let mut new_environment: Environment = environment.clone();
+
+          new_environment.store = Store::from_store(&environment.store);
 
           new_environment.store.set_object(
             for_of.get_names()[0].clone(),
@@ -128,6 +138,10 @@ pub fn evaluate_statement(
               break;
             }
           }
+
+          if let Some(outer) = new_environment.store.get_outer() {
+            environment.store = outer.clone();
+          }
         }
       }
     }
@@ -145,7 +159,7 @@ pub fn evaluate_statement(
       function.get_arguments(),
       function.get_type(),
       function.get_body(),
-      environment.store.clone(),
+      &environment.store,
     );
 
     // Add function object to the environment.

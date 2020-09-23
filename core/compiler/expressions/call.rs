@@ -46,7 +46,7 @@ pub fn evaluate(
 
     let mut function_environment = environment.clone();
 
-    function_environment.store = Store::from_store(anonymous_function.store);
+    function_environment.store = Store::from_store(&anonymous_function.store);
 
     // Add call arguments to the function environment.
     for argument in arguments {

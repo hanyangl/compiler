@@ -27,12 +27,16 @@ impl Store {
     }
   }
 
-  pub fn from_store(outer: Store) -> Self {
+  pub fn new_box() -> Box<Self> {
+    Box::new(Self::new())
+  }
+
+  pub fn from_store(outer: &Store) -> Box<Self> {
     let mut store: Self = Self::new();
 
-    store.outer = Some(Box::new(outer));
+    store.outer = Some(Box::new(outer.clone()));
 
-    store
+    Box::new(store)
   }
 
   pub fn get_consts(&self) -> Vec<String> {
@@ -47,6 +51,17 @@ impl Store {
     self.consts.push(name)
   }
 
+  pub fn has_object(&self, key: &String) -> bool {
+    self.objects.contains_key(key)
+  }
+
+  pub fn is_in_outer(&self, key: &String) -> bool {
+    match self.get_outer() {
+      Some(outer) => if outer.has_object(key) { true } else { outer.is_in_outer(key) },
+      None => false,
+    }
+  }
+
   pub fn get_object(&self, key: &String) -> Option<Box<Objects>> {
     match self.objects.get(key) {
       Some(object) => Some(object.clone()),
@@ -59,6 +74,21 @@ impl Store {
 
   pub fn set_object(&mut self, key: String, value: Box<Objects>) {
     self.objects.insert(key, value);
+  }
+
+  pub fn delete_object(&mut self, key: &String) -> Option<Box<Objects>> {
+    self.objects.remove(key)
+  }
+
+  pub fn replace_object(&mut self, key: &String, new_value: Box<Objects>) {
+    if self.has_object(key) {
+      self.delete_object(key);
+      self.set_object(key.clone(), new_value);
+    } else if let Some(outer) = self.get_outer().as_mut() {
+      outer.replace_object(key, new_value);
+
+      self.outer = Some(outer.clone());
+    }
   }
 
   pub fn get_type(&self, key: &String) -> Option<TTypes> {

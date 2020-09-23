@@ -31,7 +31,7 @@ pub fn check(
   // Create a new closed environment.
   let mut function_environment: Environment = environment.clone();
 
-  function_environment.store = Store::from_store(environment.store.clone());
+  function_environment.store = Store::from_store(&environment.store);
 
   let arguments: Vec<String>;
 

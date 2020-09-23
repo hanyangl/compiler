@@ -24,7 +24,7 @@ pub fn check(
   environment: &mut Environment,
 ) -> Result<TTypes, Error> {
   if array.get_data().len() == 0 {
-    return Ok(TTypes::new_type(
+    return Ok(TTypes::new_array(
       Types::ARRAY(ArrayType::from_value("null[]").unwrap()),
       String::from("any"),
       array.get_token(),

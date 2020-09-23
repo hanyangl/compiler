@@ -79,7 +79,7 @@ pub fn check(
   // Create a new environment.
   let mut right_environment = environment.clone();
 
-  right_environment.store = Store::from_store(environment.store.clone());
+  right_environment.store = Store::from_store(&environment.store);
 
   // Check if is a method.
   if infix.is_method() && left_type.clone().is_some() {
@@ -319,8 +319,9 @@ pub fn check(
         infix.get_left().token(),
       ));
     }
-
-    if equal_types(left_type.get_type(), right_type.get_type()) {
+    
+    if equal_types(left_type.get_type(), right_type.get_type()) ||
+      left_type.get_value() == "any" {
       return Ok(right_type);
     }
 

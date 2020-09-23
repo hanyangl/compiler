@@ -23,7 +23,7 @@ pub struct AnonymousFunction {
   pub arguments: Vec<Box<Expressions>>,
   pub data_type: Token,
   pub body: Box<Statements>,
-  pub store: Store,
+  pub store: Box<Store>,
 }
 
 impl Object for AnonymousFunction {
@@ -75,14 +75,14 @@ impl AnonymousFunction {
     arguments: Vec<Box<Expressions>>,
     data_type: Token,
     body: Box<Statements>,
-    store: Store,
+    store: &Box<Store>,
   ) -> Box<Objects> {
     Box::new(Objects::ANONYMOUSFUNCTION(AnonymousFunction {
       has_function,
       arguments,
       data_type,
       body,
-      store,
+      store: store.clone(),
     }))
   }
 }

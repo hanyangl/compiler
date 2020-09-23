@@ -20,12 +20,12 @@ pub fn run(
 
   // Evaluate stdlib.
   if environment.stdlibs.len() > 0 && with_stdlib {
-    for (name, file) in environment.stdlibs.clone().iter() {
-      if name == "builtins" || file.statements.len() == 0 {
+    for (name, std_file) in environment.stdlibs.clone().iter() {
+      if name == "builtins" || std_file.statements.len() == 0 {
         continue;
       }
 
-      for statement in file.statements.iter() {
+      for statement in std_file.statements.iter() {
         // Evaluate the statement.
         if let Some(object) = evaluate_statement(statement, environment) {
           // Check if the object is an error.
@@ -33,7 +33,7 @@ pub fn run(
             println!(
               "{}{}",
               if showed { "\n" } else { "" },
-              error.string(file.clone())
+              error.string(std_file.clone())
             );
 
             showed = true;
