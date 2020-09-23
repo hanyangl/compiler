@@ -1,4 +1,4 @@
-# Sflyn Compiler
+# Sflynlang Rust Compiler
 ![Build State](https://img.shields.io/github/workflow/status/sflynlang/compiler/Rust%20CI)
 ![Last Release](https://img.shields.io/github/v/release/sflynlang/compiler)
 
@@ -11,20 +11,16 @@
 ![Downloads](https://img.shields.io/github/downloads/sflynlang/compiler/total)
 ![Code Size](https://img.shields.io/github/languages/code-size/sflynlang/compiler)
 
-Compiler for the **Sflyn** programming language.
+Compiler written in Rustlang for **Sflynlang** programming language.
 
-## [Discord Server](https://discord.gg/zkTMFSr)
+## [Versions](https://github.com/sflynlang/compiler/releases)
 
-## Sflyn path
-You need set the root directory in the `SFLYN_PATH` environment variable. In this directory you need put the standard library in a directory called `std`. For example, if you `SFLYN_PATH` is `/home/sflyn/.sflyn/`, the standard library must be in `/home/sflyn/.sflyn/std/`.
+## [Code of Conduct](./CODE_OF_CONDUCT.md)
 
-## Testing examples files
-You must have the `SFLYN_PATH` configured, then run the following command:
+## [Official Discord Server](https://discord.gg/zkTMFSr)
 
-```sh
-cargo run (file path)
+## [Documentation](https://github.com/sflynlang/docs)
 
-# Examples
-cargo run ./examples/hello_world.sf
-cargo run ./examples/variables/let_types.sf
-```
+## [How to Contribute](./CONTRIBUTING.md)
+
+## [License](./LICENSE)
