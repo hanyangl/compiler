@@ -2,7 +2,7 @@
 
 There are some guidelines which everyone should follow while contributing to **Sflynlang** project.
 
-Remember, if you need more help can join to our [Official Discord Server](https://discord.gg/zkTMFSr).
+Remember, if you need more help can join to our [Official Discord Server](https://discord.gg/XdeRFHt).
 
 ## Steps if you wish to contribute to Sflynlang:
 1. Go through the [Issues](https://github.com/sflynlang/compiler/issues) to see if what you want is already in discussion. (**NOTE** If you are using **GitHub CLI** can run `gh issue view -R sflynlang/compiler`. [See more](https://cli.github.com/manual/gh_issue_view))
@@ -20,11 +20,6 @@ Remember, if you need more help can join to our [Official Discord Server](https:
 7. That's it! Your pull request will be merged once everything seems okay.
 
 **Watch this video if you are new in GitHub** [YouTube Video](https://youtu.be/HbSjyU2vf6Y)
-
-## Pre-requisites
-* [Rustlang](https://www.rust-lang.org/)
-* [Rustup](https://rustup.rs/)
-* [Rustlang VS Code Extension (Optional)](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust)
 
 ## How to work in this project if you are not a member
 
@@ -78,6 +73,8 @@ After pushing the changes to your forked repository (**your-username/compiler**)
 Give a detailed and useful explaination of what you did in the comments of your pull requests and someone from the maintainers or team leads will review the code and accept the pull request or ask you to change some things before merging it.
 
 > NOTE: If you are using **GitHub CLI** can run `gh pr create --title "feature/fix: Title" --body "Pull request message"` or `gh pr create`. ([See more](https://cli.github.com/manual/gh_pr_create))
+
+You can use our pull request template ([view here](./.github/PULL_REQUEST_TEMPLATE.md)).
 
 **How to create a Pull Request?** [YouTube Video](https://youtu.be/HbSjyU2vf6Y?t=297)
 
