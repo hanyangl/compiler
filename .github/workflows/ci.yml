@@ -1,6 +1,17 @@
 name: Rust CI
 
-on: [push, pull_request]
+on:
+  pull_request:
+    paths:
+      - '**.rs'
+      - '**.toml'
+      - '.github/workflows/ci.yml'
+  push:
+    branches: [master]
+    paths:
+      - '**.rs'
+      - '**.toml'
+      - '.github/workflows/ci.yml'
 
 jobs:
   build:
@@ -26,42 +37,28 @@ jobs:
       - name: Test release
         run: cargo test --release --locked --all-targets
 
-      - name: Create source code (Linux)
-        if: |
-          startsWith(matrix.os, 'ubuntu') &&
-          github.repository == 'sflynlang/compiler' &&
-          startsWith(github.ref, 'refs/tags/v')
-        run: |
-          mkdir -p target/release
-          zip -r target/release/sflyn-src.zip std/* LICENSE README.md
-
-      - name: Pre-release (Linux)
+      - name: Run examples
         if: startsWith(matrix.os, 'ubuntu')
-        run: |
-          cd target/release
-          zip -r sflyn-x86_64-unknown-linux-gnu.zip sflyn
-
-      - name: Pre-release (Windows)
-        if: startsWith(matrix.os, 'windows')
-        run: Compress-Archive -CompressionLevel Optimal -Force -Path target/release/sflyn.exe -DestinationPath target/release/sflyn-x86_64-pc-windows-msvc.zip
-
-      - name: Pre-release (MacOS)
-        if: startsWith(matrix.os, 'macOS')
-        run: |
-          cd target/release
-          zip -r sflyn-x86_64-apple-darwin.zip sflyn
-
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: |
-          github.repository == 'sflynlang/compiler' &&
-          startsWith(github.ref, 'refs/tags/v')
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: |
-            target/release/sflyn-src.zip
-            target/release/sflyn-x86_64-unknown-linux-gnu.zip
-            target/release/sflyn-x86_64-pc-windows-msvc.zip
-            target/release/sflyn-x86_64-apple-darwin.zip
-          draft: true
+          SFLYN_PATH: ./
+        run: |
+          echo "For examples"
+          cargo run ./examples/for/array.sf
+          cargo run ./examples/for/hashmap.sf
+          echo "Functions examples"
+          cargo run ./examples/functions/callback.sf
+          cargo run ./examples/functions/double.sf
+          cargo run ./examples/functions/less_or_greater.sf
+          cargo run ./examples/functions/say_hi.sf
+          echo "Interfaces examples"
+          cargo run ./examples/interfaces/label.sf
+          echo "Modules examples"
+          cargo run ./examples/modules/basic/index.sf
+          echo "Variables examples"
+          cargo run ./examples/variables/arrays.sf
+          cargo run ./examples/variables/booleans.sf
+          cargo run ./examples/variables/const.sf
+          cargo run ./examples/variables/numbers.sf
+          cargo run ./examples/variables/strings.sf
+          echo "Hello world example"
+          cargo run ./examples/hello_world.sf
