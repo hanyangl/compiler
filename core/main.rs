@@ -1,5 +1,5 @@
 
 #[cfg(not(test))]
 pub fn main() {
-  std::process::exit(sflyn::program::start());
+  std::process::exit(sflynlang::program::start());
 }
