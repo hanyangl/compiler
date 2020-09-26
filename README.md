@@ -4,7 +4,7 @@
 ![Last Release](https://img.shields.io/github/v/release/sflynlang/compiler)
 ![Downloads](https://img.shields.io/github/downloads/sflynlang/compiler/total)
 
-Compiler written in Rustlang for Sflynlang programming language.
+This repository contains source code for the compiler written in Rustlang for Sflynlang.
 
 ## What is Sflynlang?
 Sflynlang is a multiparadigm and cross-platform programming language. The principal focus is have a programming language like TypeScript but natively on the browser or more applications; the syntax pretends be easier and familiar to everyone.
@@ -43,7 +43,7 @@ Sflynlang is a multiparadigm and cross-platform programming language. The princi
 Please read the [Contribution Guidelines](./CONTRIBUTING.md) and [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## Changelog
-View the recent changes on [CHANGELOG.md](./CHANGELOG.md)
+View the latest changes on [CHANGELOG.md](./CHANGELOG.md)
 
 ## Getting Started
 To begin coding in Sflyn, you can build your first `Hello world!`:
@@ -54,7 +54,11 @@ To begin coding in Sflyn, you can build your first `Hello world!`:
 print('Hello World!');
 ```
 
-2. To run the file, use the following command: `sflyn /path/to/index.sf` and it prints a `Hello world!`.
+2. To run the file, use the following command:
+```bash
+$ sflyn /path/to/index.sf
+# Output: Hello world!
+```
 
 3. Amazing! You have created your first code in Sflyn.
 
@@ -94,7 +98,7 @@ You can find more about how to works Sflynlang and its syntax on our [wiki](http
 * **Maria Antonella** - Icon Design - [Instagram](https://www.instagram.com/raccon_324/)
 * **LemonCod3** - Emotional Support - [GitHub Organization](https://github.com/LemonCod3)
 
-You can also view the [list of contributors](https://github.com/sflynlang/compiler/contributors).
+You can also view the [list of contributors](https://github.com/sflynlang/compiler/contributors) here.
 
 ## Licensing
 This project is under the MIT License. See the [LICENSE](./LICENSE) file for more information.
