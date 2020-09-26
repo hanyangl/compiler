@@ -7,7 +7,8 @@ on:
       - '**.toml'
       - '.github/workflows/ci.yml'
   push:
-    branches: [master]
+    branches:
+      - main
     paths:
       - '**.rs'
       - '**.toml'
@@ -20,7 +21,10 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macOS-latest
 
     steps:
       - name: Install Rust
