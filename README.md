@@ -4,10 +4,10 @@
 ![Last Release](https://img.shields.io/github/v/release/sflynlang/compiler)
 ![Downloads](https://img.shields.io/github/downloads/sflynlang/compiler/total)
 
-This repository contains source code for the compiler written in Rustlang for Sflynlang.
+This repository contains source code for the Sflynlang compiler. It is written in Rustlang.
 
 ## What is Sflynlang?
-Sflynlang is a multiparadigm and cross-platform programming language. The principal focus is have a programming language like TypeScript but natively on the browser or more applications; the syntax pretends be easier and familiar to everyone.
+Sflynlang is a multiparadigm and cross-platform programming language. The principal focus is to have syntax like TypeScript but natively on the browser or more applications; the syntax strives be easier and familiar to everyone.
 
 ## Pre-requisites
 * [Rustlang](https://www.rust-lang.org/)
@@ -23,30 +23,30 @@ Sflynlang is a multiparadigm and cross-platform programming language. The princi
 * Windows: `sflyn-x86_64-pc-windows-msvc.zip`
 * MacOS: `sflyn-x86_64-apple-darwin.zip`
 
-3. Download the STD library and the rest of dependencies (`sflyn-src.zip` file)
+3. Download the STD library and the rest of dependencies (the `sflyn-src.zip` file)
 
-4. Extract the `sflyn-src.zip` in `C:/sflynlang`, `$HOME/sflynlang` or wherever you want.
+4. Extract the `sflyn-src.zip` to `C:/sflynlang`, `$HOME/sflynlang`, or a directory of your choice.
 
-5. Set the path with the STD as `SFLYN_PATH` to the environment.
+5. Set the path with the STD as `SFLYN_PATH` in your the environment.
 
 > Example: `export SFLYN_PATH=$HOME/sflynlang`.
 
 6. Add the sflynlang compiler binary file to `SFLYN_PATH/bin/`.
 
-7. Set the executable path to the path environment.
+7. Set the executable path in your environment's PATH.
 
 > Example: `export PATH=$PATH:$HOME/sflynlang/bin`.
 
 8. Now you can run Sflyn code! See [Getting Started](#Getting-Started).
 
 ## How to Contribute
-Please read the [Contribution Guidelines](./CONTRIBUTING.md) and [Code of Conduct](./CODE_OF_CONDUCT.md).
+Please read the [Contribution Guidelines](./CONTRIBUTING.md) and [Code of Conduct](./CODE_OF_CONDUCT.md) before contributing.
 
 ## Changelog
 View the latest changes on [CHANGELOG.md](./CHANGELOG.md)
 
 ## Getting Started
-To begin coding in Sflyn, you can build your first `Hello world!`:
+To start coding in Sflyn, you can build your first `Hello world!` program:
 
 1. Create a new file called `index.sf` and append to it the following lines:
 
@@ -60,7 +60,7 @@ $ sflyn /path/to/index.sf
 # Output: Hello world!
 ```
 
-3. Amazing! You have created your first code in Sflyn.
+3. Congratulations! You have created your first code in Sflyn.
 
 ## Wiki
 You can find more about how to works Sflynlang and its syntax on our [wiki](https://github.com/sflynlang/compiler/wiki).
@@ -101,4 +101,4 @@ You can find more about how to works Sflynlang and its syntax on our [wiki](http
 You can also view the [list of contributors](https://github.com/sflynlang/compiler/contributors) here.
 
 ## Licensing
-This project is under the MIT License. See the [LICENSE](./LICENSE) file for more information.
+This project is under the MIT License. Please see the [LICENSE](./LICENSE) file for more information.
